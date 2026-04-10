@@ -1,0 +1,4 @@
+{
+  "name": "svelte-5-migration",
+  "description": "Svelte 3/4 to 5 migration — phased workflow, pattern conversions, interop rules, known traps."
+}

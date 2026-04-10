@@ -1,0 +1,74 @@
+{
+  "$schema": "https://cdn.claude.ai/plugins/marketplace.schema.json",
+  "name": "svelte-skills",
+  "description": "Claude Code plugin marketplace for Svelte developers — agent discipline, frontend workflows, Svelte development, and Svelte 5 migration.",
+  "owner": {
+    "name": "fubits1",
+    "email": "contact@fubits.dev"
+  },
+  "plugins": [
+    {
+      "name": "agent",
+      "source": "./plugins/agent",
+      "description": "AI coding agent discipline — research, planning, self-checks, and completion verification. Requires superpowers plugin.",
+      "version": "0.0.1",
+      "author": { "name": "fubits1" },
+      "category": "workflow",
+      "keywords": [
+        "agent",
+        "discipline",
+        "research",
+        "planning",
+        "verification"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "frontend",
+      "source": "./plugins/frontend",
+      "description": "Frontend development discipline — validation, pixel-perfect measurement, editing, code style, testing, migration baselines.",
+      "version": "0.0.1",
+      "author": { "name": "fubits1" },
+      "category": "workflow",
+      "keywords": [
+        "frontend",
+        "validation",
+        "testing",
+        "css",
+        "playwright",
+        "vitest"
+      ],
+      "license": "MIT"
+    },
+    {
+      "name": "svelte-5",
+      "source": "./plugins/svelte-5",
+      "description": "Svelte development workflows — component docs, code style, Storybook, testing with vitest-browser-svelte.",
+      "version": "0.0.1",
+      "author": { "name": "fubits1" },
+      "category": "svelte",
+      "keywords": ["svelte", "storybook", "testing", "components"],
+      "license": "MIT"
+    },
+    {
+      "name": "svelte-5-migration",
+      "source": "./plugins/svelte-5-migration",
+      "description": "Svelte 3/4 to 5 migration — phased workflow, pattern conversions, interop rules, known traps.",
+      "version": "0.0.1",
+      "author": { "name": "fubits1" },
+      "category": "svelte",
+      "keywords": ["svelte", "migration", "svelte-5", "runes", "upgrade"],
+      "license": "MIT"
+    },
+    {
+      "name": "bonus",
+      "source": "./plugins/bonus",
+      "description": "Optional hooks and skills — nogrep, formatter, discipline rules. Standalone, no dependencies.",
+      "version": "0.0.1",
+      "author": { "name": "fubits1" },
+      "category": "workflow",
+      "keywords": ["hooks", "nogrep", "formatter", "prettier", "markdownlint"],
+      "license": "MIT"
+    }
+  ]
+}

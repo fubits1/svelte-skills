@@ -1,0 +1,7 @@
+# https://editorconfig.org
+root = true
+
+[*.{json,jsonc}]
+indent_style = space
+indent_size = 2
+ij_json_keep_trailing_comma = false

@@ -13,12 +13,12 @@ FIRST_WORD=$(echo "$COMMAND" | sed 's/^[[:space:]]*//' | awk '{print $1}')
 
 case "$FIRST_WORD" in
   git)
-    # Allow git mv (file renames — required by CLAUDE.md)
-    if echo "$COMMAND" | grep -qE '^\s*git\s+mv\b'; then
-      exit 0
+    # Block mutating git commands; allow read-only inspection and git mv.
+    if echo "$COMMAND" | grep -qE '^\s*git\s+(add|commit|push|pull|fetch|merge|rebase|reset|restore|checkout|switch|clean|stash|tag|cherry-pick|revert|am|apply|rm|clone|init|config|remote\s+(add|remove|rename|set-url))\b'; then
+      echo "BLOCKED: Mutating git command. Use gh (auto-allowed) for remote state, or suggest the user run ! git <command> locally." >&2
+      exit 2
     fi
-    echo "BLOCKED: NEVER use Bash for git commands. Use gh (auto-allowed) for remote state, or suggest the user run ! git <command> for local operations." >&2
-    exit 2
+    exit 0
     ;;
   grep|egrep|fgrep|rg)
     echo "BLOCKED: Use the Grep tool instead of Bash $FIRST_WORD. Grep supports: multiline: true, output_mode (content/files_with_matches/count), -A/-B/-C context, -i case-insensitive, glob/type filtering, head_limit, offset. Zero permission clicks." >&2

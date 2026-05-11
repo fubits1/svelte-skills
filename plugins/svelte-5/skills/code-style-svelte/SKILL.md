@@ -102,9 +102,15 @@ You can use other JSDoc tags inside the comment block where useful (e.g. `@examp
 
 Excluded: pages, layouts, tests, and stories (`.stories.svelte`) do not need this comment.
 
+## Styling / CSS
+
+- **ALWAYS** nest the css using `/frontend:css-nesting` skill.
+- **NEVER** use `:global()` selectors unless told otherwise. This is a code smell. Either refactor the component, relocate the state or use global feature-specific stylesheets
+
 ## Related skills
 
 - `frontend:code-style` — General code style rules (variable naming, braces, data attributes). Applies to all code including Svelte.
 - `svelte:svelte-code-writer` — Svelte 5 documentation lookup and code analysis. MUST invoke when creating or editing `.svelte` / `.svelte.ts` / `.svelte.js` files.
 - `svelte:svelte-core-bestpractices` — Reactivity, events, styling, and integration patterns for modern Svelte.
 - `svelte-5:testing-svelte` — Vitest + Playwright testing patterns for Svelte 5 components.
+- `frontend:css-nesting` — CSS nesting rules.

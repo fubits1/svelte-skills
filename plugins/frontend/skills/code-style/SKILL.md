@@ -39,17 +39,45 @@ Always use key-value syntax. Never use bare/boolean data attributes.
 
 Use semantic, human-readable names. The name should say what the thing IS, not save keystrokes.
 
-| Don't     | Do                                     |
-| --------- | -------------------------------------- |
-| `ctx`     | `context`                              |
-| `c`, `cb` | `callback`                             |
-| `obj`     | `object` or something more specific    |
-| `val`     | `value`                                |
-| `tmp`     | `temporary` or something more specific |
-| `res`     | `result` or `response`                 |
-| `el`      | `element`                              |
+| Don't | Do |
+| --- | --- |
+| `ctx` | `context` |
+| `c`, `cb` | `callback` |
+| `obj` | `object` or something more specific |
+| `val` | `value` |
+| `tmp` | `temporary` or something more specific |
+| `res` | `result` or `response` |
+| `el` | `element` |
 
 **Exceptions:** Loop variables (`i`, `j`) and lambda params where meaning is obvious from context (`(item) => item.id`) are fine.
+
+## Function Naming
+
+Functions are verbs. Past-participle nouns (`mountedPopup`) lie about lifecycle — wrong for a factory that mounts lazily. Use `createComponentPopup`.
+
+Conventions: `createX`/`buildX` (factory), `getX` (sync read), `loadX`/`fetchX` (async), `isX`/`hasX` (predicate), `toX` (transform), `attachX`/`detachX` (lifecycle), `onX`/`handleX` (event).
+
+One word, not two: `toggle` already means open-if-closed/close-if-open. Don't write `toggleOrShow`. Same for `closeAndReset`, `getOrCreate`.
+
+Plural follows the work: if a function grows to handle N where it handled 1, rename. `detachPopup` that now detaches info + context popups is `detachPopups`.
+
+## TypeScript: `type` over `interface`
+
+Use `type` for object shapes. Never use `interface` unless extending a third-party interface.
+
+```ts
+// BAD
+interface Milestone {
+  date: string
+  label: string
+}
+
+// GOOD
+type Milestone = {
+  date: string
+  label: string
+}
+```
 
 ## CSS Nesting
 

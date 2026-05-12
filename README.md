@@ -2,7 +2,7 @@
 
 Claude Code plugin marketplace for Svelte developers. Disciplined, opinionated workflows for frontend development, Svelte components, and Svelte 4 to Svelte 5 migration.
 
-> This repo is a subset of a wider collection skills. It is focussed on providing the minimum viable skill set for migration Svelte 4 to Svelte 5 code bases.  
+> This repo is a subset of a wider skills collection. It is focused on providing the minimum viable skill set for migrating Svelte 4 to Svelte 5 codebases.  
 >
 > It is biased towards:
 >

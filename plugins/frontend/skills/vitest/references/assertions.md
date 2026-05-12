@@ -28,7 +28,7 @@ const expectedSeconds = Math.floor(new Date(year, monthIndex, 15).getTime() / 10
 
 // 4. Assert equality to that computed value.
 await expect.poll(() => readProbe()).toBe(String(expectedSeconds))
-expect(Number(readProbe())).not.toBe(Number(before) || null)
+expect(Number(readProbe())).not.toBe(Number(before))
 ```
 
 The `not.toBe(before)` guard is cheap insurance against a test that passes because nothing happened.

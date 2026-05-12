@@ -96,6 +96,3 @@ These are legitimate Bash uses — they have no dedicated tool equivalent:
 - For local git operations: use `!` prefix — suggest the user run `! git fetch`, `! git log`, etc. The output lands in the conversation.
 - For `git mv`: this is a file mutation, use Bash (legitimate use)
 
-## Self-Check
-
-Before every Bash call, ask: "Am I reading or searching file contents? Am I running a git command?" If either — use fff first, the built-in tool second, the `!` prefix for git. Period.

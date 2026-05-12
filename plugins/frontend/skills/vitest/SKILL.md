@@ -12,7 +12,9 @@ user-invocable: true
 - **Gate:** no `vitest.config.*` but `vite.config` has **`test:`** (or no Vitest file) → **ask** before adding projects or Storybook whether to introduce `vitest.config.ts` and move `test` out of Vite.
 - `page.viewport(width, height)` — import from `vitest/browser`.
 - **`test.projects`** for mixed node/browser and Storybook. Either **`extends: true`** (inherit merged root — [Storybook Vitest example](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#example-configuration-files) with `mergeConfig(viteConfig, …)`) or **`extends: './vite.config.ts'`** per project; put `test` + `plugins` on each project (**storybook-vitest** skill).
-- Browser concurrency: `vitest-browser-svelte/pure` when you need no auto-cleanup; unique `data-testid` + `document.querySelector` where needed.
+- Browser concurrency: `vitest-browser-svelte/pure` when you need no auto-cleanup.
+- **Assertions — value, not presence.** Presence-only assertions (`toBeInTheDocument`, `not.toBe('')`, `toHaveBeenCalled`) ship regressions. Every interaction test must compute an expected value from the action and assert equality. See [references/assertions.md](references/assertions.md) for the pattern, callback-payload rules, and how to tell a harness failure from a behavior failure.
+- **Locators — prefer accessible queries, avoid `data-testid`.** `data-testid` is an a11y smell ([tkdodo, 2025](https://tkdodo.eu/blog/test-ids-are-an-a11y-smell)) — adding a testid means the element has no accessible name, role, or text for users of AT either. Fix the a11y hole, not the test. Use `page.getByRole(...)`, `getByLabelText`, `getByText`, `getByPlaceholderText`, `getByTitle`, `getByAltText` first. They mirror how screen readers find elements and fail when a11y regresses. Reach for `data-testid` only as a last resort: charting canvases, truly decorative content, or legacy markup you cannot change — and when you do, leave a comment explaining why no accessible selector worked.
 - Upgrade: bump all **`@vitest/*`** together.
 - **`browser.provider`:** `import { playwright } from '@vitest/browser-playwright'` → `provider: playwright()` (factory, not a string).
 - Use `import { page } from 'vitest/browser'` — not `@vitest/browser/context`.
@@ -105,8 +107,8 @@ import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 
 test("component looks correct", async () => {
-  await expect(page.getByTestId("my-component")).toMatchScreenshot(
-    "my-component",
+  await expect(page.getByRole("button", { name: "Submit" })).toMatchScreenshot(
+    "submit-button",
   );
 });
 ```
@@ -140,7 +142,7 @@ test: {
 ```ts
 await expect(element).toMatchScreenshot("name", {
   screenshotOptions: {
-    mask: [page.getByTestId("timestamp")], // mask dynamic content
+    mask: [page.getByRole("time")], // mask dynamic content via accessible query
   },
   comparatorOptions: {
     allowedMismatchedPixelRatio: 0.01,

@@ -1,4 +1,4 @@
-# frontend
+# Frontend
 
 Frontend development discipline -- validation, pixel-perfect measurement, editing, code style, testing, migration baselines.
 

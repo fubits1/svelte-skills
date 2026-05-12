@@ -70,11 +70,39 @@ Before presenting findings, you must have used at minimum:
 If you haven't used both, you haven't researched. Go back
 and do it.
 
+## "THOROUGHLY" = exhaustive first pass
+
+Data-flow / trace request. Cover every hop in one pass.
+Re-prompt for forgotten layer = fail.
+
+Layers to check before writing:
+
+1. Component tree: child → every parent, every render site
+2. Contexts + global stores: producers, consumers
+3. Outgoing props, `bind:*`, events
+4. TS DTOs / API call shape
+5. HTTP endpoint: path vs query vs body — which layer
+   carries what
+6. Backend DTOs (Java/Kotlin/Python). Field-by-field vs
+   TS. Mark fields TS does not send.
+7. Backend handler/controller/service touching the data
+8. Incoming sources feeding the components: autocomplete
+   fetch, subscriptions, websockets, polling, stores
+   seeded elsewhere
+
+Mermaid graph includes every layer. N/A → say so.
+
 ## The "Research From Memory" Anti-Pattern
 
-The failure mode: reading this skill, saying "let me
-research this", then writing an answer from existing
-knowledge without using a single search tool.
+The failure mode that keeps happening: reading this skill,
+saying "let me research this", then writing an answer from
+existing knowledge without using a single search tool.
+
+A common shape: asked to research a tool problem and
+"suggest better approaches", an answer gets written from
+memory — missing that the problem is a known tracked bug
+with existing community solutions far better than what gets
+produced from vibes.
 
 **If you catch yourself about to write an answer without
 having used WebSearch or WebFetch, STOP. You are doing the
@@ -130,6 +158,19 @@ If the answer is "guess", STOP. Do one of:
 | "This should work because..."    | You haven't tested it                 |
 | "The alternative is X"           | Have you verified X works?            |
 | "It's a known bug"               | Do you have a link? Is it still open? |
+
+**Common bullshit patterns to recognize:**
+
+- Inventing flag values or argument semantics (e.g.
+  describing what `--pre 1` does — when the flag does not
+  accept that)
+- Misdescribing tool output (e.g. wrong claim about what
+  `eslint --stats` reports)
+- Claiming version incompatibility that doesn't exist
+  (e.g. "X can't use Y yet" — when it has been working in
+  the project for weeks)
+- Citing a closed GitHub issue as an unresolved blocker
+- Claiming a review finding was fixed when it wasn't
 
 The pattern is always the same: confident delivery of
 unverified claims. The fix is always the same: verify

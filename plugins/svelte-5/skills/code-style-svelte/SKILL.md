@@ -104,7 +104,7 @@ Excluded: pages, layouts, tests, and stories (`.stories.svelte`) do not need thi
 
 ## Styling / CSS
 
-- **ALWAYS** nest the css using `/frontend:css-nesting` skill.
+- **ALWAYS** nest the css using `frontend:css-nesting` skill.
 - **NEVER** use `:global()` selectors unless told otherwise. This is a code smell. Either refactor the component, relocate the state or use global feature-specific stylesheets
 
 ## Related skills

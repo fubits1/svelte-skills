@@ -7,6 +7,32 @@ user-invocable: true
 # Editing Files
 
 - Comments start with a lowercase letter: `// unmount svelte components...`
+- No trailing period on bullet points or incomplete sentences (headers, fragments, single-noun-phrase comments). e.g. `- open /maplibre?debug` not `- open /maplibre?debug.`; `// close event listener` not `// close event listener.`
+- No space between number and unit: `30s` not `30 s`.
+- **Lengthy and important comments belong in `/** */` blocks**, not in stacked `//` lines. Use `//` for short single-line comments and inline notes. Anything that explains a non-obvious invariant, a multi-step rationale, or warns about a foot-gun goes in a JSDoc-style block so it stands out and IDEs/tooling render it. Place the block directly above the construct it describes (function, method, branch, or key statement).
+
+  ```typescript
+  // ❌ BAD: stacked // lines for a multi-paragraph rationale
+  // programmatic closes (showPopup, closePopup) reassign or clear
+  // activePopup before remove(), so the comparison fails for those
+  // and the listener returns. user-initiated closes still match.
+  popup.on('close', () => { ... })
+
+  // ✅ GOOD: lengthy/important rationale in a /** */ block
+  /**
+   * close event listener
+   *
+   * programmatic closes (showPopup, closePopup) reassign or clear
+   * activePopup before remove(), so the comparison fails for those
+   * and the listener returns. user-initiated closes still match.
+   */
+  popup.on('close', () => { ... })
+
+  // ✅ GOOD: short single-line note stays inline
+  // reassign before remove() so the close listener sees activePopup !== popup
+  this.activePopup = popup
+  ```
+
 - **Comments must be noise-free and concise.** A comment must say WHY, not WHAT — the code already says what. Never restate what the code does in English. Never add filler like "fire-and-forget", "for safety", "just in case". If a comment doesn't teach the reader something they can't see from the code, delete it. Every token in a comment must earn its place.
 
   ```typescript

@@ -1,6 +1,17 @@
 # svelte-skills
 
-Claude Code plugin marketplace for Svelte developers. Disciplined workflows for frontend development, Svelte components, and Svelte 5 migration.
+Claude Code plugin marketplace for Svelte developers. Disciplined, opinionated workflows for frontend development, Svelte components, and Svelte 4 to Svelte 5 migration.
+
+> This repo is a subset of a wider collection skills. It is focussed on providing the minimum viable skill set for migration Svelte 4 to Svelte 5 code bases.  
+>
+> It is biased towards:
+>
+> - pnpm
+> - TypeScript 6/7
+> - Prettier, Stylelint, Knip
+> - a hybrid Oxlint + ESLint setup
+> - Vitest (incl llms.txt) / Storybook (incl. MCP) / Playwright (incl. MCP)
+> - fff instead of grep/bash etc.
 
 ## Plugins
 
@@ -8,12 +19,12 @@ Five plugins. Four with layered dependencies, one standalone:
 
 ```
 agent  <--  frontend  <--  svelte-5  <--  svelte-5-migration
-bonus (standalone)
+standalone: bonus (optional)
 ```
 
 | Plugin | Skills/Hooks | What it does |
 | --- | --- | --- |
-| [agent](plugins/agent/) | 4 skills | Research, planning, self-checks, completion verification |
+| [agent](plugins/agent/) | 11 skills | Research, planning, self-checks, completion verification, git/dev-server/pnpm/socket/nogrep/obey discipline |
 | [frontend](plugins/frontend/) | 11 skills | Validation, pixel-perfect, editing, code style, testing, migration |
 | [svelte-5](plugins/svelte-5/) | 5 skills | Svelte code style, component docs, Storybook, Svelte testing |
 | [svelte-5-migration](plugins/svelte-5-migration/) | 1 skill | Svelte 3/4 to 5 migration workflow |
@@ -77,10 +88,13 @@ Then add `@storybook/addon-mcp` to your `.storybook/main.ts` addons. The MCP ser
 /plugin install frontend
 /plugin install svelte-5
 /plugin install svelte-5-migration
-/plugin install bonus
 ```
 
-`bonus` is standalone and optional — install it independently of the others.
+Optionally - `bonus` is standalone and optional — install it independently of the others:
+
+```
+/plugin install bonus
+```
 
 ### 4. Set up your project
 
@@ -92,9 +106,11 @@ Skills in this marketplace have auto-invocation triggers defined in their descri
 
 ## Context budget
 
-Claude Code allocates 1% of context window (fallback: 8,000 chars) for skill descriptions. Each description is capped at 250 chars. With this marketplace (~21 skills) plus superpowers (~14) and Svelte MCP (~2), you'll have ~37 skill descriptions loaded.
+> Research as of Opus 4.6 - might need revisiting.
 
-- **Opus 4.6 (1M context)**: budget is ~40,000 chars. 37 skills fit comfortably.
+Claude Code allocates 1% of context window (fallback: 8,000 chars) for skill descriptions. Each description is capped at 250 chars. With this marketplace (~29 skills) plus superpowers (~14) and Svelte MCP (~2), you'll have ~45 skill descriptions loaded.
+
+- **Opus 4.6 (1M context)**: budget is ~40,000 chars. 45 skills fit comfortably.
 - **Sonnet (200k context)**: budget is ~8,000 chars. Descriptions may get truncated, reducing auto-invocation accuracy.
 
 Run `/context` to check for budget warnings. Override with `SLASH_COMMAND_TOOL_CHAR_BUDGET=<chars>`.
@@ -125,6 +141,16 @@ These tools are referenced by the skills. Not all are required -- install what y
 | [Storybook addon-svelte-csf](https://storybook.js.org/addons/@storybook/addon-svelte-csf) | [storybookjs/addon-svelte-csf](https://github.com/storybookjs/addon-svelte-csf) |
 | [Prettier](https://prettier.io/) | [prettier/prettier](https://github.com/prettier/prettier) |
 | [markdownlint-cli](https://npmx.dev/package/markdownlint-cli) | [igorshubovych/markdownlint-cli](https://github.com/igorshubovych/markdownlint-cli) |
+| [fff](https://fff.dmtrkovalenko.dev/) | [dmtrKovalenko/fff](https://github.com/dmtrKovalenko/fff) |
+| [Socket CLI](https://socket.dev/features/cli) | [SocketDev/socket-cli](https://github.com/SocketDev/socket-cli) |
+
+New - watchlist:
+
+- [dex](https://dex.rip) - local flatfile task management (incl. skills) for agents
+
+## Skill development / Ops
+
+- use [agent:update-skills](plugins/agent/skills/update-skills/) to update skills from a local dir to this plugin dir.
 
 ## License
 

@@ -13,6 +13,8 @@ Claude Code plugin marketplace for Svelte developers. Disciplined, opinionated w
 > - Vitest (incl llms.txt) / Storybook (incl. MCP) / Playwright (incl. MCP)
 > - fff instead of grep/bash etc.
 
+> This project has been heavily inspired by [svelte-skills-kit](https://github.com/spences10/svelte-skills-kit).
+
 ## Plugins
 
 Five plugins. Four with layered dependencies, one standalone:

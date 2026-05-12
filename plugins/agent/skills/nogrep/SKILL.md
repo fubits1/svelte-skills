@@ -8,7 +8,7 @@ user-invocable: true
 
 ## Self-Check
 
-Before every Bash call, ask: "Am I reading or searching file contents? Am I running a git command?" If either — use fff first, the built-in tool second. Period.
+Before every Bash call, ask: "Am I reading or searching file contents? Am I running a git command?" If reading/searching files — use fff first, the built-in tool second. If running git commands — route to `gh` / `! git` (exception: `git mv` stays in Bash). Period.
 
 ## Why
 
@@ -95,4 +95,3 @@ These are legitimate Bash uses — they have no dedicated tool equivalent:
 - For remote state (PRs, branches, CI): use `gh` (auto-allowed)
 - For local git operations: use `!` prefix — suggest the user run `! git fetch`, `! git log`, etc. The output lands in the conversation.
 - For `git mv`: this is a file mutation, use Bash (legitimate use)
-

@@ -29,18 +29,9 @@ For installation and setup, see the [root README](https://github.com/fubits1/sve
 
 ## Template Scripts
 
-4 shell/TS scripts in `scripts/`. Copy into your project's `scripts/` directory and add these to your `package.json`:
+Two flavours ship under `scripts/` -- pick one. Both expose the same `package.json` script names. See [SETUP.md](../../SETUP.md) for full wiring and dependencies.
 
-```json
-{
-  "scripts": {
-    "lint:file": "bash scripts/lint-file.sh",
-    "lint:tests": "bash scripts/lint-tests.sh",
-    "lint:summary": "node --experimental-strip-types scripts/lint-summary.ts",
-    "test:file": "bash scripts/test-file.sh"
-  }
-}
-```
+### Bash (default, zero extra deps)
 
 | Script | `package.json` task | Purpose |
 | --- | --- | --- |
@@ -49,4 +40,14 @@ For installation and setup, see the [root README](https://github.com/fubits1/sve
 | `lint-summary.ts` | `pnpm lint:summary` | Dashboard view of all lint results as a table |
 | `test-file.sh` | `pnpm test:file` | Run vitest for specific files (node + browser projects) |
 
-See [SETUP.md](../../SETUP.md) for full setup including dependencies.
+### TypeScript + dax (recommended)
+
+Adds parallel execution via dax `$.all`, Windows-safe path chunking, anchored output filtering, and an extra `lint:staged` workflow. Subtree under `scripts/{lib,validate,bin}/`. Requires `dax` and `tinyglobby` as dev deps and Node 22.6+ for `--experimental-strip-types` (or use `tsx`).
+
+| Script | `package.json` task | Purpose |
+| --- | --- | --- |
+| `bin/lint-file.ts` | `pnpm lint:file` | Same as bash variant, parallelised |
+| `bin/lint-tests.ts` | `pnpm lint:tests` | Same as bash variant, parallelised |
+| `bin/lint-staged.ts` | `pnpm lint:staged` | Lint only files staged in git. Pass `--committed` to also include commits ahead of upstream |
+| `bin/test-file.ts` | `pnpm test:file` | Run vitest for specific files |
+| `lint-summary.ts` | `pnpm lint:summary` | Dashboard view of all lint results as a table |

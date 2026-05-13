@@ -20,21 +20,16 @@ For installation and setup, see the [root README](https://github.com/fubits1/sve
 | `storybook-vitest` | Svelte CSF + addon-vitest -- `.stories.svelte` as Vitest browser tests |
 | `testing-svelte` | Svelte 5 tests with vitest-browser-svelte and Playwright |
 
-## Template script
+## Template scripts
 
-| Script | `package.json` task | Purpose |
+Two flavours ship under `scripts/` -- pick one. Same `package.json` task name.
+
+| Variant | File | `package.json` task |
 | --- | --- | --- |
-| `test-story.sh` | `pnpm test:story` | Run vitest for a specific story file by pattern |
+| Bash | `test-story.sh` | `"test:story": "bash scripts/test-story.sh"` |
+| TypeScript + dax | `bin/test-story.ts` (calls `validate/test-story.ts`) | `"test:story": "node --experimental-strip-types scripts/bin/test-story.ts"` |
 
-Copy to your project's `scripts/` directory and add to `package.json`:
-
-```json
-{
-  "scripts": {
-    "test:story": "bash scripts/test-story.sh"
-  }
-}
-```
+Both run vitest for a specific story file by pattern. The TS variant reads `VITEST_STORYBOOK_PROJECT` env var (default `storybook`) for the project name.
 
 See [SETUP.md](../../SETUP.md) for full setup.
 

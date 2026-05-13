@@ -34,6 +34,15 @@ If you edited 3 files, you validate 3 times (or group by tool).
 
 ## What to run
 
+### Batch-lint multiple files
+
+To lint every file currently staged in git, use `pnpm lint:staged`.
+To also include commits ahead of the upstream branch (or `origin/main` as fallback), use `pnpm lint:staged --committed` — useful right before pushing.
+
+`lint:staged` calls into the same `lint-file` chain documented below, so all the per-file rules still apply.
+
+### Lint single files
+
 | File type               | Command                                                 | Notes                                             |
 | ----------------------- | ------------------------------------------------------- | ------------------------------------------------- |
 | `.svelte`, `.ts`, `.js` | `pnpm lint:file <path> [path2...]`                      | Runs eslint + oxlint + tsgo + svelte-check + knip |

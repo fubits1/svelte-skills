@@ -12,7 +12,7 @@ Rules from `frontend:code-style`, `svelte-5:code-style-svelte`, `frontend:editin
 
 ## When to use
 
-- Designing a wrapper or provider component (popup, menu, drawer, modal, tooltip, panel, slide-in, accordion)
+- Designing a wrapper / Provider-style component (popup, menu, drawer, modal, tooltip, panel, slide-in, accordion)
 - Autofixer flagged `bind:this`
 - About to type `$effect(() => { new ThirdPartyThing(...) })`
 - About to write `prop={appState.x}` or `prop={someStore.value}`
@@ -29,9 +29,9 @@ Skip for: CSS-only tweaks, test-only edits, backend / non-Svelte work.
 
 Answer in writing BEFORE generating files. Full tables and pointers in `references/decisions.md`.
 
-1. **Shape**: Wrapper / Provider / Layer-of-many?
+1. **Shape**: Composition shape / Non-Svelte Host?
 2. **Snippet API**: default `children`, named snippets, or mix?
-3. **State location**: module-level `$state` (`.svelte.ts`), local, context, or existing store?
+3. **State location** — where each piece of state lives. Options can coexist; pick what fits each piece. `.svelte.ts` modules (module-level `$state` exports, classes with `$state` fields), component-local `$state`, context (`createContext`), existing global state.
 
 If intent is ambiguous, ask via `AskUserQuestion` — never infer silently.
 
@@ -40,9 +40,8 @@ If intent is ambiguous, ask via `AskUserQuestion` — never infer silently.
 | Need | Read |
 | --- | --- |
 | Picking shape and snippet/state design | `references/decisions.md` |
-| Wrapper shape — six-file contract | `references/wrapper-shape.md` |
-| Provider shape | `references/provider-shape.md` |
-| Layer-of-many shape | `references/layer-of-many.md` |
+| Composition shape — seven-role contract + folder structure (covers both caller-content and view-dispatcher / Provider behaviour) | `references/composition-shape.md` |
+| Non-Svelte Host shape | `references/non-svelte-host.md` |
 | Lifecycle rune choice | `references/lifecycle.md` |
 | Bridging to a third-party DOM library | `references/third-party.md` |
 | A11y for overlays (focus, ESC, `:focus-visible`) | `references/a11y-overlays.md` |
@@ -70,13 +69,13 @@ UX bugs in overlay-style components almost always span ALL overlay-style compone
 
 ## Done close-path matrix
 
-Before declaring an overlay feature done, run ALL of these in a real browser via Playwright MCP:
+Overlay-specific. Other feature types (forms, tables, panels without close behaviour) need their own done-matrix — write one local to that feature, mirroring this structure (interactions → expected post-state, exit paths, regression neighbours). Before declaring an overlay feature done, run ALL of these in a real browser via Playwright MCP:
 
 - [ ] X / close button → wrapper popup + auxiliary elements both cleared
 - [ ] click-outside / `closeOnClick` → both cleared
 - [ ] ESC → both cleared
-- [ ] Each action click → both cleared
-- [ ] Opening another overlay of the same kind → mutual exclusion via global slot
+- [ ] Each interactive child click → both cleared
+- [ ] Opening another overlay of the same kind → opens through the Controller's handler, which closes the prior overlay automatically (see `references/composition-shape.md` Controller)
 - [ ] Analogous components have the same UX behaviour
 - [ ] `mcp__svelte__svelte-autofixer`: zero new issues. `$effect calling function` advisories on imperative third-party calls are OK; `bind:this` suggestions are NOT.
 - [ ] Vitest: green for the file + regression neighbours
@@ -91,13 +90,13 @@ Per `agent:done`: declaring done before this matrix is fraudulent. Per `agent:as
 | `prop={appState.x}` / `prop={someStore.value}` | Prop-drilling a global | Import the store, read it directly |
 | `bind:this` with `{@attach}` autofixer suggestion | Wrong tool for element augmenters | `references/lifecycle.md` + `references/third-party.md` |
 | `Default.svelte` / `Feature.svelte` / `Wrapper.svelte` | Role not conveyed | Role-specific name |
-| maplibre / leaflet / d3 import inside a Visual file | Wrong axis | Move bridging to the parent wrapper |
+| Third-party library import (maplibre / leaflet / d3 / etc.) inside the markup-only file mounted into a third-party container | Wrong axis | Move bridging to the parent Wrapper. See `references/third-party.md`. |
 | `$effect(() => new ThirdPartyThing(...))` for one-shot setup | Wrong rune | `onMount` + cleanup return |
 | `$effect` writing to `$state` | Wrong rune | `$derived` |
 | Fixing ESC for one menu only | Other menus have the same bug | Symmetric coverage |
-| Two overlays visible simultaneously | Bypassed the global slot | `appState.createPopup` + `showPopup` + `closePopup` |
-| Auxiliary element (marker dot, badge, etc.) still visible after popup auto-close | Visibility gated on `popup.isOpen()` — but maplibre fires 'close' AFTER `popup.remove()` | Reconcile unconditionally on `open`; `addTo`/`remove` are idempotent |
-| Snippet inlined in consumer feels too long | Time to extract | `<script module>` re-export, `references/wrapper-shape.md` |
+| Two overlays visible simultaneously | Opened directly instead of through the Controller's handler | Funnel every open through the Controller's handler — it closes any prior overlay before opening the new one. See `references/composition-shape.md` Controller. |
+| Auxiliary element (marker dot, badge, etc.) still visible after popup auto-close | Visibility gated on `popup.isOpen()` — but the third-party lib fires 'close' AFTER `popup.remove()` | Reconcile unconditionally on `open`; `addTo`/`remove` are idempotent |
+| Snippet inlined in consumer feels too long | Time to extract | `<script module>` re-export, `references/composition-shape.md` |
 | `attachX` named but uses `map.on()` | Verb mismatch | `subscribeX` |
 | `:global(button)` in a wrapper's `<style>` | Wrong place to style children | `references/css-scope.md` |
 | `el` / `e` / `tmp` variable names | Code-style violation | Rename |

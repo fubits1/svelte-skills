@@ -1,6 +1,6 @@
 ---
 name: nogrep
-description: "STOP using Bash for file search/read operations. Prefer fff MCP (frecency-ranked, git-aware) over Grep/Read/Glob; both are auto-allowed and require ZERO permission clicks. Bash grep/cat/find/ls/head/tail/sed/awk/rg/wc require user approval EVERY TIME in the IDE. Auto-invoke whenever searching files, reading files, exploring code, finding files, counting matches, or looking at file contents — even multiline patterns."
+description: "Use fff MCP / Grep / Read / Glob — never Bash grep/cat/find/head/tail/sed/awk/rg/wc — for file search and read. Dedicated tools are auto-allowed; Bash equivalents need approval every time. Auto-invoke when searching, reading, or counting in files."
 user-invocable: true
 ---
 
@@ -77,7 +77,7 @@ No pipes. No chaining. No permission clicks.
 
 ## What Stays in Bash
 
-These are legitimate Bash uses — they have no dedicated tool equivalent:
+These are legitimate Bash uses — either they have no dedicated tool equivalent, or they're narrow, read-only commands (like a simple `ls`) where Bash is fine. The blanket rule still applies for file search / read / mutation: use dedicated tools.
 
 - **gh** (auto-allowed): `gh pr view`, `gh pr list`, `gh run view`, `gh api`, etc. Prefer `gh` over `git` for reading remote state — zero permission clicks.
 - **pnpm/npm**: `pnpm install`, `pnpm build`, `pnpm test`, etc.
@@ -86,7 +86,7 @@ These are legitimate Bash uses — they have no dedicated tool equivalent:
 - **Process management**: `lsof`, `kill`, `pkill`
 - **File mutations**: `mkdir`, `cp`, `git mv`
 - **Environment**: `which`, `node -e`, `java -version`
-- **Simple `ls`** for directory listing (when you just need to see what's in a dir, `Bash(ls dir/)` is fine)
+- **Simple `ls`** — Bash `ls` is permitted for narrow, read-only directory listing, but fff MCP (`mcp__fff__find_files`) is preferred for searching/reading files.
 
 ## git Commands
 

@@ -28,7 +28,7 @@ standalone: bonus (optional)
 | --- | --- | --- |
 | [agent](plugins/agent/) | 12 skills | Research, planning, self-checks, completion verification, git/dev-server/pnpm/socket/nogrep/obey discipline |
 | [frontend](plugins/frontend/) | 11 skills | Validation, pixel-perfect, editing, code style, testing, migration |
-| [svelte-5](plugins/svelte-5/) | 5 skills | Svelte code style, component docs, Storybook, Svelte testing |
+| [svelte-5](plugins/svelte-5/) | 6 skills | Svelte code style, component docs, composition patterns, Storybook, Svelte testing |
 | [svelte-5-migration](plugins/svelte-5-migration/) | 1 skill | Svelte 3/4 to 5 migration workflow |
 | [bonus](plugins/bonus/) | 2 hooks | nogrep (force dedicated tools), formatter (auto-format after edits) |
 

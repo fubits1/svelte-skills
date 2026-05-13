@@ -102,6 +102,17 @@ Optionally - `bonus` is standalone and optional — install it independently of 
 
 See [SETUP.md](SETUP.md) for copying template scripts, wiring `package.json` tasks, and installing dev dependencies.
 
+## Updating
+
+The whole marketplace ships as one version. After a new [release](https://github.com/fubits1/svelte-skills/releases), refresh and update:
+
+```
+/plugin marketplace update svelte-skills
+/plugin update agent              # repeat per installed plugin
+```
+
+Or rely on Claude Code's auto-update.
+
 ## Skill behavior
 
 Skills in this marketplace have auto-invocation triggers defined in their descriptions. Claude Code may invoke them automatically when it detects relevant context (e.g., editing a `.svelte` file, declaring a task done, starting a migration). You can also invoke any skill manually at any time via `/skill-name`. To disable auto-invocation for a specific skill, add `disable-model-invocation: true` to that skill's SKILL.md frontmatter.
@@ -156,18 +167,7 @@ New - watchlist:
 
 ## Releases
 
-The whole marketplace ships as one version. Browse history at [Releases](https://github.com/fubits1/svelte-skills/releases).
-
-To pull the latest after a new release:
-
-```
-/plugin marketplace update svelte-skills
-/plugin update agent              # repeat per installed plugin
-```
-
-Or rely on Claude Code's auto-update.
-
-Maintainer release process: see [RELEASING.md](RELEASING.md).
+Browse release history at [Releases](https://github.com/fubits1/svelte-skills/releases). For the update commands, see [Updating](#updating) above. Maintainer release process: see [RELEASING.md](RELEASING.md).
 
 ## License
 

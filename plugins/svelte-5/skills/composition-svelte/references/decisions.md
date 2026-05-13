@@ -6,13 +6,12 @@ The three decisions are independent. Answer all three, in writing, before genera
 
 ## 1. Composition shape
 
-There is no single "the composition pattern". This codebase uses three shapes; each fits a different problem class.
+Two shapes; each fits a different problem class.
 
 | Shape | When | Reference |
 | --- | --- | --- |
-| **Wrapper** — one provider, one content slot (default or named) | Single overlay with caller-controlled body: popup, menu, modal, drawer, tooltip, accordion | [MapContextMenu.svelte](src/lib/maplibre/MapApp/MapView/MapContextMenu.svelte) — full contract in `wrapper-shape.md` |
-| **Provider** — orchestrates cross-cutting concerns over a subtree | Multi-section panel that switches between concrete views via a state machine, applies layout transitions, error boundaries, teleport | [SlideIn.svelte](src/lib/maplibre/MapApp/SlideIn.svelte) + [SlideIn_Content.svelte](src/lib/maplibre/MapApp/SlideIn/SlideIn_Content.svelte) — `provider-shape.md` |
-| **Layer-of-many** — declarative `{#if}` over many imperatively-mounted children inside a third-party container | Cluster of N markers/popups managed by a third-party lib, with per-item lifecycle | [LayerClusterMarker.svelte](src/lib/maplibre/MapApp/MapView/LayerClusterMarker.svelte) — `layer-of-many.md` |
+| **Composition shape** — Wrapper + Content + Controller scaffolding. Covers both caller-content (snippet variant: Popover, Modal, Tooltip) and feature-content (view-dispatcher / Provider variant: multi-step Wizard, Drawer with Edit + Detail views). | Single overlay with caller-controlled body, OR multi-view panel where state picks which View renders. Use this whenever the feature lives inside a Svelte tree. | `composition-shape.md` |
+| **Non-Svelte Host** — declarative `{#if}` over many imperatively-mounted children inside a non-Svelte container | Cluster of N markers / popups / nodes owned by a third-party library like d3, maplibre, or leaflet, with per-item lifecycle | `non-svelte-host.md` |
 
 If none fit, ask the user.
 
@@ -22,29 +21,36 @@ What content slots does the wrapper expose? See [Svelte snippet docs](https://sv
 
 | Shape | Use when | Example |
 | --- | --- | --- |
-| Default `children` only | One single content slot, items are equivalent | MapContextMenu: a flat list of menu items |
+| Default `children` only | One single content slot, items are equivalent | A context-menu component: a flat list of menu items |
 | Named snippets only | Distinct regions with different roles | Card: `header`, `body`, `footer` |
 | Mix (default + named) | Primary content + optional decorations | Table: `children` rows + optional `caption` |
 
 Rules:
 
 - Each snippet is a prop. Default → `children`; named → prop of its own name.
-- Render with `{@render slotName?.(payload)}` (use `?.` for optional, per `/code-style-svelte`).
+- Render with `{@render slotName?.(payload)}` (use `?.` for optional, per `svelte-5:code-style-svelte`).
 - Payload shape: ONE object `{ ...domainFields, close?: () => void, ...slotHelpers }`. Adding fields later is non-breaking; positional args age badly.
-- Cross-file export: a snippet exported from `<script module>` cannot reference instance-script declarations ([docs — Exporting snippets](https://svelte.dev/docs/svelte/snippet#Exporting-snippets)). Keep actions imported into module scope so the snippet can be exported.
+- Cross-file export: a snippet exported from `<script module>` cannot reference instance-script declarations ([docs — Exporting snippets](https://svelte.dev/docs/svelte/snippet#Exporting-snippets)). Keep handlers imported into module scope so the snippet can be exported.
 - Skip `createRawSnippet` unless you have an exotic reason.
 
 ## 3. State location
 
+### SPA / Client-Side
+
 | Where | When | Pros | Cons |
 | --- | --- | --- | --- |
-| Module-level `$state` in a `.svelte.ts` controller | Singleton feature state (one popup, one drawer at a time) | Shared across modules, reactive, no prop drilling | Singleton — can't have two instances |
+| Module-level `$state` in a `.svelte.ts` controller | Singleton feature state (one popup, one drawer at a time) | Shared across modules, reactive, no prop drilling | Singleton — can't have two instances; not safe under SSR if the state could be mutated during render |
+| Class with `$state` fields in a `.svelte.ts` controller | Singleton or multi-instance feature state with richer encapsulation (action methods, type-safe testing) | Encapsulated, multiple instances OK, official Svelte recommendation for sharing reactivity | Slightly more ceremony than module-level exports |
 | Component-local `$state` | Per-instance state with no need to share | Isolation, multiple instances OK | Caller wires `bind:value` etc. |
-| Svelte `setContext` / `getContext` | Subtree-scoped sharing across deeply nested children | Provider-friendly | Not shareable across separate subtrees |
-| Existing application store (e.g. `appState`) | State already lives there | Single source of truth | Coupling to the store |
+| Svelte context via `createContext` (Svelte ≥ 5.40) — fall back to `setContext` / `getContext` on older versions | Subtree-scoped sharing across deeply nested children; safer than module-level state under SSR | Provider-friendly, type-safe with `createContext`, scoped per request | Not shareable across separate subtrees |
+| Existing application store / global state value | State already lives there | Single source of truth | Coupling to the store |
 
-For overlays in a single-active-overlay app (popup, drawer, slide-in): module-level `$state` is the right default.
+For overlays in a single-active-overlay client-rendered app (popup, drawer, slide-in): module-level `$state` or a class controller is the right default.
+
+### SSR / Server-Side
+
+> TODO
 
 ---
 
-Once decided, jump to the matching shape reference (`wrapper-shape.md`, `provider-shape.md`, or `layer-of-many.md`).
+Once decided, jump to the matching shape reference (`composition-shape.md` or `non-svelte-host.md`).

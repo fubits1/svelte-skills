@@ -1,20 +1,22 @@
 # composition-svelte — third-party DOM bridging
 
-Read this when: integrating a non-Svelte DOM library (maplibre, leaflet, d3, tippy, popper, etc.). Read the codebase FIRST: if there's already a pattern for the library, follow it.
+Read this when: integrating a non-Svelte DOM library (a third-party library like maplibre, leaflet, d3, tippy, or popper). Read your codebase FIRST: if there's already a pattern for the library, review it first.
 
 ## Two API shapes drive the choice
 
 | Third-party API shape | Pattern | Why |
 | --- | --- | --- |
-| **Element-augmenter**: decorates an existing element in place (tippy, popper, click-outside, drag, IntersectionObserver) | `{@attach factory}` | Cleanup is symmetric: attach mounts, return-fn destroys. Element stays in Svelte's tree. |
-| **Container-owner**: takes an `element` and adopts it as the marker/popup/widget body, controlling its parent (maplibre `Marker`/`Popup`, leaflet `L.marker`/`L.popup`, d3 selections that append-to) | Imperative: `document.createElement('div')` → `mount(Visual, {target})` → `new ThirdPartyClass({element})` | The library moves the node into its own container. `{@attach}` cleanup fights with the library's own lifecycle. |
+| **Decorates an existing element**: tippy, popper, click-outside, drag, IntersectionObserver — adds behaviour to an element that stays in Svelte's tree. | `{@attach factory}` | Cleanup is symmetric: attach mounts, return-fn destroys. |
+| **Container-owner**: takes an `element` and adopts it as the marker/popup/widget body, controlling its parent (maplibre `Marker`/`Popup`, leaflet `L.marker`/`L.popup`, d3 selections that append-to) | Imperative: `document.createElement('div')` → `mount(Item, {target})` → `new ThirdPartyClass({element})` | The library moves the node into its own container. `{@attach}` cleanup fights with the library's own lifecycle. |
 
-## Canonical reference in this codebase
+## Find the existing pattern first
 
-[LayerClusterMarker.svelte:449-476](src/lib/maplibre/MapApp/MapView/LayerClusterMarker.svelte#L449) — maplibre marker adoption.
+NEVER invent a new bridging pattern when your codebase already has one. Grep first for `mount\(` and `new <Lib>\.<Class>\(` to find the call sites and follow the existing convention.
 
-NEVER invent a new bridging pattern when the project already has one. Grep first for `mount\(` and `new <Lib>\.<Class>\(` to find the call sites.
+For the imperative per-item lifecycle that the container-owner pattern requires (mount on data add, unmount on data remove), see `non-svelte-host.md`.
 
-## Pure-visual discipline
+## Markup-only discipline
 
-The mounted Visual component has NO third-party imports — see `wrapper-shape.md` Visual section. If you find yourself importing maplibre/leaflet/d3 into a Visual file, the abstraction is wrong; the bridging belongs in the parent.
+For the container-owner case, the Wrapper creates a host element, imperatively `mount()`s a markup-only `.svelte` file into it, then hands the element to the third-party constructor. The mounted file has NO `<script>` block — pure markup + `<style>`. This isolates the rendered output from the bridging logic and keeps the markup testable in isolation.
+
+If you find yourself importing a third-party library (like maplibre, leaflet, or d3) into that markup-only file, the abstraction is wrong; the bridging belongs in the parent Wrapper.

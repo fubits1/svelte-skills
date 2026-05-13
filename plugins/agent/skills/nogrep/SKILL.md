@@ -1,6 +1,6 @@
 ---
 name: nogrep
-description: "STOP using Bash for file search/read operations. Prefer fff MCP (frecency-ranked, git-aware) over Grep/Read/Glob; both are auto-allowed and require ZERO permission clicks. Bash grep/cat/find/ls/head/tail/sed/awk/rg/wc require user approval EVERY TIME in the IDE. Auto-invoke whenever searching files, reading files, exploring code, finding files, counting matches, or looking at file contents — even multiline patterns."
+description: "STOP using Bash for file search/read operations. Prefer fff MCP (frecency-ranked, git-aware) over Grep/Read/Glob; both are auto-allowed and require ZERO permission clicks. Bash grep/cat/find/head/tail/sed/awk/rg/wc require user approval EVERY TIME in the IDE. Bash `ls` is permitted for narrow, read-only directory listing, but fff MCP is preferred for searching/reading files. Auto-invoke whenever searching files, reading files, exploring code, finding files, counting matches, or looking at file contents — even multiline patterns."
 user-invocable: true
 ---
 
@@ -86,7 +86,7 @@ These are legitimate Bash uses — they have no dedicated tool equivalent:
 - **Process management**: `lsof`, `kill`, `pkill`
 - **File mutations**: `mkdir`, `cp`, `git mv`
 - **Environment**: `which`, `node -e`, `java -version`
-- **Simple `ls`** for directory listing (when you just need to see what's in a dir, `Bash(ls dir/)` is fine)
+- **Simple `ls`** — Bash `ls` is permitted for narrow, read-only directory listing, but fff MCP (`mcp__fff__find_files`) is preferred for searching/reading files.
 
 ## git Commands
 

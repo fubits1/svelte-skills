@@ -14,6 +14,7 @@ For installation and setup, see the [root README](https://github.com/fubits1/sve
 | Skill | Purpose |
 | --- | --- |
 | `code-style-svelte` | Svelte component style -- docs, reactivity, Svelte 5 syntax, interop rules |
+| `composition-svelte` | Composing Svelte 5 features by role -- Wrapper / Provider / Non-Svelte Host shapes, snippet API, state location, third-party DOM bridging, overlay a11y |
 | `doc-component` | `@component` JSDoc for Svelte components |
 | `storybook` | Storybook workflow -- MCP tools, fixtures, CSS imports, wrapper pattern |
 | `storybook-vitest` | Svelte CSF + addon-vitest -- `.stories.svelte` as Vitest browser tests |

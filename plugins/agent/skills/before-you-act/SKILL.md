@@ -6,13 +6,26 @@ user-invocable: true
 
 # Before You Act
 
-Five questions. Answer all five before acting. If any answer is "no" or "I'm not sure", STOP.
+**ALWAYS** invoke `agent:nogrep` before file search/read operations.
+
+## Consider before doing it yourself
+
+Subagent better/faster/cheaper?
+
+- 3+ files with per-file validation → specialised agent (`svelte:svelte-file-editor` for Svelte, else `general-purpose`).
+- Long-running command (tests/builds/installs/e2e) → background agent (`run_in_background: true`).
+- 3+ independent lookups → parallel `Explore` agents.
+- Mechanical bulk work (renames, boilerplate) → Haiku-tier agent.
+
+Rule of thumb: ≥10% context burn or ≥30s block → delegate.
 
 ## The Five Gates
 
+Five questions. Answer all five before acting. If any answer is "no" or "I'm not sure", STOP.
+
 ### 1. Did the user ask for this?
 
-Not "would this be helpful" — did they **actually ask**. If the action isn't in the user's instruction, don't do it. Do exactly N things, not N-1, not N+1.
+Not "would this be helpful" — did they **actually ask**. If the action isn't in the user's instruction, don't do it. Do exactly N things, not N-1, not N+1. See `bonus:discipline` Scope Discipline section for the full rules.
 
 ### 2. Is this reversible?
 

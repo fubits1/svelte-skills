@@ -6,6 +6,8 @@ user-invocable: true
 
 # Document Svelte Component
 
+> **ALWAYS** respect `frontend:editing` skill rules.
+
 Write a `<!-- @component -->` JSDoc comment block at the top of a `.svelte` file. The comment is processed by svelte2tsx into a JSDoc block on the component class — IDE hover tooltips render it directly.
 
 ## Process
@@ -53,6 +55,10 @@ Write a `<!-- @component -->` JSDoc comment block at the top of a `.svelte` file
 - Every single local variable or helper function
 - Types that are already documented in their own `.ts` files
 
+## Prerequisites
+
+This skill edits `.svelte` files — **invoke the `frontend:editing` skill first** and follow its rules (comment style, svelte-autofixer, etc.).
+
 ## Verification
 
-After writing the comment, check that the file still parses by reading the first few lines to confirm the comment is well-formed HTML.
+After writing the comment, run `mcp__svelte__svelte-autofixer` on the file, then read the first few lines to confirm the comment is well-formed HTML.

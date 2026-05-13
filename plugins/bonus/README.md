@@ -22,6 +22,14 @@ Also blocks git commands via Bash (use `gh` or `! git` instead) and piped search
 
 See [anthropics/claude-code#19649](https://github.com/anthropics/claude-code/issues/19649) for context.
 
+### no-absolute-paths (PreToolUse on Bash)
+
+Blocks Bash calls that prepend the project-root absolute path to a command (e.g. `grep -l "foo" /Users/you/projects/myrepo/src/...`). cwd is already the project root, so use relative paths.
+
+Without this hook, Claude Code's permission matcher treats relative and absolute paths as unrelated strings, bloating `permissions.allow` with single-use entries. See [anthropics/claude-code#18200](https://github.com/anthropics/claude-code/issues/18200) for context.
+
+Reads `CLAUDE_PROJECT_DIR` (or falls back to `$PWD`) as the root to block.
+
 ### fix-formatting (PostToolUse on Write|Edit)
 
 Runs Prettier on edited files after every Write/Edit. Fixes Claude's tabs vs spaces inconsistency automatically.

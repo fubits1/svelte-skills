@@ -1,6 +1,6 @@
 # agent
 
-Claude Code plugin for AI coding agent discipline. Twelve skills that enforce research rigor, pre-action safety checks, structured planning, completion verification, day-to-day execution discipline (git safety, dev server lifecycle, command obedience, supply-chain checks), and a meta-skill for syncing skill collections.
+Claude Code plugin for AI coding agent discipline. Thirteen skills that enforce research rigor, pre-action safety checks, structured planning, completion verification, day-to-day execution discipline (git safety, dev server lifecycle, command obedience, supply-chain checks), and a meta-skill for syncing skill collections.
 
 Not frontend-specific, not Svelte-specific. Works with any codebase.
 
@@ -22,6 +22,7 @@ Part of the [svelte-skills](https://github.com/fubits1/svelte-skills) marketplac
 | `pnpm` | Always pnpm (never npm/npx), socket checks before install, official migration CLIs |
 | `socket` | Supply-chain checks via Socket.dev -- score evaluation before `pnpm add`, project scans |
 | `update-skills` | Reconcile two skill collections -- backport from a source dir into a marketplace, with proprietary-reference scrubbing |
+| `tea` | "Coffee or tea? YES." -- triggers when Claude offers an X-or-Y choice instead of just doing the work |
 
 ## Prerequisites
 

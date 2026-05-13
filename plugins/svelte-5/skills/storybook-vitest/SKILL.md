@@ -122,6 +122,7 @@ Two problems interact here:
 
 - Vitest/browser projects: `frontend:vitest` skill.
 - Svelte tests outside Storybook: `svelte-5:testing-svelte` skill.
+- Decorator rendering internals + `props_invalid_value` traps: `references/storybook-decorator.md`.
 
 ## Vitest config file
 

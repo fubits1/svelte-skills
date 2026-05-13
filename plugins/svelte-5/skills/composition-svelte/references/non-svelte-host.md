@@ -45,7 +45,7 @@ The host runs an imperative per-item lifecycle that diffs data against the curre
 ```svelte
 <script lang="ts">
   import { mount, unmount, flushSync } from 'svelte'
-  import Item from './Host/Item.svelte'
+  import Item from './<Host>/Item.svelte'
   // For each datum:
   //   1. Create a host element (document.createElement)
   //   2. mount(Item, { target: hostElement, props })

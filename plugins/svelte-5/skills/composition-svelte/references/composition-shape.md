@@ -15,7 +15,7 @@ Identifiers below (`<Feature>`, `<Feature>.model.ts`, `<View>`) are abstract pla
 
 Three terms get confused in Svelte composition discussions. They are not interchangeable.
 
-**Wrapper** — the root component file. The architectural role in the seven-role contract below. It's what consumers render in their template (`<Feature>.svelte`). Owns lifecycle, third-party bridging, Controller integration, a11y. "Wrapper" is colloquial English — not a Svelte-docs term — but reads cleanly in composition discussions.
+**Wrapper** — the root component file. The architectural role in the seven-role contract below. It's what consumers render in their template (`<Feature>.svelte`). Owns lifecycle, third-party bridging, reads from the Controller, a11y. "Wrapper" is colloquial English — not a Svelte-docs term — but reads cleanly in composition discussions.
 
 **Controller** — the state-and-handlers module (`<Feature>/controller.svelte.ts`). Not a component — a `.svelte.ts` module. Owns reactive state and the handlers that mutate it. Imported by the Wrapper and by Content. "Controller" is borrowed from MVC tradition; Svelte has no native canonical name for this role. See `## Controller` below.
 
@@ -59,7 +59,7 @@ tests/browser/<feature>/
 
 If a child component itself has children, the same rule applies one level deeper: `<Feature>/<SubFeature>.svelte` + `<Feature>/<SubFeature>/`.
 
-**Drop arbitrary feature prefixes inside `<Feature>/`.** The folder carries the context — write `controller.svelte.ts`, not `<feature>Controller.svelte.ts`. Convention-based suffixes like `<Feature>.model.ts` are fine: the prefix is part of the established naming pattern, not redundant.
+**Drop arbitrary feature prefixes inside `<Feature>/`.** The folder carries the context — write `controller.svelte.ts`, not `<feature>Controller.svelte.ts`. The Types file is the one exception in the example above: convention-based suffixes like `<Feature>.model.ts` are fine because the prefix is part of an established naming pattern (similar to `<Feature>.d.ts` or `<Feature>.spec.ts`), not arbitrary feature-tagging. If your project uses `types.ts` instead, drop the prefix there too.
 
 Shared utilities used across features live outside the feature folder — e.g. `$utils/domActions.ts`. Extracted on the SECOND use site, not pre-extracted.
 
@@ -77,7 +77,7 @@ Shared utilities used across features live outside the feature folder — e.g. `
 
 ## Consumer
 
-- ONE import line for setup + content: `import Wrapper from '…'` then `import { children as <alias>, subscribeX } from '<Content>'`.
+- ONE import line for setup + content: `import Wrapper from '…'` then `import { children as <alias>, subscribeX } from './<Feature>/Content.svelte'`.
 - `onMount`: `const unsubscribe = subscribeX(); return () => unsubscribe()`. The wrapper is rendered declaratively in the template, NOT mounted imperatively here (imperative mount is reserved for third-party bridging — see `third-party.md`).
 - Template: `<Wrapper children={<alias>} />` gated on the readiness check. ONE prop. No coordinate props, no `open=`, no third-party-context props.
 - Anti-rules: NEVER pass globals as props; NEVER pass controller state as props. NEVER reassign a global into a local (`const map = appState.map` is a shadow — read `appState.map` at the call site, always).
@@ -215,3 +215,5 @@ Both shapes satisfy the Controller role. Pick what fits your feature — they co
 - **Stories double as browser tests.** `<Feature>/stories/<Feature>.stories.svelte` runs under `svelte-5:storybook-vitest` — each `<Story>` with a `play` function asserts component behaviour in the browser.
 - **Svelte component browser tests live externally** in `tests/browser/<feature>/` at the project root, not inside the feature folder. See `svelte-5:testing-svelte`.
 - **No SSR tests.** Composition-svelte features are client-rendered; SSR couples to routes, not to component composition.
+
+The term "Controller" is not Svelte-canonical — it borrows from MVC / MVP / MVVM. This skill adopts it because no Svelte-native name covers the same shape (reactive state + handlers in a `.svelte.ts` module).

@@ -4,7 +4,7 @@ Read this when: starting a new feature that fits the composition-svelte triggers
 
 The three decisions are independent. Answer all three, in writing, before generating any file. Then jump to the matching shape reference.
 
-## 1. Composition shape
+## 1. Pick a shape
 
 Two shapes; each fits a different problem class.
 
@@ -49,7 +49,13 @@ For overlays in a single-active-overlay client-rendered app (popup, drawer, slid
 
 ### SSR / Server-Side
 
-> TODO
+Interim rule until a full spec is written:
+
+- SSR is **disabled by default** for composition-svelte features. Opt in explicitly per route / feature via a documented flag.
+- Server-rendering only with fully-serializable, sanitized props. Never expose server-only secrets in props or state.
+- Hydration is mandatory on the client when SSR is on.
+- Server-only APIs (DB, secret access, file system) live in dedicated server endpoints — not in shared `.svelte.ts` modules imported by components.
+- Module-level `$state` is **not safe** under SSR if it can be mutated during render — see the SPA table caveat. Prefer context (`createContext`) for any state that could be touched on the server.
 
 ---
 

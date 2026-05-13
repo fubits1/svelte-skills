@@ -77,7 +77,7 @@ No pipes. No chaining. No permission clicks.
 
 ## What Stays in Bash
 
-These are legitimate Bash uses — they have no dedicated tool equivalent:
+These are legitimate Bash uses — either they have no dedicated tool equivalent, or they're narrow, read-only commands (like a simple `ls`) where Bash is fine. The blanket rule still applies for file search / read / mutation: use dedicated tools.
 
 - **gh** (auto-allowed): `gh pr view`, `gh pr list`, `gh run view`, `gh api`, etc. Prefer `gh` over `git` for reading remote state — zero permission clicks.
 - **pnpm/npm**: `pnpm install`, `pnpm build`, `pnpm test`, etc.

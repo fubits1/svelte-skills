@@ -12,7 +12,7 @@ Rules from `frontend:code-style`, `svelte-5:code-style-svelte`, `frontend:editin
 
 ## When to use
 
-- Designing a wrapper or provider component (popup, menu, drawer, modal, tooltip, panel, slide-in, accordion)
+- Designing a wrapper / Provider-style component (popup, menu, drawer, modal, tooltip, panel, slide-in, accordion)
 - Autofixer flagged `bind:this`
 - About to type `$effect(() => { new ThirdPartyThing(...) })`
 - About to write `prop={appState.x}` or `prop={someStore.value}`
@@ -29,9 +29,9 @@ Skip for: CSS-only tweaks, test-only edits, backend / non-Svelte work.
 
 Answer in writing BEFORE generating files. Full tables and pointers in `references/decisions.md`.
 
-1. **Shape**: Wrapper / Provider / Non-Svelte Host?
+1. **Shape**: Composition shape / Non-Svelte Host?
 2. **Snippet API**: default `children`, named snippets, or mix?
-3. **State location**: module-level `$state` (`.svelte.ts`), local, context, or existing store?
+3. **State location** — where each piece of state lives. Options can coexist; pick what fits each piece. `.svelte.ts` modules (module-level `$state` exports, classes with `$state` fields), component-local `$state`, context (`createContext`), existing global state.
 
 If intent is ambiguous, ask via `AskUserQuestion` — never infer silently.
 
@@ -41,7 +41,6 @@ If intent is ambiguous, ask via `AskUserQuestion` — never infer silently.
 | --- | --- |
 | Picking shape and snippet/state design | `references/decisions.md` |
 | Composition shape — seven-role contract + folder structure (covers both caller-content and view-dispatcher / Provider behaviour) | `references/composition-shape.md` |
-| Provider shape | `references/provider-shape.md` |
 | Non-Svelte Host shape | `references/non-svelte-host.md` |
 | Lifecycle rune choice | `references/lifecycle.md` |
 | Bridging to a third-party DOM library | `references/third-party.md` |

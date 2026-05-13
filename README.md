@@ -126,6 +126,21 @@ These tools are referenced by the skills. Not all are required -- install what y
 | [Prettier](https://prettier.io/) | [prettier/prettier](https://github.com/prettier/prettier) |
 | [markdownlint-cli](https://npmx.dev/package/markdownlint-cli) | [igorshubovych/markdownlint-cli](https://github.com/igorshubovych/markdownlint-cli) |
 
+## Releases
+
+The whole marketplace ships as one version. Browse history at [Releases](https://github.com/fubits1/svelte-skills/releases).
+
+To pull the latest after a new release:
+
+```
+/plugin marketplace update svelte-skills
+/plugin update agent              # repeat per installed plugin
+```
+
+Or rely on Claude Code's auto-update.
+
+Maintainer release process: see [RELEASING.md](RELEASING.md).
+
 ## License
 
 MIT

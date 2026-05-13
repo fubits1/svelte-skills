@@ -1,0 +1,25 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm i -g @anthropic-ai/claude-code
+      # `claude plugin validate .` (v2.1.119) rejects $schema/description at
+      # the root of marketplace.json even though both are accepted by the
+      # loader. Validate each plugin until the marketplace schema catches up.
+      - name: Validate plugins
+        run: |
+          for d in plugins/*/; do
+            claude plugin validate "$d" || exit 1
+          done

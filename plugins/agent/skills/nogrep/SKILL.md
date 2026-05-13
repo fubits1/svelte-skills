@@ -1,6 +1,6 @@
 ---
 name: nogrep
-description: "STOP using Bash for file search/read operations. Prefer fff MCP (frecency-ranked, git-aware) over Grep/Read/Glob; both are auto-allowed and require ZERO permission clicks. Bash grep/cat/find/head/tail/sed/awk/rg/wc require user approval EVERY TIME in the IDE. Bash `ls` is permitted for narrow, read-only directory listing, but fff MCP is preferred for searching/reading files. Auto-invoke whenever searching files, reading files, exploring code, finding files, counting matches, or looking at file contents — even multiline patterns."
+description: "Use fff MCP / Grep / Read / Glob — never Bash grep/cat/find/head/tail/sed/awk/rg/wc — for file search and read. Dedicated tools are auto-allowed; Bash equivalents need approval every time. Auto-invoke when searching, reading, or counting in files."
 user-invocable: true
 ---
 

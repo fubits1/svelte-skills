@@ -69,7 +69,7 @@ UX bugs in overlay-style components almost always span ALL overlay-style compone
 
 ## Done close-path matrix
 
-Overlay-specific; other feature types (forms, tables, panels without close behaviour) need their own equivalent matrix. Before declaring an overlay feature done, run ALL of these in a real browser via Playwright MCP:
+Overlay-specific. Other feature types (forms, tables, panels without close behaviour) need their own done-matrix — write one local to that feature, mirroring this structure (interactions → expected post-state, exit paths, regression neighbours). Before declaring an overlay feature done, run ALL of these in a real browser via Playwright MCP:
 
 - [ ] X / close button → wrapper popup + auxiliary elements both cleared
 - [ ] click-outside / `closeOnClick` → both cleared

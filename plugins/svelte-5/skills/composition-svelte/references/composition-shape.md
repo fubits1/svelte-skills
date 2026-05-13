@@ -118,6 +118,7 @@ export type View = 'a' | 'b' | 'closed'
 export const state = $state<{ view: View }>({ view: 'closed' })
 
 // Content.svelte
+import type { Component } from 'svelte'
 import ViewA from './Views/ViewA.svelte'
 import ViewB from './Views/ViewB.svelte'
 
@@ -142,6 +143,11 @@ If your "view-dispatcher" only has one View → use Variant A. The variant is fo
 - **Handler**: a function the Controller exports that the Content's snippets call to mutate state in response to user interaction (`select(id)`, `submit(payload)`, `dismiss()`, etc.). Not Svelte 4's `use:action` (replaced by `{@attach}`) or SvelteKit form actions. Handlers are pure: they take a Payload, mutate the appropriate state, and **do not** call `close()` — closing is the snippet's responsibility (see Content section).
 - **Sentinel id**: a non-collidable string used by the Controller when the feature has no natural domain id (e.g. the singleton instance of an overlay that needs a key in a store keyed by id). Pick a prefix no real id will ever collide with — common conventions include double-underscore + lowercase (`__feature__`) or a project-wide sentinel namespace.
 
+  ```ts
+  // controller.svelte.ts
+  export const SENTINEL_ID = '__overlay__'
+  ```
+
 ### Controller styles: module-level vs class
 
 Two valid shapes for the Controller — pick what fits your feature; they coexist fine.
@@ -155,8 +161,8 @@ export const state = $state<{ open: boolean; items: Item[] }>({
   items: [],
 })
 
-export function subscribe() {
-  // attach listeners that mutate state
+export function subscribeItems() {
+  // attach listeners that mutate state.items
   return () => {
     /* detach */
   }
@@ -166,6 +172,8 @@ export function select(id: string) {
   // pure handler; mutates state; does not call close()
 }
 ```
+
+The verb-pair is `subscribeX` / `unsubscribeX` where X names what's being subscribed to. The unsubscribe half is the return value (anonymous teardown), as shown.
 
 **Class with `$state` fields** — preferred by official Svelte guidance for sharing reactivity, and the right choice when you want multiple instances, richer encapsulation, or type-safe testing helpers.
 
@@ -215,5 +223,3 @@ Both shapes satisfy the Controller role. Pick what fits your feature — they co
 - **Stories double as browser tests.** `<Feature>/stories/<Feature>.stories.svelte` runs under `svelte-5:storybook-vitest` — each `<Story>` with a `play` function asserts component behaviour in the browser.
 - **Svelte component browser tests live externally** in `tests/browser/<feature>/` at the project root, not inside the feature folder. See `svelte-5:testing-svelte`.
 - **No SSR tests.** Composition-svelte features are client-rendered; SSR couples to routes, not to component composition.
-
-The term "Controller" is not Svelte-canonical — it borrows from MVC / MVP / MVVM. This skill adopts it because no Svelte-native name covers the same shape (reactive state + handlers in a `.svelte.ts` module).

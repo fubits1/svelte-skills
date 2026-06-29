@@ -131,6 +131,10 @@ Or rely on Claude Code's auto-update.
 
 Skills in this marketplace have auto-invocation triggers defined in their descriptions. Claude Code may invoke them automatically when it detects relevant context (e.g., editing a `.svelte` file, declaring a task done, starting a migration). You can also invoke any skill manually at any time via `/skill-name`. To disable auto-invocation for a specific skill, add `disable-model-invocation: true` to that skill's SKILL.md frontmatter.
 
+## Using these skills in OpenCode
+
+See [Using these skills in OpenCode](https://github.com/fubits1/ronin-skills#using-these-skills-in-opencode) in ronin-skills.
+
 ## Context budget
 
 > Research as of Opus 4.6 - might need revisiting.

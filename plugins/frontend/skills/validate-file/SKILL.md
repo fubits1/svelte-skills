@@ -37,7 +37,7 @@ If you edited 3 files, you validate 3 times (or group by tool).
 ### Batch-lint multiple files
 
 To lint every file currently staged in git, use `pnpm lint:staged`.
-To also include commits ahead of the upstream branch (or `origin/main` as fallback), use `pnpm lint:staged --committed`, useful right before pushing.
+To also include commits ahead of the upstream branch (or, when no upstream is set, commits not yet on any remote), use `pnpm lint:staged --committed` — useful right before pushing.
 
 `lint:staged` calls into the same `lint-file` chain documented below, so all the per-file rules still apply.
 

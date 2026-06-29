@@ -10,8 +10,8 @@ import { lintFile } from "../validate/lint-file.ts";
 //   node --experimental-strip-types scripts/bin/lint-staged.ts
 //   node --experimental-strip-types scripts/bin/lint-staged.ts --committed
 //
-// `--committed` widens the scope to include commits ahead of upstream (or origin/main as
-// fallback). Useful right before pushing a branch.
+// `--committed` widens the scope to include commits ahead of upstream (or, with no
+// upstream set, commits that exist on no remote). Useful right before pushing a branch.
 
 const SOURCE_EXTS = /\.(ts|js|svelte)$/i;
 
@@ -53,30 +53,39 @@ const staged = splitFiles(
 
 let committed: string[] = [];
 if (includeCommitted) {
-  let range = gitOrEmpty([
+  const upstream = gitOrEmpty([
     "rev-parse",
     "--abbrev-ref",
     "--symbolic-full-name",
     "@{u}",
   ]);
-  if (!range) {
-    range = gitOrEmpty(["rev-parse", "--verify", "origin/main"])
-      ? "origin/main"
-      : "";
-  }
-  if (range) {
+  if (upstream) {
     committed = splitFiles(
       gitOrEmpty([
         "diff",
         "--name-only",
         "--diff-filter=ACMR",
-        `${range}...HEAD`,
+        `${upstream}...HEAD`,
+      ]),
+    );
+  } else if (gitOrEmpty(["rev-list", "-1", "--remotes"])) {
+    // no upstream: scan only local-only commits, so work merged in from
+    // already-pushed branches is not re-linted
+    committed = splitFiles(
+      gitOrEmpty([
+        "log",
+        "--name-only",
+        "--diff-filter=ACMR",
+        "--format=",
+        "HEAD",
+        "--not",
+        "--remotes",
       ]),
     );
   } else {
     $.logWarn(
       "lint:staged --committed",
-      "no upstream and no origin/main; skipping committed scan",
+      "no upstream and no remote refs; skipping committed scan",
     );
   }
 }

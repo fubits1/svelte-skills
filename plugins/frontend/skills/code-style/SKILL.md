@@ -11,7 +11,7 @@ user-invocable: true
 Single-line `if` without braces is OK only when the entire statement fits on one line:
 
 ```js
-// OK — fits on one line
+// OK — fits on one line. But then we need an empty line after the statement, except there is another if, then we need an empty line after the last if.
 if (x) doThing();
 
 // NOT OK — body wraps to the next line, needs braces

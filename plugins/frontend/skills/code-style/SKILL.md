@@ -14,6 +14,17 @@ Single-line `if` without braces is OK only when the entire statement fits on one
 // OK — fits on one line. But then we need an empty line after the statement, except there is another if, then we need an empty line after the last if.
 if (x) doThing();
 
+//OK
+if (x) doThing();
+if (y) doThingY();
+if (z) do ThingZ();
+
+let x = 1
+
+//NOT OK
+if (x) doThing();
+let x = 1
+
 // NOT OK — body wraps to the next line, needs braces
 if (x)
   doThing();

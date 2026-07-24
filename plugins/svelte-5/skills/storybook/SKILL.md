@@ -9,6 +9,7 @@ user-invocable: true
 - ALWAYS use `mcp__storybook__get-storybook-story-instructions` before writing stories.
 - ALWAYS use `mcp__storybook__preview-stories` to preview stories after writing them.
 - Stories use `parameters.fixtures` for fixture overrides.
+- API mocking (handlers, fixtures, story-scoped overrides, `msw-storybook-addon` wiring and its v2→v3 break): `svelte-5:msw` skill.
 - Storybook is usually already running: just navigate with Playwright MCP.
 - Verify every story in the browser via Playwright MCP: don't assume it works.
 - CSS imports: trace chains through BOTH `App.svelte` AND `.storybook/preview.ts`. Moving imports out of the SCSS chain breaks Storybook unless also added to `preview.ts` or `storybook.scss`.

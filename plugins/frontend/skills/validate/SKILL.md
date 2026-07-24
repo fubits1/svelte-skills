@@ -22,7 +22,7 @@ user-invocable: true
 - Get a baseline BEFORE making config changes, then compare.
 - Never declare "done" when error counts drop. Compare rule-by-rule.
 - Unit tests prove nothing about component APIs: verify in browser (see `frontend:playwright` skill).
-- `pnpm test` does NOT verify MSW handlers, fixtures, or Storybook rendering.
+- `pnpm test` does NOT verify MSW handlers, fixtures, or Storybook rendering. Those need the storybook project and a browser check (`svelte-5:msw`, `svelte-5:storybook-vitest`).
 - If `pnpm validate` exists in package.json, run it as the final verification step. It combines vitest + lint + typecheck + svelte-check.
 - When fixing a bug found via browser interaction: reproduce the exact user flow via Playwright BEFORE declaring done.
 - Never declare "done" when verification failed or was skipped.

@@ -34,7 +34,7 @@ Browser/MSW/storybook suites are inherently flaky on a single run. Before any "g
 4. Run AGAIN: counts must match within ±0 tests, setup time within ±30%.
 5. Run a THIRD time: same.
 
-If any of (3)(4)(5) diverge: the suite is flaky. Investigate the flake itself (missing `optimizeDeps.entries`, race in async teardowns, MSW handler order) BEFORE claiming any fix works.
+If any of (3)(4)(5) diverge: the suite is flaky. Investigate the flake itself (missing `optimizeDeps.entries`, race in async teardowns, MSW handler order or a missing `worker.resetHandlers()` in `afterEach`: `svelte-5:msw`) BEFORE claiming any fix works.
 
 A single passing run on this kind of suite tells you nothing about whether your fix worked. It tells you only that ONE possible execution order happened to pass.
 
@@ -68,7 +68,7 @@ vitest --tags-filter='unit || e2e'       # include
 vitest --tags-filter='(unit || e2e) && !slow'  # combine
 ```
 
-**Critical:** tags only skip the test _body_, the file is still **imported**. If the import itself throws (e.g. MSW handlers throwing on missing fixtures), the tag won't help. Module-level code must be import-safe (warn, don't throw).
+**Critical:** tags only skip the test _body_, the file is still **imported**. If the import itself throws (e.g. MSW handlers throwing on missing fixtures: `svelte-5:msw`), the tag won't help. Module-level code must be import-safe (warn, don't throw).
 
 **Critical:** `pnpm test -- --tags-filter='!ci-skip'` does NOT work. The `--` makes vitest treat `--tags-filter` as a positional arg. Use a dedicated script: `"test:ci": "vitest --run --tags-filter='!ci-skip'"`.
 

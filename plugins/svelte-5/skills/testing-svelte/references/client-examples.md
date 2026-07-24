@@ -106,13 +106,19 @@ Test with real FormData/Request objects:
 
 ```typescript
 // api/users/server.test.ts
-import { test, expect, describe, vi } from 'vitest';
+import { test, expect, describe, beforeEach, vi } from 'vitest';
 import { POST } from './+server';
 import * as database from '$lib/server/database';
 
 vi.mock('$lib/server/database');
 
 describe('POST /api/users', () => {
+	// Vitest 4 defaults clearMocks: false - call history leaks between
+	// tests, breaking the not.toHaveBeenCalled() assertions below
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
 	test('creates user with valid data', async () => {
 		// Mock only external services
 		vi.mocked(database.createUser).mockResolvedValue({
@@ -175,6 +181,7 @@ describe('POST /api/users', () => {
 		expect(response.status).toBe(400);
 		expect(data.errors.email).toBeDefined();
 		expect(data.errors.password).toBeDefined();
+		expect(database.createUser).not.toHaveBeenCalled();
 	});
 });
 ```

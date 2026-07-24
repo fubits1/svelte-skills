@@ -12,7 +12,7 @@ user-invocable: true
 ```typescript
 // Client-side component test (.svelte.test.ts)
 import { render } from "vitest-browser-svelte";
-import { expect } from "vitest";
+import { expect, test } from "vitest";
 import { page } from "vitest/browser";
 import Button from "./button.svelte";
 

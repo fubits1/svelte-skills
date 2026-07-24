@@ -1,3 +1,5 @@
+# Critical Testing Patterns
+
 ## Critical Patterns
 
 ### Form Handling in SvelteKit
@@ -11,7 +13,7 @@ const submit = page.getByRole('button', { name: /submit/i });
 await submit.click(); // ⚠️ Infinite hang
 
 // ✅ DO - Test form state directly
-render(MyForm, { props: { errors: { email: 'Required' } } });
+await render(MyForm, { props: { errors: { email: 'Required' } } });
 
 const emailInput = page.getByRole('textbox', { name: /email/i });
 await emailInput.fill('test@example.com');

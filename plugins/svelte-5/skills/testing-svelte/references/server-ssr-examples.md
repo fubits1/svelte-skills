@@ -1,70 +1,6 @@
-    	vi.mocked(database.createUser).mockResolvedValue({
-    		id: '123',
-    		email: 'user@example.com',
-    	});
+# Server & SSR Test Examples
 
-    	// Use real FormData
-    	const formData = new FormData();
-    	formData.append('email', 'user@example.com');
-    	formData.append('password', 'securepass123');
-
-    	// Use real Request object
-    	const request = new Request('http://localhost/api/users', {
-    		method: 'POST',
-    		body: formData,
-    	});
-
-    	const response = await POST({ request });
-    	const data = await response.json();
-
-    	expect(response.status).toBe(201);
-    	expect(data.email).toBe('user@example.com');
-    	expect(database.createUser).toHaveBeenCalledWith({
-    		email: 'user@example.com',
-    		password: 'securepass123',
-    	});
-    });
-
-    test('rejects invalid email format', async () => {
-    	const formData = new FormData();
-    	formData.append('email', 'invalid-email');
-    	formData.append('password', 'pass123');
-
-    	const request = new Request('http://localhost/api/users', {
-    		method: 'POST',
-    		body: formData,
-    	});
-
-    	const response = await POST({ request });
-    	const data = await response.json();
-
-    	expect(response.status).toBe(400);
-    	expect(data.errors.email).toBeDefined();
-    	expect(database.createUser).not.toHaveBeenCalled();
-    });
-
-    test('handles missing required fields', async () => {
-    	const formData = new FormData();
-    	// Missing email and password
-
-    	const request = new Request('http://localhost/api/users', {
-    		method: 'POST',
-    		body: formData,
-    	});
-
-    	const response = await POST({ request });
-    	const data = await response.json();
-
-    	expect(response.status).toBe(400);
-    	expect(data.errors.email).toBeDefined();
-    	expect(data.errors.password).toBeDefined();
-    });
-
-});
-
-````
-
-### Example 4: SSR Test
+## SSR Test
 
 Test server-side rendering output:
 
@@ -83,8 +19,8 @@ describe('Page SSR', () => {
 		).not.toThrow();
 	});
 
-	test('renders correct HTML structure', async () => {
-		const { body } = await render(PageComponent, {
+	test('renders correct HTML structure', () => {
+		const { body } = render(PageComponent, {
 			props: {
 				data: {
 					title: 'Welcome',
@@ -99,8 +35,8 @@ describe('Page SSR', () => {
 		expect(body).toContain('<li>Gamma</li>');
 	});
 
-	test('applies correct CSS classes', async () => {
-		const { body } = await render(PageComponent, {
+	test('applies correct CSS classes', () => {
+		const { body } = render(PageComponent, {
 			props: { data: { status: 'success' } },
 		});
 
@@ -109,14 +45,14 @@ describe('Page SSR', () => {
 		expect(body).toContain('<svg'); // Icon present
 	});
 
-	test('handles empty data gracefully', async () => {
-		const { body } = await render(PageComponent, {
+	test('handles empty data gracefully', () => {
+		const { body } = render(PageComponent, {
 			props: { data: { items: [] } },
 		});
 
 		expect(body).toContain('No items found');
 	});
 });
-````
+```
 
 ---

@@ -1,3 +1,5 @@
+# Client-Server Test Alignment
+
 ## Client-Server Alignment
 
 ### The Problem
@@ -62,7 +64,8 @@ test('validates email', () => {
 });
 
 // Server test - same validation!
-const emailError = validateEmail(formData.get('email'));
+// FormData.get() returns string | File | null - narrow before validating
+const emailError = validateEmail(String(formData.get('email') ?? ''));
 if (emailError) {
 	return json({ errors: { email: emailError } }, { status: 400 });
 }

@@ -12,12 +12,14 @@ user-invocable: true
 ```typescript
 // Client-side component test (.svelte.test.ts)
 import { render } from "vitest-browser-svelte";
-import { expect } from "vitest";
+import { expect, test } from "vitest";
+import { page } from "vitest/browser";
 import Button from "./button.svelte";
 
 test("button click increments counter", async () => {
-  const { page } = render(Button);
-  const button = page.getByRole("button", { name: /click me/i });
+  await render(Button);
+  const button = page.getByRole("button", { name: /click me/i }); // module page
+  // or from the result: const screen = await render(Button); screen.getByRole(...)
 
   await button.click();
   await expect.element(button).toHaveTextContent("Clicked: 1");
@@ -83,6 +85,7 @@ strings.
 - Test files: `.svelte.test.ts` (client), `.ssr.test.ts` (SSR),
   `server.test.ts` (API)
 - Import `page` from `vitest/browser`, not `@vitest/browser/context`
+- `vitest-browser-svelte` v3: `render` is **async-only**, always `await render(...)`; the returned `unmount()` is async too. The result is `RenderResult` (extends the locator selectors, no `page` field), so get `page` from `vitest/browser`
 - Locators have no `.focus()` method: use `.click()` to focus elements
 - `<a href>` clicks in tests navigate the iframe away, crashing the test. Avoid clicking links; test radio/button state instead.
 - `vi.waitFor()` is unreliable in browser mode: prefer `await expect.element()` retry or `await new Promise(r => setTimeout(r, N))` for async init.

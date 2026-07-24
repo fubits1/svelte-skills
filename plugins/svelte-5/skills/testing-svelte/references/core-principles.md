@@ -7,11 +7,11 @@ retry logic. **Never** use the `container` object.
 
 ```typescript
 // ❌ NEVER - No retry logic, brittle tests
-const { container } = render(MyComponent);
+const { container } = await render(MyComponent);
 const button = container.querySelector('button');
 
 // ✅ ALWAYS - Auto-retry, resilient tests
-render(MyComponent);
+await render(MyComponent);
 const button = page.getByRole('button', { name: 'Submit' });
 await button.click();
 ```

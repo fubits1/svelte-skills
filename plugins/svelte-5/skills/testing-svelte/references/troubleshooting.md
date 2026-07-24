@@ -1,3 +1,5 @@
+# Test Troubleshooting
+
 ## Common Errors & Solutions
 
 ### Error 1: Strict Mode Violation
@@ -64,7 +66,7 @@ const value = untrack(() => component.derivedValue);
 await submitButton.click(); // Hangs!
 
 // ✅ DO - Test form state directly
-render(MyForm, { props: { errors: { email: 'Required' } } });
+await render(MyForm, { props: { errors: { email: 'Required' } } });
 await expect.element(page.getByText('Required')).toBeInTheDocument();
 ```
 
@@ -199,7 +201,7 @@ import { render } from 'vitest-browser-svelte';
 import { expect } from 'vitest';
 
 test('component behavior', async () => {
- render(Component);
+ await render(Component);
  await expect.element(page.getByRole('button')).toBeInTheDocument();
 });
 

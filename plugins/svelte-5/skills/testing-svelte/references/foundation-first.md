@@ -1,3 +1,5 @@
+# Foundation-First Test Coverage
+
 ## Foundation First Methodology
 
 **Aim for 100% test coverage** by planning comprehensive test
@@ -50,7 +52,7 @@ Remove `.skip` as you implement each test:
 describe('ContactForm', () => {
 	describe('Initial Rendering', () => {
 		test('renders with default props', async () => {
-			render(ContactForm);
+			await render(ContactForm);
 
 			await expect
 				.element(page.getByRole('textbox', { name: /email/i }))

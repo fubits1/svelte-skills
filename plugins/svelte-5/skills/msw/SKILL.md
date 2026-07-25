@@ -40,7 +40,7 @@ export default {
   loaders: [
     mswLoader(async () => {
       const worker = setupWorker(...handlers); // the baseline resetHandlers() restores to
-      await worker.start({ onUnhandledRequest: "bypass", quiet: true });
+      await worker.start({ onUnhandledRequest: "warn", quiet: true });
       return worker;
     }),
   ],

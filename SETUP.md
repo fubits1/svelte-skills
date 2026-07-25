@@ -66,11 +66,11 @@ pnpm add -D @vitest/browser-playwright vitest-browser-svelte
 npx playwright install chromium
 ```
 
-For API mocking (see the `svelte-5:msw` skill):
+For API mocking (see the `svelte-5:msw` skill). `msw-storybook-addon@3` (2026-07) reworked the entry points and deprecated the CSF 3 loader API; on v2, or before upgrading, read the v2-to-v3 notes in that skill:
 
 ```bash
 pnpm add -D msw msw-storybook-addon
-pnpm exec msw init public --save    # SvelteKit: `msw init static --save`
+pnpm exec msw init public --save    # SvelteKit: pnpm exec msw init static --save
 ```
 
 `msw init` writes `mockServiceWorker.js` into that directory and records it under `msw.workerDirectory` in `package.json`. Commit the worker file, and make sure Storybook serves it via `staticDirs`.

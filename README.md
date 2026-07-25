@@ -139,7 +139,7 @@ See [Using these skills in OpenCode](https://github.com/fubits1/ronin-skills#usi
 
 > Research as of Opus 4.6 - might need revisiting.
 
-Claude Code allocates 1% of context window (fallback: 8,000 chars) for skill descriptions. Each description is capped at 250 chars. With this marketplace (~20 skills) plus `agent@ronin-skills` (~15), superpowers (~14), and Svelte MCP (~2), you'll have ~51 skill descriptions loaded.
+Claude Code allocates 1% of context window (fallback: 8,000 chars) for skill descriptions. Each description is capped at 250 chars. With this marketplace (~21 skills) plus `agent@ronin-skills` (~15), superpowers (~14), and Svelte MCP (~2), you'll have ~52 skill descriptions loaded.
 
 - **Opus 4.6 (1M context)**: budget is ~40,000 chars. 51 skills fit comfortably.
 - **Sonnet (200k context)**: budget is ~8,000 chars. Descriptions may get truncated, reducing auto-invocation accuracy.

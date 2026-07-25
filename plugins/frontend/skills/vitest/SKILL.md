@@ -11,9 +11,9 @@ user-invocable: true
 - **Config file:** use **`vitest.config.{ts,mts,js,mjs}`** for `test` / `test.projects`. Vitest-only-in-`vite.config` merges badly with multiple projects and Storybook.
 - **Gate:** no `vitest.config.*` but `vite.config` has **`test:`** (or no Vitest file), **ask** before adding projects or Storybook whether to introduce `vitest.config.ts` and move `test` out of Vite.
 - `page.viewport(width, height)`: import from `vitest/browser`.
-- **`test.projects`** for mixed node/browser and Storybook. Either **`extends: true`** (inherit merged root: [Storybook Vitest example](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#example-configuration-files) with `mergeConfig(viteConfig, …)`) or **`extends: './vite.config.ts'`** per project; put `test` + `plugins` on each project (**storybook-vitest** skill).
+- **`test.projects`** for mixed node/browser and Storybook. Either **`extends: true`** (inherit merged root: [Storybook Vitest example](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#example-configuration-files) with `mergeConfig(viteConfig, …)`) or **`extends: './vite.config.ts'`** per project; put `test` + `plugins` on each project (`svelte-5:storybook-vitest`).
 - Browser concurrency: `vitest-browser-svelte/pure` when you need no auto-cleanup.
-- **`vitest-browser-svelte` v3:** `render` is async-only (`await render(...)`); usage in the **testing-svelte** skill. v3 gives `/pure` full export parity with the main entry and exports the `RenderResult` type.
+- **`vitest-browser-svelte` v3:** `render` is async-only (`await render(...)`); usage in `svelte-5:testing-svelte`. v3 gives `/pure` full export parity with the main entry and exports the `RenderResult` type.
 - **Assertions: value, not presence.** Presence-only assertions (`toBeInTheDocument`, `not.toBe('')`, `toHaveBeenCalled`) ship regressions. Every interaction test must compute an expected value from the action and assert equality. See [references/assertions.md](references/assertions.md) for the pattern, callback-payload rules, and how to tell a harness failure from a behavior failure.
 - **Locators: prefer accessible queries, avoid `data-testid`.** `data-testid` is an a11y smell ([tkdodo, 2025](https://tkdodo.eu/blog/test-ids-are-an-a11y-smell)), adding a testid means the element has no accessible name, role, or text for users of AT either. Fix the a11y hole, not the test. Use `page.getByRole(...)`, `getByLabelText`, `getByText`, `getByPlaceholderText`, `getByTitle`, `getByAltText` first. They mirror how screen readers find elements and fail when a11y regresses. Reach for `data-testid` only as a last resort: charting canvases, truly decorative content, or legacy markup you cannot change, and when you do, leave a comment explaining why no accessible selector worked.
 - Upgrade: bump all **`@vitest/*`** together.
@@ -22,7 +22,7 @@ user-invocable: true
 - In `test.projects`, `plugins` / `resolve` / `optimizeDeps` belong **inside each project**, not only at root: projects do not inherit root plugins **by default** (`extends: true` inherits the merged root).
 - **`optimizeDeps.exclude`:** Svelte 5 runes in `.svelte.js` (e.g. Melt UI) so vite-plugin-svelte handles them, not Vite's dependency pre-bundler (Rolldown since Vite 8, esbuild before).
 - **`optimizeDeps.include`:** deps that trigger mid-test optimization (e.g. `minisearch`) to reduce flakes.
-- **Storybook:** **`vitest.config.ts`** + `storybookTest` + browser `playwright()`: **storybook-vitest** skill, [manual setup](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#manual-setup-advanced).
+- **Storybook:** **`vitest.config.ts`** + `storybookTest` + browser `playwright()`: `svelte-5:storybook-vitest`, [manual setup](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#manual-setup-advanced).
 
 ## Browser test flake hygiene
 
@@ -34,7 +34,7 @@ Browser/MSW/storybook suites are inherently flaky on a single run. Before any "g
 4. Run AGAIN: counts must match within ±0 tests, setup time within ±30%.
 5. Run a THIRD time: same.
 
-If any of (3)(4)(5) diverge: the suite is flaky. Investigate the flake itself (missing `optimizeDeps.entries`, race in async teardowns, MSW handler order) BEFORE claiming any fix works.
+If any of (3)(4)(5) diverge: the suite is flaky. Investigate the flake itself (missing `optimizeDeps.entries`, race in async teardowns, MSW handler order or a missing `worker.resetHandlers()` in `afterEach`: `svelte-5:msw`) BEFORE claiming any fix works.
 
 A single passing run on this kind of suite tells you nothing about whether your fix worked. It tells you only that ONE possible execution order happened to pass.
 
@@ -68,7 +68,7 @@ vitest --tags-filter='unit || e2e'       # include
 vitest --tags-filter='(unit || e2e) && !slow'  # combine
 ```
 
-**Critical:** tags only skip the test _body_, the file is still **imported**. If the import itself throws (e.g. MSW handlers throwing on missing fixtures), the tag won't help. Module-level code must be import-safe (warn, don't throw).
+**Critical:** tags only skip the test _body_, the file is still **imported**. If the import itself throws (e.g. MSW handlers throwing on missing fixtures: `svelte-5:msw`), the tag won't help. Module-level code must be import-safe (warn, don't throw).
 
 **Critical:** `pnpm test -- --tags-filter='!ci-skip'` does NOT work. The `--` makes vitest treat `--tags-filter` as a positional arg. Use a dedicated script: `"test:ci": "vitest --run --tags-filter='!ci-skip'"`.
 

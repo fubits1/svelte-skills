@@ -12,7 +12,7 @@ Claude Code plugin marketplace for Svelte developers. Disciplined, opinionated w
 > - a hybrid Oxlint + ESLint setup
 > - Vitest (incl llms.txt) / Storybook (incl. MCP) / Playwright (incl. MCP)
 > - fff instead of grep/bash etc.
-
+>
 > This project has been heavily inspired by [svelte-skills-kit](https://github.com/spences10/svelte-skills-kit).
 
 ## Plugins
@@ -28,7 +28,7 @@ frontend  <--  svelte-5  <--  svelte-5-migration
 | Plugin | Skills/Hooks | What it does |
 | --- | --- | --- |
 | [frontend](plugins/frontend/) | 13 skills | Validation, pixel-perfect, editing, code style, testing, migration, JS/CSS config |
-| [svelte-5](plugins/svelte-5/) | 6 skills | Svelte code style, component docs, composition patterns, Storybook, Svelte testing |
+| [svelte-5](plugins/svelte-5/) | 7 skills | Svelte code style, component docs, composition patterns, Storybook, Svelte testing, MSW API mocking |
 | [svelte-5-migration](plugins/svelte-5-migration/) | 1 skill | Svelte 3/4 to 5 migration workflow |
 
 ## Migration from 0.3.x
@@ -139,9 +139,9 @@ See [Using these skills in OpenCode](https://github.com/fubits1/ronin-skills#usi
 
 > Research as of Opus 4.6 - might need revisiting.
 
-Claude Code allocates 1% of context window (fallback: 8,000 chars) for skill descriptions. Each description is capped at 250 chars. With this marketplace (~20 skills) plus `agent@ronin-skills` (~15), superpowers (~14), and Svelte MCP (~2), you'll have ~51 skill descriptions loaded.
+Claude Code allocates 1% of context window (fallback: 8,000 chars) for skill descriptions. Each description is capped at 250 chars. With this marketplace (~21 skills) plus `agent@ronin-skills` (~15), superpowers (~14), and Svelte MCP (~2), you'll have ~52 skill descriptions loaded.
 
-- **Opus 4.6 (1M context)**: budget is ~40,000 chars. 51 skills fit comfortably.
+- **Opus 4.6 (1M context)**: budget is ~40,000 chars. 52 skills fit comfortably.
 - **Sonnet (200k context)**: budget is ~8,000 chars. Descriptions may get truncated, reducing auto-invocation accuracy.
 
 Run `/context` to check for budget warnings. Override with `SLASH_COMMAND_TOOL_CHAR_BUDGET=<chars>`.
@@ -176,6 +176,8 @@ These tools are referenced by the skills. Not all are required -- install what y
 | [Playwright](https://playwright.dev/) | [microsoft/playwright](https://github.com/microsoft/playwright) |
 | [Storybook addon-vitest](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon) | [storybookjs/storybook](https://github.com/storybookjs/storybook) (`code/addons/vitest/`) |
 | [Storybook addon-svelte-csf](https://storybook.js.org/addons/@storybook/addon-svelte-csf) | [storybookjs/addon-svelte-csf](https://github.com/storybookjs/addon-svelte-csf) |
+| [MSW](https://mswjs.io/) | [mswjs/msw](https://github.com/mswjs/msw) |
+| [msw-storybook-addon](https://storybook.js.org/addons/msw-storybook-addon) | [mswjs/msw-storybook-addon](https://github.com/mswjs/msw-storybook-addon) |
 | [Prettier](https://prettier.io/) | [prettier/prettier](https://github.com/prettier/prettier) |
 | [markdownlint-cli](https://npmx.dev/package/markdownlint-cli) | [igorshubovych/markdownlint-cli](https://github.com/igorshubovych/markdownlint-cli) |
 | [fff](https://fff.dmtrkovalenko.dev/) | [dmtrKovalenko/fff](https://github.com/dmtrKovalenko/fff) |

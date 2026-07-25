@@ -29,7 +29,7 @@
     {
       "name": "svelte-5",
       "source": "./plugins/svelte-5",
-      "description": "Svelte development workflows — component docs, code style, Storybook, testing with vitest-browser-svelte.",
+      "description": "Svelte development workflows — component docs, code style, Storybook, testing with vitest-browser-svelte, MSW API mocking.",
       "version": "0.6.5",
       "author": {
         "name": "fubits1"
@@ -39,7 +39,9 @@
         "svelte",
         "storybook",
         "testing",
-        "components"
+        "components",
+        "msw",
+        "mocking"
       ],
       "license": "MIT"
     },
@@ -52,13 +54,7 @@
         "name": "fubits1"
       },
       "category": "svelte",
-      "keywords": [
-        "svelte",
-        "migration",
-        "svelte-5",
-        "runes",
-        "upgrade"
-      ],
+      "keywords": ["svelte", "migration", "svelte-5", "runes", "upgrade"],
       "license": "MIT"
     }
   ],

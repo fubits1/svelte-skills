@@ -1,7 +1,7 @@
 ---
 name: storybook-vitest
 description: "Svelte CSF (@storybook/addon-svelte-csf) + @storybook/addon-vitest: .stories.svelte as Vitest browser tests with play functions and tags. Use when wiring or debugging Svelte Storybook tests in Vitest/CI, not for React/Vue/CSF3 .ts story files."
-compatibility: Vitest 4.1+, MSW 2, Storybook for Svelte (Vite), @storybook/addon-svelte-csf. Ignore JSX/TSX/CSF3-TS story patterns here.
+compatibility: Vitest 4.1+, MSW 2, msw-storybook-addon 3 (v2 uses the bare "msw-storybook-addon" specifier), Storybook for Svelte (Vite), @storybook/addon-svelte-csf. Ignore JSX/TSX/CSF3-TS story patterns here.
 user-invocable: false
 ---
 
@@ -73,7 +73,7 @@ of strings).
 - **CLI / Vitest vs Storybook Interactions panel** can disagree: different environments ([docs](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#what-happens-when-there-are-different-test-results-in-multiple-environments)).
 - **Vitest internal errors:** widget + console; [Vitest common errors](https://vitest.dev/guide/common-errors.html).
 - **Non-default `public` dir:** set [`publicDir`](https://vitejs.dev/config/shared-options.html#publicdir) ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#how-do-i-ensure-my-tests-can-find-assets-in-the-public-directory)).
-- **`Vitest failed to find the current suite`:** caused by `optimizeDeps` reload mid-test (look for `✨ new dependencies optimized:` in output). Fix: add the newly-discovered deps to **`optimizeDeps.include`** on the **storybook project config** itself. Common culprits: `msw-storybook-addon`, `svelte-tippy`, `@storybook/addon-svelte-csf`, `@storybook/addon-docs`. ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#how-do-i-fix-the-error-vitest-failed-to-find-the-current-suite-error)). **Any fix for this error is UNVERIFIED until proven by the flake-hygiene protocol below.** A single green run tells you nothing: this suite produces different counts between invocations on the same code. Do not recommend a fix until the flake-hygiene protocol has validated it.
+- **`Vitest failed to find the current suite`:** caused by `optimizeDeps` reload mid-test (look for `✨ new dependencies optimized:` in output). Fix: add the newly-discovered deps to **`optimizeDeps.include`** on the **storybook project config** itself, copying each specifier verbatim from your own `import` statements. Measured on Vite 8.1.5: an entry that cannot resolve aborts the run before any test executes (`... is not exported under the conditions [...]`, `Test Files no tests`), while an entry that resolves but is not what you import passes silently and pre-bundles the wrong module, leaving the real one un-included. The first mistake is loud, the second is not. Common culprits: `msw-storybook-addon/csf3` (addon v2: `msw-storybook-addon`), `svelte-tippy`, `@storybook/addon-svelte-csf`, `@storybook/addon-docs`. ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#how-do-i-fix-the-error-vitest-failed-to-find-the-current-suite-error)). **Any fix for this error is UNVERIFIED until proven by the flake-hygiene protocol below.** A single green run tells you nothing: this suite produces different counts between invocations on the same code. Do not recommend a fix until the flake-hygiene protocol has validated it.
 - **Single-run bias:** this addon is PARTICULARLY prone to producing inconsistent counts between invocations on the same checkout. A "Test Files N passed (N)" line on one run does NOT prove the suite is healthy. Never claim "fixed" or "green" based on a single run on this suite. If the user shows a failing screenshot and your run goes green, the FIRST move is to acknowledge you cannot reproduce their failure and ask for their log or reproduction conditions, not to re-run hoping for another green. See `frontend:validate` flake rules and `frontend:vitest` flake-hygiene section.
 - **Do not enshrine unverified approaches as "better fixes" in this skill.** If you encounter or propose a new approach to a storybook/vitest problem, it must go through the full flake-hygiene protocol on a real failure before being written down as a recommendation. Declaring an approach "worked" from a single background run while the user reproduces 31 failures on the same code is not verification. The approach may or may not be correct, but unverified does not go in the skill.
 - **CI:** dynamic import / iframe: `test.isolate: false` and/or `--shard=i/n` ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#why-do-my-tests-fail-in-ci-with-failed-to-fetch-dynamically-imported-module-or-cannot-connect-to-the-iframe), [sharding](https://vitest.dev/guide/improving-performance.html#sharding)).
@@ -122,6 +122,7 @@ Two problems interact here:
 
 - Vitest/browser projects: `frontend:vitest` skill.
 - Svelte tests outside Storybook: `svelte-5:testing-svelte` skill.
+- MSW handlers, story-scoped mocks, addon v2→v3: `svelte-5:msw` skill.
 - Decorator rendering internals + `props_invalid_value` traps: `references/storybook-decorator.md`.
 
 ## Vitest config file
@@ -174,10 +175,20 @@ const testConfig: UserConfig = {
           }),
         ],
         // Pre-bundle deps that trigger optimizeDeps reload mid-test
-        // (causes "Vitest failed to find the current suite" error)
+        // (causes "Vitest failed to find the current suite" error).
+        //
+        // Copy each specifier VERBATIM from your own import statements.
+        // An entry that cannot resolve aborts the run before any test
+        // executes. An entry that resolves but is not the one you import
+        // passes silently and pre-bundles the wrong module, which is the
+        // mistake you will not notice.
+        //
+        // msw-storybook-addon is version-keyed: v3 imports
+        // "msw-storybook-addon/csf3", v2 imports "msw-storybook-addon".
+        // Check the installed major before copying (svelte-5:msw skill).
         optimizeDeps: {
           include: [
-            "msw-storybook-addon",
+            "msw-storybook-addon/csf3", // v2: "msw-storybook-addon"
             "svelte-tippy",
             "@storybook/addon-svelte-csf",
             "@storybook/addon-docs",
@@ -240,10 +251,10 @@ Fix: add explicit `null` default: `prop = $bindable(null)`.
 
 ## Plugin options (quick)
 
-| Option             | Notes                                                                                                                                                                                                                 |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `configDir`        | Storybook config directory (default **`.storybook`**) ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#configdir))                                                                        |
-| `tags`             | `{ include, exclude, skip }`, defaults **`include: ['test']`**, `exclude: []`, `skip: []`; exclude wins for the same tag in both ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#tags)) |
-| `storybookScript`  | Command to start Storybook; used in watch when `storybookUrl` is not already up ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#storybookscript))                                        |
-| `storybookUrl`     | Used for checks + **failure links** in output ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#storybookurl))                                                                             |
-| `disableAddonDocs` | Default **`true`**, MDX mocked unless you need real MDX parsing in tests ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#disableaddondocs))                                             |
+| Option | Notes |
+| --- | --- |
+| `configDir` | Storybook config directory (default **`.storybook`**) ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#configdir)) |
+| `tags` | `{ include, exclude, skip }`, defaults **`include: ['test']`**, `exclude: []`, `skip: []`; exclude wins for the same tag in both ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#tags)) |
+| `storybookScript` | Command to start Storybook; used in watch when `storybookUrl` is not already up ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#storybookscript)) |
+| `storybookUrl` | Used for checks + **failure links** in output ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#storybookurl)) |
+| `disableAddonDocs` | Default **`true`**, MDX mocked unless you need real MDX parsing in tests ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#disableaddondocs)) |

@@ -56,6 +56,9 @@ strings.
 - **Multiple elements**: Use `.first()`, `.nth()`, `.last()` to avoid
   strict mode violations
 - **Real API objects**: Test with FormData/Request, minimal mocking
+- **Mock at the right seam**: `vi.mock` for module boundaries, MSW for the
+  network boundary. MSW is this rule applied to HTTP: keep the real component
+  and the real `fetch`, swap only what crosses the wire (`svelte-5:msw`)
 
 ## Reference Files
 

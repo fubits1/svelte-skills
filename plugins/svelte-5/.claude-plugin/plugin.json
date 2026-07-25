@@ -1,7 +1,7 @@
 {
   "name": "svelte-5",
   "description": "Svelte development workflows — component docs, code style, Storybook, testing with vitest-browser-svelte, MSW API mocking.",
-  "version": "0.6.5",
+  "version": "0.7.0",
   "author": {
     "name": "fubits1"
   }

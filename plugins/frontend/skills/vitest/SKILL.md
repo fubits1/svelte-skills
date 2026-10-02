@@ -1,156 +1,37 @@
 ---
 name: vitest
 description: Vitest test.projects, browser mode with playwright(), optimizeDeps, separate vitest.config from vite.config. Use when editing vitest config, debugging flaky browser tests, upgrading @vitest/*, or splitting node vs browser projects.
-compatibility: Written for Vitest 4.1+ (factory browser provider, test.projects).
+compatibility: Written for Vitest 5 (Node >=22.12, Vite >=6.4; factory browser provider, test.projects). Notes marked "measured" were run on Vitest 5 browser mode with Playwright.
 user-invocable: true
 ---
 
 # Vitest
 
+## Config
+
 - **Docs:** if unsure about an API, fetch `https://vitest.dev/llms.txt`. Do not guess.
 - **Config file:** use **`vitest.config.{ts,mts,js,mjs}`** for `test` / `test.projects`. Vitest-only-in-`vite.config` merges badly with multiple projects and Storybook.
 - **Gate:** no `vitest.config.*` but `vite.config` has **`test:`** (or no Vitest file), **ask** before adding projects or Storybook whether to introduce `vitest.config.ts` and move `test` out of Vite.
-- `page.viewport(width, height)`: import from `vitest/browser`.
-- **`test.projects`** for mixed node/browser and Storybook. Either **`extends: true`** (inherit merged root: [Storybook Vitest example](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#example-configuration-files) with `mergeConfig(viteConfig, …)`) or **`extends: './vite.config.ts'`** per project; put `test` + `plugins` on each project (`svelte-5:storybook-vitest`).
-- Browser concurrency: `vitest-browser-svelte/pure` when you need no auto-cleanup.
-- **`vitest-browser-svelte` v3:** `render` is async-only (`await render(...)`); usage in `svelte-5:testing-svelte`. v3 gives `/pure` full export parity with the main entry and exports the `RenderResult` type.
-- **Assertions: value, not presence.** Presence-only assertions (`toBeInTheDocument`, `not.toBe('')`, `toHaveBeenCalled`) ship regressions. Every interaction test must compute an expected value from the action and assert equality. See [references/assertions.md](references/assertions.md) for the pattern, callback-payload rules, and how to tell a harness failure from a behavior failure.
-- **Locators: prefer accessible queries, avoid `data-testid`.** `data-testid` is an a11y smell ([tkdodo, 2025](https://tkdodo.eu/blog/test-ids-are-an-a11y-smell)), adding a testid means the element has no accessible name, role, or text for users of AT either. Fix the a11y hole, not the test. Use `page.getByRole(...)`, `getByLabelText`, `getByText`, `getByPlaceholderText`, `getByTitle`, `getByAltText` first. They mirror how screen readers find elements and fail when a11y regresses. Reach for `data-testid` only as a last resort: charting canvases, truly decorative content, or legacy markup you cannot change, and when you do, leave a comment explaining why no accessible selector worked.
-- Upgrade: bump all **`@vitest/*`** together.
-- **`browser.provider`:** `import { playwright } from '@vitest/browser-playwright'` to `provider: playwright()` (factory, not a string).
-- Use `import { page } from 'vitest/browser'`: not `@vitest/browser/context`.
-- In `test.projects`, `plugins` / `resolve` / `optimizeDeps` belong **inside each project**, not only at root: projects do not inherit root plugins **by default** (`extends: true` inherits the merged root).
+- **Projects inherit the root (Vitest 5):** inline `test.projects` get the root's `plugins`, `resolve`, `optimizeDeps`, and `setupFiles`; `extends: false` opts out. **NEVER repeat an inherited root plugin inside a project**: a second `svelte()` compiles components twice. Inheritance rules, `sharedViteServer`, tags: [references/config-projects.md](references/config-projects.md)
+- Upgrade: bump all **`@vitest/*`** together. Vitest 4 to 5 breaking changes and post-upgrade cleanup: [references/vitest-5-upgrade.md](references/vitest-5-upgrade.md)
+- **`browser.provider`:** `import { playwright } from '@vitest/browser-playwright'` to `provider: playwright()` (factory, not a string). Use `import { page } from 'vitest/browser'`: not `@vitest/browser/context`
 - **`optimizeDeps.exclude`:** Svelte 5 runes in `.svelte.js` (e.g. Melt UI) so vite-plugin-svelte handles them, not Vite's dependency pre-bundler (Rolldown since Vite 8, esbuild before).
-- **`optimizeDeps.include`:** deps that trigger mid-test optimization (e.g. `minisearch`) to reduce flakes.
+- **`optimizeDeps.include`:** deps that trigger mid-test optimization (e.g. `minisearch`) to reduce flakes. Root cause and `optimizeDeps.entries`: [references/flake-hygiene.md](references/flake-hygiene.md)
 - **Storybook:** **`vitest.config.ts`** + `storybookTest` + browser `playwright()`: `svelte-5:storybook-vitest`, [manual setup](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#manual-setup-advanced).
+- **Reports and coverage:** report paths go in `test.outputFile` (reporter options beat the CLI); coverage thresholds take flat metric keys, a Jest-style `global` key enforces nothing: [references/config-projects.md](references/config-projects.md)
 
-## Browser test flake hygiene
+## Writing tests
 
-Browser/MSW/storybook suites are inherently flaky on a single run. Before any "green" claim:
+- **Assertions: value, not presence.** Presence-only assertions (`toBeInTheDocument` on a role-only or loose locator, `not.toBe('')`, `toHaveBeenCalled`) ship regressions; `toBeInTheDocument` on an exact-text locator checks a value. Every interaction test must compute an expected value from the action and assert equality. See [references/assertions.md](references/assertions.md) for the pattern, callback-payload rules, and how to tell a harness failure from a behavior failure
+- **`toHaveTextContent` is exact (Vitest 5):** full-string equality, no `RegExp`. `toHaveTextContent('Error')` fails on `Error!`. Partial or regex matches use **`toMatchTextContent`**, a weaker check: prefer the exact computed string when you can build it. In a Storybook `play` function, `expect` from `storybook/test` has jest-dom's `toHaveTextContent`, which matches substrings and `RegExp` (measured): `svelte-5:storybook-vitest`
+- **Locators match text exactly (Vitest 5):** `page.getByText('Hello')` does not find `Hello, World`. Use the full text, a `RegExp`, or `{ exact: false }`: [references/browser-mode.md](references/browser-mode.md)
+- **Queries: accessible first, every escape hatch commented.** Use `page.getByRole(...)`, `getByLabelText`, `getByText`, `getByPlaceholder`, `getByTitle`, `getByAltText` first. They mirror how screen readers find elements and fail when a11y regresses. `data-testid` is an a11y smell ([tkdodo, 2025](https://tkdodo.eu/blog/test-ids-are-an-a11y-smell)): a testid means the element has no accessible name, role, or text for users of AT either. Fix the a11y hole, not the test. Reach for `data-testid`, a raw `querySelector`, or a test-id output div in a fixture only as a last resort: charting canvases, truly decorative content, third-party widgets without roles, an overlay that intercepts clicks on the real control, legacy markup you cannot change. Each use gets a one-line comment explaining why no accessible selector worked
+- **`vitest-browser-svelte` v3:** `render` is async-only (`await render(...)`); usage in `svelte-5:testing-svelte`. The main entry cleans up in `beforeEach`; `/pure` never cleans up (use it for `it.concurrent`): [references/browser-mode.md](references/browser-mode.md)
+- **Viewport:** the default is 414x896 (measured); call `page.viewport(width, height)` from `vitest/browser` for desktop layouts
+- **Mocking:** `vi.mock` / `vi.hoisted` at the top level only; reference module-level fakes in a factory via `vi.hoisted` or a top-level `await import()`; mock SvelteKit's `$app/*` in browser tests: [references/mocking.md](references/mocking.md)
+- **Waiting:** `await expect.element(locator)` for locators, `expect.poll(() => value)` or `vi.waitFor` for spies and other state ([references/browser-mode.md](references/browser-mode.md)). Negative assertions need a positive precondition and a settle window ([references/flake-hygiene.md](references/flake-hygiene.md))
+- **Visual regression:** `toMatchScreenshot()`; baselines are platform-specific, so decide where they are generated before committing any: [references/visual-regression.md](references/visual-regression.md)
 
-1. `lsof -ti :<test-server-port>`: kill any holder.
-2. `rm -rf node_modules/.vite node_modules/.cache/storybook`
-3. Run the test ONCE: capture setup time + counts.
-4. Run AGAIN: counts must match within ±0 tests, setup time within ±30%.
-5. Run a THIRD time: same.
+## Before any green claim
 
-If any of (3)(4)(5) diverge: the suite is flaky. Investigate the flake itself (missing `optimizeDeps.entries`, race in async teardowns, MSW handler order or a missing `worker.resetHandlers()` in `afterEach`: `svelte-5:msw`) BEFORE claiming any fix works.
-
-A single passing run on this kind of suite tells you nothing about whether your fix worked. It tells you only that ONE possible execution order happened to pass.
-
-## Test Tags (CI exclusion)
-
-Vitest 4.1+ supports **tags** for filtering tests at runtime. Tags must be **defined in config** before use, using an undefined tag throws.
-
-**Config** (root `test` block, inherited by all projects):
-
-```ts
-test: {
-  tags: [
-    { name: 'ci-skip', description: 'needs recorded fixtures or live backend' }
-  ],
-}
-```
-
-**Test file:**
-
-```ts
-describe('my suite', { tags: ['ci-skip'] }, () => { ... })
-// or on individual tests:
-it('needs backend', { tags: ['ci-skip'] }, () => { ... })
-```
-
-**CLI filter:**
-
-```bash
-vitest --tags-filter='!ci-skip'          # exclude
-vitest --tags-filter='unit || e2e'       # include
-vitest --tags-filter='(unit || e2e) && !slow'  # combine
-```
-
-**Critical:** tags only skip the test _body_, the file is still **imported**. If the import itself throws (e.g. MSW handlers throwing on missing fixtures: `svelte-5:msw`), the tag won't help. Module-level code must be import-safe (warn, don't throw).
-
-**Critical:** `pnpm test -- --tags-filter='!ci-skip'` does NOT work. The `--` makes vitest treat `--tags-filter` as a positional arg. Use a dedicated script: `"test:ci": "vitest --run --tags-filter='!ci-skip'"`.
-
-## CSS Selector Locators (`locators.extend`)
-
-`.locator(selector)` is intentionally `protected` on vitest's `Locator` type (vitest-dev/vitest#7969). The official escape hatch is `locators.extend` (since Vitest 3.2):
-
-```ts
-// tests/browser/setup-locators.ts
-import { locators } from "vitest/browser";
-
-locators.extend({
-  css(selector: string) {
-    return selector;
-  },
-});
-
-declare module "vitest/browser" {
-  interface LocatorSelectors {
-    css(selector: string): Locator;
-  }
-}
-```
-
-Wire it via `setupFiles` in the browser project config. Then `.css()` is properly typed, no `@ts-expect-error` needed.
-
-**Critical:** do NOT name the extend function `locator`, it shadows the internal `protected locator()` method and causes infinite recursion (`RangeError: Maximum call stack size exceeded`). Use `css` or another name.
-
-## Visual Regression Testing
-
-Vitest 4.0+ includes **`toMatchScreenshot()`** natively in browser mode. No extra packages needed, it's built into `@vitest/browser` with the Playwright provider.
-
-### Usage
-
-```ts
-import { expect, test } from "vitest";
-import { page } from "vitest/browser";
-
-test("component looks correct", async () => {
-  await expect(page.getByRole("button", { name: "Submit" })).toMatchScreenshot(
-    "submit-button",
-  );
-});
-```
-
-- **First run:** saves reference to `__screenshots__/` next to the test file
-- **Subsequent runs:** compares with **pixelmatch**, generates `*-actual.png` + `*-diff.png` on failure
-- **Update baselines:** `vitest --update`
-- **Filenames include browser + platform** (e.g. `my-component-chromium-darwin.png`)
-- **Animations auto-disabled** when using Playwright provider
-
-### Config (optional: per-project or global)
-
-```ts
-test: {
-  browser: {
-    expect: {
-      toMatchScreenshot: {
-        comparatorName: 'pixelmatch',
-        comparatorOptions: {
-          threshold: 0.2,
-          allowedMismatchedPixelRatio: 0.01,
-        },
-      },
-    },
-  },
-}
-```
-
-### Per-test options
-
-```ts
-await expect(element).toMatchScreenshot("name", {
-  screenshotOptions: {
-    mask: [page.getByRole("time")], // mask dynamic content via accessible query
-  },
-  comparatorOptions: {
-    allowedMismatchedPixelRatio: 0.01,
-  },
-});
-```
-
-### When to use
-
-Use `toMatchScreenshot` instead of manual Playwright MCP screenshots + eyeballing for CSS/layout verification. It provides **programmatic pixel-level diffing** with actual diff images, not subjective "looks the same" claims. Works in both `browser` and `storybook` test projects.
+Browser and Storybook suites are flaky on a single run. Kill the test-server port holder, clear `node_modules/.vite` and `node_modules/.cache/storybook`, then run three times: counts must match within ±0 tests and setup time within ±30%. If runs diverge, investigate the flake BEFORE claiming any fix works. Full protocol and flake patterns: [references/flake-hygiene.md](references/flake-hygiene.md).

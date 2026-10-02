@@ -1,19 +1,29 @@
 # Core Principles
 
-## 1. Always Use Locators, Never Containers
+## 1. Locators First, Raw DOM Only With a Reason
 
 vitest-browser-svelte uses Playwright-style locators with automatic
-retry logic. **Never** use the `container` object.
+retry logic. A raw `container.querySelector(...)` has no
+retry and no accessibility check, so it is the exception: allowed only with
+a one-line comment saying why no accessible locator works (a third-party
+widget without roles, an overlay that intercepts clicks).
 
 ```typescript
-// ❌ NEVER - No retry logic, brittle tests
+// ❌ default to raw DOM: no retry logic, brittle tests
 const { container } = await render(MyComponent);
 const button = container.querySelector('button');
 
-// ✅ ALWAYS - Auto-retry, resilient tests
+// ✅ locator: auto-retry, resilient tests
 await render(MyComponent);
 const button = page.getByRole('button', { name: 'Submit' });
 await button.click();
+
+/**
+ * ✅ escape hatch, with its reason: the third-party date picker's day cells carry no
+ * role or accessible name. `page.css` is a custom locator added with
+ * `locators.extend` (frontend:vitest browser-mode reference)
+ */
+const day = page.css('.calendar-day[data-day="15"]');
 ```
 
 ## 2. Handle Strict Mode Violations
@@ -35,7 +45,7 @@ page.getByRole('link', { name: 'Home' }).last();
 
 Defensive convention: [sveltest](https://sveltest.dev/docs/runes-testing) wraps `$derived` reads in `untrack()` to avoid leaking test-time reads into reactive scopes.
 
-Access `$derived` values directly in tests — no `untrack()` needed:
+Access `$derived` values directly in tests; no `untrack()` needed:
 
 ```typescript
 // ✅ Access $derived values
@@ -53,6 +63,11 @@ Use real web APIs instead of heavy mocking to catch client-server
 mismatches:
 
 ```typescript
+/**
+ * fragment: `vi` from 'vitest', `database` from '$lib/server/database'
+ * (mocked with a top-level `vi.mock('$lib/server/database')`)
+ */
+
 // ❌ BRITTLE: Mocks hide API mismatches
 const mockRequest = {
 	formData: vi.fn().mockResolvedValue({

@@ -59,7 +59,7 @@ For Storybook testing:
 pnpm add -D @storybook/addon-vitest @storybook/addon-svelte-csf
 ```
 
-For browser testing:
+For browser testing (Vitest 5 needs Node >=22.12 and Vite >=6.4; keep every `@vitest/*` package on the same version as `vitest`):
 
 ```bash
 pnpm add -D @vitest/browser-playwright vitest-browser-svelte

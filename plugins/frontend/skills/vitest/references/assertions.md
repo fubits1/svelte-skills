@@ -6,17 +6,24 @@ A presence-only assertion ships the bug. "Element exists", "value is non-empty",
 
 Compute the expected value from the action you performed. Assert equality to that value. If you cannot compute the expected value, you do not understand what the action should do, and the test should not exist yet.
 
-## Three patterns that fail
+## Four patterns that fail
 
-**Presence.** `toBeInTheDocument()`, `toBeTruthy()`, `not.toBeNull()`. Proves the element mounted. Says nothing about behavior.
+**Presence.** `toBeInTheDocument()`, `toBeTruthy()`, `not.toBeNull()`. Proves the element mounted. Says nothing about behavior. The locator decides what is checked: `toBeInTheDocument()` on `getByText('Saved: alice@example.com')` or `getByRole('alert', { name: 'Email is required' })` checks a computed value, because Vitest 5 locators match the full text exactly. On a role-only locator (`getByRole('button')`) or a loose `RegExp` it only proves that something rendered.
 
 **Non-empty.** `not.toBe('')`, `> 0`, `length > 0`. Any side effect from any code path will satisfy this.
 
 **Callback count.** `expect(spy).toHaveBeenCalled()`, `spy.mock.calls.length > 0`. Passes when the callback fires with the wrong argument.
 
+**Partial text.** `toMatchTextContent('Error')` passes for `Error: undefined`. In Vitest 5 `toHaveTextContent` is the exact form; prefer it with the full computed string, and keep `toMatchTextContent` for text you genuinely cannot compute (timestamps, generated ids).
+
 ## The replacement pattern
 
 ```ts
+/**
+ * sketch: readProbe() reads the value under test (e.g. a hidden input's value),
+ * userInteraction() is the click/type sequence, year/monthIndex come from the test setup
+ */
+
 // 1. Record the pre-action state.
 const before = readProbe()
 
@@ -36,16 +43,24 @@ The `not.toBe(before)` guard is cheap insurance against a test that passes becau
 ## Callback payloads
 
 ```ts
+/**
+ * sketch: changeSpy = vi.fn() passed as the component's onChange prop; the test clicked
+ * day 15 of year/monthIndex; formatIso is the app's own date formatter
+ */
+
 // Wrong: proves only that onChange fired.
 expect(changeSpy).toHaveBeenCalled()
 
 // Right: proves onChange fired with the value that was picked.
+const picked = new Date(year, monthIndex, 15)
 expect(changeSpy).toHaveBeenLastCalledWith(
-  expect.arrayContaining([expect.any(Date)]),
-  '2026-04-15',
-  expect.anything()
+  [picked],                // the exact date, computed from the click
+  formatIso(picked),       // its string form, computed the same way
+  expect.anything()        // the library instance: not part of the contract
 )
 ```
+
+Vitest 5 defaults to `clearMocks: true` and clears spy history before every test, so calls recorded in a setup file, at module scope, or in `beforeAll` are gone by the time the test asserts. Trigger the call inside the test.
 
 ## Diagnose the failure class before iterating
 

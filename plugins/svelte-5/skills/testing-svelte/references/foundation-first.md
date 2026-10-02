@@ -49,24 +49,46 @@ describe('ContactForm', () => {
 Remove `.skip` as you implement each test:
 
 ```typescript
+import { describe, expect, test } from 'vitest';
+import { page, userEvent } from 'vitest/browser';
+import { render } from 'vitest-browser-svelte';
+import ContactForm from './ContactForm.svelte';
+
 describe('ContactForm', () => {
 	describe('Initial Rendering', () => {
 		test('renders with default props', async () => {
 			await render(ContactForm);
 
+			// exact accessible names: checks the labels, not just "something rendered"
 			await expect
-				.element(page.getByRole('textbox', { name: /email/i }))
+				.element(page.getByRole('textbox', { name: 'Email' }))
 				.toBeInTheDocument();
 			await expect
-				.element(page.getByRole('textbox', { name: /message/i }))
+				.element(page.getByRole('textbox', { name: 'Message' }))
 				.toBeInTheDocument();
 			await expect
-				.element(page.getByRole('button', { name: /submit/i }))
+				.element(page.getByRole('button', { name: 'Send message' }))
 				.toBeInTheDocument();
 		});
 
 		test.skip('renders all form fields', () => {});
 		// Continue implementing...
+	});
+
+	// a file of render-only tests proves nothing: implement an interaction early
+	describe('Form Validation', () => {
+		test('validates email format on blur', async () => {
+			await render(ContactForm);
+			const email = page.getByRole('textbox', { name: 'Email' });
+
+			await email.fill('not-an-email');
+			await userEvent.tab(); // blur
+
+			await expect.element(email).toHaveAttribute('aria-invalid', 'true');
+			await expect
+				.element(page.getByText('Enter a valid email address'))
+				.toBeInTheDocument();
+		});
 	});
 });
 ```

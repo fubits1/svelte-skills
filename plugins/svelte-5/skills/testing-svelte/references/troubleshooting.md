@@ -247,9 +247,15 @@ test('card renders its children', async () => {
 
 // Server-side API test
 // api/users/server.test.ts
+import { expect, test, vi } from 'vitest';
+import * as database from '$lib/server/database';
 import { POST } from './+server';
 
+// mock the external service only: the request stays a real Request with real FormData
+vi.mock('$lib/server/database');
+
 test('API endpoint creates a user', async () => {
+ vi.mocked(database.createUser).mockResolvedValue({ id: 'user-1', email: 'user@example.com' });
  const formData = new FormData();
  formData.append('email', 'user@example.com');
  formData.append('password', 'securepass123');

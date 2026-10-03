@@ -40,7 +40,7 @@ a dropdown and checking "something was selected", this proved
 nothing and missed a real bug (onChange returning objects instead
 of strings).
 
-**Tags:** default `storybookTest({ tags: { include: ['test'], … } })` ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#tags)), only stories carrying an included tag run; `test` is applied to every story by default, so in practice a story is skipped only through `!test`, an `exclude`d tag, or a custom `include` list. Add other [tags](https://storybook.js.org/docs/writing-stories/tags) to **`include`** only to pick up stories that opted out with `!test` (a story tagged only `autodocs` already runs, because it also carries the default `test` tag, measured). Set tags on **`defineMeta`** / stories or adjust `include` / `exclude` / `skip` (exclude wins if the same tag is both included and excluded).
+**Tags:** default `storybookTest({ tags: { include: ['test'], … } })` ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#tags)), only stories carrying an included tag run; `test` is applied to every story by default, so in practice a story stays out of the run only through `!test`, a tag in `exclude` (not tested and not counted), a tag in `skip` (not tested, counted as skipped; both per the [`tags` option docs](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#tags), not measured), or a custom `include` list. Add other [tags](https://storybook.js.org/docs/writing-stories/tags) to **`include`** only to pick up stories that opted out with `!test` (a story tagged only `autodocs` already runs, because it also carries the default `test` tag, measured). Set tags on **`defineMeta`** / stories or adjust `include` / `exclude` / `skip` (exclude wins if the same tag is both included and excluded).
 
 ```svelte
 <script module>
@@ -67,7 +67,7 @@ of strings).
 />
 ```
 
-**Every story carries the `test` tag by default.** A story file with no `tags` at all runs under Vitest; one with `tags: ['!test']` is skipped (measured: `1 passed | 1 skipped`). To find stories that never run, search for `!test` (and for any custom tag listed in `exclude`), not for stories without tags.
+**Every story carries the `test` tag by default.** A story file with no `tags` at all runs under Vitest; one with `tags: ['!test']` is skipped (measured: `1 passed | 1 skipped`). To find stories that never run, search for `!test` (and for any custom tag listed in `exclude` or `skip`), not for stories without tags.
 
 **Two `expect`s, two semantics.** `expect` from `storybook/test` (used in `play`) is Chai + jest-dom: its `toHaveTextContent('Cli')` passes on `Click` and accepts a `RegExp` (measured). Vitest 5's browser `expect.element(...).toHaveTextContent` is an exact full-string match. Do not copy assertions between story `play` functions and Vitest browser tests without checking which `expect` they use. `toMatchScreenshot` exists only on Vitest's `expect`: in `play`, import `expect` from `vitest` and wrap the canvas with `page.elementLocator(canvasElement)` (`frontend:vitest` visual-regression reference).
 

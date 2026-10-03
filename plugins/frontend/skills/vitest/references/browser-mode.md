@@ -29,6 +29,7 @@
 ```ts
 // tests/browser/setup-locators.ts
 import { locators } from "vitest/browser";
+import type { Locator } from "vitest/browser";
 
 locators.extend({
   css(selector: string) {

@@ -24,9 +24,10 @@ DO reach the component.
 
 When a context-providing wrapper (e.g. `CardWrapper`) sits between the decorator and the
 story, it's tempting to blame the wrapper for blocking args. This is usually wrong. A Svelte 5
-error thrown inside the story does not fail the story: the story stays green, and the error
-appears in Vitest's "Unhandled Errors" block (with the component stack through the
-decorator) and in the Storybook browser console (measured).
+error thrown while the story renders does not fail the story: the story stays green, and the
+error appears in Vitest's "Unhandled Errors" block (with the component stack through the
+decorator) and in the Storybook browser console (measured). A failing assertion in `play`
+does fail the story (measured).
 
 ## Real root cause: `props_invalid_value`
 

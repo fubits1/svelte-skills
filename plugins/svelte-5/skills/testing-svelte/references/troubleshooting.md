@@ -198,7 +198,7 @@ await expect.element(banner).toMatchTextContent(/error/i);
 - Don't write brittle tests that break on library updates
 - Don't replace `FormData` / `Request` with hand-rolled fakes in server tests; use the real objects. Spy only on browser APIs a headless test cannot use for real (e.g. `navigator.clipboard.writeText` rejects with `NotAllowedError: Document is not focused`, measured)
 - Don't expect forms to be invalid initially
-- Don't build a test wrapper for static `children`: pass a snippet from `createRawSnippet` (measured to render). Use a wrapper component only for two-way bindings, context, or interactive snippets (Svelte testing docs)
+- Don't build a test wrapper for static `children`: pass a snippet from `createRawSnippet` (measured to render). Use a wrapper component only for two-way bindings, context, or interactive snippets ([Svelte testing docs](https://svelte.dev/docs/svelte/testing))
 
 ### Common Locator Methods
 
@@ -208,7 +208,7 @@ page.getByRole('button', { name: 'Submit' });
 page.getByRole('textbox', { name: 'Email' });
 page.getByRole('heading', { name: 'Title', level: 1 });
 page.getByLabelText('Email address');
-page.getByText('Welcome'); // exact full text since Vitest 5; /welcome/i or { exact: false } for partial
+page.getByText('Welcome'); // exact full text; /welcome/i or { exact: false } for partial
 page.getByPlaceholder('Enter email');
 
 // fallback, with its reason: the third-party chart canvas exposes no role or accessible name
@@ -223,7 +223,7 @@ page.getByRole('link').last(); // Last match
 ### Test File Patterns
 
 ```typescript
-// button.test.ts: browser component test (the browser project's `include` globs pick it up)
+// button.test.ts: browser component test
 import { render } from 'vitest-browser-svelte';
 import { expect, test } from 'vitest';
 import { page } from 'vitest/browser';
@@ -235,7 +235,7 @@ test('component behavior', async () => {
  await expect.element(page.getByRole('button')).toHaveTextContent('Clicked: 1');
 });
 
-// passing static children (measured)
+// passing static children
 import { createRawSnippet } from 'svelte';
 import Card from './card.svelte'; // renders {@render children?.()}
 

@@ -1,6 +1,6 @@
 # Browser test flake hygiene
 
-Browser/MSW/storybook suites are inherently flaky on a single run. Before any "green" claim:
+Browser/MSW/storybook suites are flaky on a single run. Before any "green" claim:
 
 1. `lsof -ti :<test-server-port>`: kill any holder
 2. `rm -rf node_modules/.vite node_modules/.cache/storybook`

@@ -27,7 +27,7 @@ describe('Button Component', () => {
 		const button = page.getByRole('button', { name: /^clicked/i });
 
 		await userEvent.click(button);
-		// exact match since Vitest 5, so assert the full text
+		// exact match, so assert the full text
 		await expect.element(button).toHaveTextContent('Clicked: 1');
 
 		await userEvent.click(button);
@@ -123,12 +123,6 @@ import * as database from '$lib/server/database';
 vi.mock('$lib/server/database');
 
 describe('POST /api/users', () => {
-	/**
-	 * no beforeEach(vi.clearAllMocks): Vitest 5 defaults to clearMocks: true
-	 * and clears call history before every test, so the
-	 * not.toHaveBeenCalled() assertions below stay isolated
-	 */
-
 	test('creates user with valid data', async () => {
 		// Mock only external services
 		vi.mocked(database.createUser).mockResolvedValue({

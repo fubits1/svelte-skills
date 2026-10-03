@@ -10,7 +10,7 @@ user-invocable: true
 ## Quick Start
 
 ```typescript
-// browser component test (runs in the project whose `include` globs match this file)
+// browser component test
 import { render } from "vitest-browser-svelte";
 import { expect, test } from "vitest";
 import { page } from "vitest/browser";
@@ -19,7 +19,7 @@ import Button from "./button.svelte";
 
 test("button click increments counter", async () => {
   await render(Button);
-  const button = page.getByRole("button"); // module page
+  const button = page.getByRole("button");
   // or from the result: const screen = await render(Button); screen.getByRole(...)
 
   await button.click();

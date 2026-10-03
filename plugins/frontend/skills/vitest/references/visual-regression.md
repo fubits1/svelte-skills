@@ -1,6 +1,6 @@
 # Visual regression testing
 
-Vitest includes **`toMatchScreenshot()`** natively in browser mode. No extra packages needed: it's built into `@vitest/browser` with the Playwright provider.
+Vitest includes **`toMatchScreenshot()`** natively in browser mode: it's built into `@vitest/browser` with the Playwright provider.
 
 ## Usage
 
@@ -17,7 +17,7 @@ test("component looks correct", async () => {
 
 - **First run:** saves reference to `__screenshots__/<test file>/` next to the test file and **fails** the test ("No existing reference screenshot found"); review the image, then rerun
 - **Subsequent runs:** compares with **pixelmatch**; on mismatch writes `<name>-actual-<browser>-<platform>.png` + `<name>-diff-<browser>-<platform>.png` to `.vitest/attachments/<test path>/` (Vitest 5, measured). Failure screenshots of other failing tests go to `.vitest/attachments/failure-screenshots/`. Add `.vitest` to `.gitignore`
-- **Reference directory:** `browser.expect.toMatchScreenshot.screenshotDirectory` (default `__screenshots__`). If you set `browser.screenshotDirectory`, also set this option explicitly; Vitest 5 introduced it because references did not respect `browser.screenshotDirectory` (migration guide). Then move existing references to that location or regenerate them
+- **Reference directory:** `browser.expect.toMatchScreenshot.screenshotDirectory` (default `__screenshots__`). If you set `browser.screenshotDirectory`, also set this option explicitly, then move existing references to that location or regenerate them
 - **Update baselines:** `vitest --update`
 - **Filenames include browser + platform** (e.g. `my-component-chromium-darwin.png`)
 - **Animations auto-disabled** when using Playwright provider
@@ -59,7 +59,7 @@ test: {
 ```ts
 await expect(element).toMatchScreenshot("name", {
   screenshotOptions: {
-    mask: [page.getByRole("time")], // mask dynamic content via accessible query
+    mask: [page.getByRole("time")],
   },
   comparatorOptions: {
     allowedMismatchedPixelRatio: 0.01,
@@ -69,4 +69,4 @@ await expect(element).toMatchScreenshot("name", {
 
 ## When to use
 
-Use `toMatchScreenshot` instead of manual Playwright MCP screenshots + eyeballing for CSS/layout verification. It provides **programmatic pixel-level diffing** with actual diff images, not subjective "looks the same" claims. Works in both `browser` and `storybook` test projects (in a story's `play`, with `expect` from `vitest`, see above).
+Use `toMatchScreenshot` instead of manual Playwright MCP screenshots + eyeballing for CSS/layout verification. It provides **programmatic pixel-level diffing** with actual diff images. Works in both `browser` and `storybook` test projects (in a story's `play`, with `expect` from `vitest`).

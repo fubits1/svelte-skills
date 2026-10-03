@@ -14,7 +14,7 @@ Compute the expected value from the action you performed. Assert equality to tha
 
 **Callback count.** `expect(spy).toHaveBeenCalled()`, `spy.mock.calls.length > 0`. Passes when the callback fires with the wrong argument.
 
-**Partial text.** `toMatchTextContent('Error')` passes for `Error: undefined`. In Vitest 5 `toHaveTextContent` is the exact form; prefer it with the full computed string, and keep `toMatchTextContent` for text you genuinely cannot compute (timestamps, generated ids).
+**Partial text.** `toMatchTextContent('Error')` passes for `Error: undefined`. In Vitest 5 `toHaveTextContent` is the exact form; prefer it with the full computed string, and keep `toMatchTextContent` for text you cannot compute (timestamps, generated ids).
 
 ## The replacement pattern
 
@@ -55,12 +55,12 @@ expect(changeSpy).toHaveBeenCalled()
 const picked = new Date(year, monthIndex, 15)
 expect(changeSpy).toHaveBeenLastCalledWith(
   [picked],                // the exact date, computed from the click
-  formatIso(picked),       // its string form, computed the same way
+  formatIso(picked),
   expect.anything()        // the library instance: not part of the contract
 )
 ```
 
-Vitest 5 defaults to `clearMocks: true` and clears spy history before every test, so calls recorded in a setup file, at module scope, or in `beforeAll` are gone by the time the test asserts. Trigger the call inside the test.
+Trigger the call inside the test: `clearMocks` clears spy history before every test ([mocking reference](mocking.md)).
 
 ## Diagnose the failure class before iterating
 

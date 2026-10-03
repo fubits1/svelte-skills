@@ -40,7 +40,7 @@ a dropdown and checking "something was selected", this proved
 nothing and missed a real bug (onChange returning objects instead
 of strings).
 
-**Tags:** default `storybookTest({ tags: { include: ['test'], … } })` ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#tags)), only stories carrying an included tag run; `test` is applied to every story by default, so in practice a story stays out of the run only through `!test`, a tag in `exclude` (not tested and not counted), a tag in `skip` (not tested, counted as skipped; both per the [`tags` option docs](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#tags), not measured), or a custom `include` list. Add other [tags](https://storybook.js.org/docs/writing-stories/tags) to **`include`** only to pick up stories that opted out with `!test` (a story tagged only `autodocs` already runs, because it also carries the default `test` tag, measured). Set tags on **`defineMeta`** / stories or adjust `include` / `exclude` / `skip` (exclude wins if the same tag is both included and excluded).
+**Tags:** default `storybookTest({ tags: { include: ['test'], … } })` ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#tags)), only stories carrying an included tag run; `test` is applied to every story by default, so a story stays out of the run only through `!test`, a tag in `exclude`, a tag in `skip`, or a custom `include` list. `!test`, `exclude`, and a non-matching `include` drop the story before Vitest sees it: it is neither run nor counted. A tag in `skip` keeps the story as a skipped test (measured: `1 passed | 1 skipped` in the test count). Add other [tags](https://storybook.js.org/docs/writing-stories/tags) to **`include`** only to pick up stories that opted out with `!test` (a story tagged only `autodocs` already runs, because it also carries the default `test` tag, measured). Set tags on **`defineMeta`** / stories or adjust `include` / `exclude` / `skip` (exclude wins if the same tag is both included and excluded).
 
 ```svelte
 <script module>
@@ -67,7 +67,7 @@ of strings).
 />
 ```
 
-**Every story carries the `test` tag by default.** A story file with no `tags` at all runs under Vitest; one with `tags: ['!test']` is skipped (measured: `1 passed | 1 skipped`). To find stories that never run, search for `!test` (and for any custom tag listed in `exclude` or `skip`), not for stories without tags.
+A story with `tags: ['!test']` does not show up in the results at all: next to a running story in the same file the run reports `Tests 1 passed (1)` (measured). A file in which no story survives the filter gets a placeholder `describe.skip('No valid tests found')`, so it counts as one skipped test file, not as skipped stories ([transformer source](https://github.com/storybookjs/storybook/blob/next/code/core/src/csf-tools/vitest-plugin/transformer.ts), measured). The skipped count therefore does not tell you which stories never ran: search for `!test` and for every tag listed in `exclude` or `skip`, not for stories without tags.
 
 **Two `expect`s, two semantics.** `expect` from `storybook/test` (used in `play`) is Chai + jest-dom: its `toHaveTextContent('Cli')` passes on `Click` and accepts a `RegExp` (measured). Vitest 5's browser `expect.element(...).toHaveTextContent` is an exact full-string match. Do not copy assertions between story `play` functions and Vitest browser tests without checking which `expect` they use. `toMatchScreenshot` exists only on Vitest's `expect`: in `play`, import `expect` from `vitest` and wrap the canvas with `page.elementLocator(canvasElement)` (`frontend:vitest` visual-regression reference).
 
@@ -78,11 +78,11 @@ of strings).
 - **CLI / Vitest vs Storybook Interactions panel** can disagree: different environments ([docs](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#what-happens-when-there-are-different-test-results-in-multiple-environments)).
 - **Vitest internal errors:** widget + console; [Vitest common errors](https://vitest.dev/guide/common-errors.html).
 - **Non-default `public` dir:** set [`publicDir`](https://vitejs.dev/config/shared-options.html#publicdir) ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#how-do-i-ensure-my-tests-can-find-assets-in-the-public-directory)).
-- **`Vitest failed to find the current suite`:** caused by `optimizeDeps` reload mid-test (look for `✨ new dependencies optimized:` in output). Fix, if it still happens on your addon version: add the newly-discovered deps to **`optimizeDeps.include`** on the **storybook project config** itself, copying each specifier verbatim from your own `import` statements. Measured on Vite 8.1.5: an entry that cannot resolve aborts the run before any test executes (`... is not exported under the conditions [...]`, `Test Files no tests`), while an entry that resolves but is not what you import passes silently and pre-bundles the wrong module, leaving the real one un-included. The first mistake is loud, the second is not. Common culprits: `msw-storybook-addon/csf3` (addon v2: `msw-storybook-addon`), `svelte-tippy`, `@storybook/addon-svelte-csf`, `@storybook/addon-docs`. ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#how-do-i-fix-the-error-vitest-failed-to-find-the-current-suite-error)). Root cause (`.svelte`-only imports invisible to Vite 8's dependency scanner, fixed upstream in the addon) and `optimizeDeps.entries`: `frontend:vitest` flake-hygiene reference. **Any fix for this error is UNVERIFIED until proven by the flake-hygiene protocol (`frontend:vitest` flake-hygiene reference).** A single green run tells you nothing: this suite produces different counts between invocations on the same code. Do not recommend a fix until the flake-hygiene protocol has validated it
+- **`Vitest failed to find the current suite`:** caused by `optimizeDeps` reload mid-test (look for `✨ new dependencies optimized:` in output). Fix, if it still happens on your addon version: add the newly-discovered deps to **`optimizeDeps.include`** on the **storybook project config** itself, copying each specifier verbatim from your own `import` statements. Measured on Vite 8: an entry that cannot resolve aborts the run before any test executes (`... is not exported under the conditions [...]`, `Test Files no tests`), while an entry that resolves but is not what you import passes silently and pre-bundles the wrong module, leaving the real one un-included. The first mistake is loud, the second is not. Common culprits: `msw-storybook-addon/csf3` (addon v2: `msw-storybook-addon`), `svelte-tippy`, `@storybook/addon-svelte-csf`, `@storybook/addon-docs`. ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#how-do-i-fix-the-error-vitest-failed-to-find-the-current-suite-error)). Root cause (`.svelte`-only imports invisible to Vite 8's dependency scanner, fixed upstream in the addon) and `optimizeDeps.entries`: `frontend:vitest` flake-hygiene reference. **Any fix for this error is UNVERIFIED until proven by the flake-hygiene protocol.**
 - **Single-run bias:** this addon is PARTICULARLY prone to producing inconsistent counts between invocations on the same checkout. A "Test Files N passed (N)" line on one run does NOT prove the suite is healthy. Never claim "fixed" or "green" based on a single run on this suite. If the user shows a failing screenshot and your run goes green, the FIRST move is to acknowledge you cannot reproduce their failure and ask for their log or reproduction conditions, not to re-run hoping for another green. See `frontend:validate` flake rules and the `frontend:vitest` flake-hygiene reference
 - **Do not enshrine unverified approaches as "better fixes" in this skill.** If you encounter or propose a new approach to a storybook/vitest problem, it must go through the full flake-hygiene protocol on a real failure before being written down as a recommendation. Declaring an approach "worked" from a single background run while the user reproduces 31 failures on the same code is not verification. The approach may or may not be correct, but unverified does not go in the skill.
 - **CI:** dynamic import / iframe: `test.isolate: false` and/or `--shard=i/n` ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#why-do-my-tests-fail-in-ci-with-failed-to-fetch-dynamically-imported-module-or-cannot-connect-to-the-iframe), [sharding](https://vitest.dev/guide/improving-performance.html#sharding)).
-- **Isolation:** if **`vite.config` defines `test`**, it **merges** into configs that extend that Vite file and can break Storybook tests: **move `test` to `vitest.config`** ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#how-do-i-isolate-storybook-tests-from-others)). **`mergeConfig(viteConfig, defineConfig({ test: … }))` in `vitest.config.ts` is the pattern Storybook documents** (runs on Vitest 4 and 5) as long as **Vite does not own `test`**
+- **Isolation:** if **`vite.config` defines `test`**, it **merges** into configs that extend that Vite file and can break Storybook tests: **move `test` to `vitest.config`** ([FAQ](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#how-do-i-isolate-storybook-tests-from-others)). **`mergeConfig(viteConfig, defineConfig({ test: … }))` in `vitest.config.ts` is the pattern Storybook documents** as long as **Vite does not own `test`**
 - **Playwright (WebGL / maps / Canvas):** optional `browser.provider: playwright({ launchOptions: { args: … } })` per [Vitest browser](https://vitest.dev/config/#browser-playwright): not in Storybook’s doc, but common for headless Chromium.
 
 ## `asChild`, decorators, and context
@@ -96,7 +96,7 @@ Two problems interact here:
 **Fix:** put both context and visual wrapping (CardWrapper etc.) inside the `asChild` wrapper component, never as a decorator:
 
 ```svelte
-<!-- MyWrapper.svelte: provides context + visual wrap (Svelte 5 children snippet, measured) -->
+<!-- MyWrapper.svelte: provides context + visual wrap -->
 <script>
   import { setContext } from "svelte";
   import { writable } from "svelte/store";
@@ -126,7 +126,7 @@ Two problems interact here:
   name="Default"
   asChild
   play={async ({ canvasElement }) => {
-    // the component reads the context the wrapper provides (measured with an asChild wrapper)
+    // the component reads the context the wrapper provides
     await expect(within(canvasElement).getByText("value / from wrapper")).toBeVisible();
   }}
 >
@@ -148,7 +148,7 @@ Two problems interact here:
 - Use a **dedicated `vitest.config.{ts,mts,js,mjs}`** at the package root (per monorepo package). Put **`storybookTest`** and **`test.projects`** here.
 - Storybook docs recommend a **separate [test project](https://vitest.dev/guide/projects)** for Storybook vs other tests when using **Vitest ≥ 4.0** ([manual setup](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#manual-setup-advanced)).
 - **Do not define `test` in `vite.config`** if that config is extended/merged for Vitest: the FAQ’s merge problem is **Vite’s `test` field**, not `mergeConfig` itself.
-- Since Vitest 5, every inline project **inherits the merged root config by default** (`extends: true` is the default; the [official example](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#example-configuration-files) still writes it). With a `mergeConfig(vite.config, …)` root, sibling node/browser projects get the root's Vite plugins and root `setupFiles` too; a plain node project that must not get them needs **`extends: false`**. Alternative: root `defineConfig({ test: { projects: [{ extends: './vite.config.ts', … }] } })` with **no** `test` in Vite: same isolation goal
+- Every inline project **inherits the merged root config by default** (the [official example](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#example-configuration-files) still writes `extends: true`). With a `mergeConfig(vite.config, …)` root, sibling node/browser projects get the root's Vite plugins and root `setupFiles` too; a plain node project that must not get them needs **`extends: false`**. Alternative: root `defineConfig({ test: { projects: [{ extends: './vite.config.ts', … }] } })` with **no** `test` in Vite: same isolation goal
 - **Do not add the root's plugins (e.g. `svelte()`, `sveltekit()`) to the storybook project.** They are inherited; a duplicate compiles components twice (`CompileError: … Expected token }`). Leave `extends` unset: an explicit `extends: true` hides Vitest's "applies the same plugin multiple times" warning
 - **Gate:** if there is **no** `vitest.config.*` and the only Vitest config is **`vite.config` to `test:`** (or there is no Vitest file), **ask** before adding the addon whether to introduce `vitest.config.ts` and move `test` out of Vite.
 
@@ -156,9 +156,9 @@ Two problems interact here:
 
 Prefer **`pnpm exec storybook add @storybook/addon-vitest`** ([automatic installation](https://storybook.js.org/docs/addons/install-addons#automatic-installation)). **Playwright Chromium** is required for default browser mode, install browsers if prompted ([Playwright browsers](https://playwright.dev/docs/browsers#install-browsers)).
 
-**Manual** wiring follows [example configuration files](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#example-configuration-files). The example uses **`mergeConfig(viteConfig, defineConfig({ test: { projects: […] } }))`** and a Storybook project with **`extends: true`**, which is the default since Vitest 5 and is left out below.
+**Manual** wiring follows [example configuration files](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#example-configuration-files). The example uses **`mergeConfig(viteConfig, defineConfig({ test: { projects: […] } }))`** and a Storybook project with **`extends: true`**. That is the default, and writing it out hides the duplicate-plugin warning, so the config below leaves it out.
 
-- **`setupFiles`:** since **Storybook 10.3** the plugin applies preview annotations automatically: it always injects `@storybook/addon-vitest/internal/setup-file`, and injects `setup-file-with-project-annotations` **only when you have not supplied a `setProjectAnnotations` setup file**. So a manual `.storybook/vitest.setup.ts` is **not required** unless you have custom per-test setup beyond `preview.ts`; if you keep one that calls `setProjectAnnotations`, the plugin defers to it. Before 10.3 that file, referenced via `setupFiles`, was required, which is why the doc example still shows it. Root `test.setupFiles` concatenate into every inline project in Vitest 5, so the storybook project runs them too
+- **`setupFiles`:** the plugin applies preview annotations automatically: it always injects `@storybook/addon-vitest/internal/setup-file`, and injects `setup-file-with-project-annotations` **only when you have not supplied a `setProjectAnnotations` setup file**. So a manual `.storybook/vitest.setup.ts` is **not required** unless you have custom per-test setup beyond `preview.ts`; if you keep one that calls `setProjectAnnotations`, the plugin defers to it. The doc example still shows that file in `setupFiles`
 - **`storybookScript`:** docs: _“This should match your **`package.json`** script to run Storybook”_ (e.g. **`pnpm storybook --no-open`**). You may **prefix** the same command with setup steps (i18n mocks, env) so watch-mode debugging matches dev.
 - **`storybookUrl`:** default **`http://localhost:6006`**: must be **reachable** for failure links ([debugging](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#debugging)). For **CI**, set the **full URL** of the **published** Storybook (including **path prefix** if hosted under a subpath) so output links work ([CI](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#in-ci), [Testing in CI](https://storybook.js.org/docs/writing-tests/in-ci#21-debugging-test-failures-in-ci)).
 - **`storybookScript` behavior:** in **watch** mode, the plugin starts Storybook via this script **only if** nothing is already available at **`storybookUrl`** ([API](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#storybookscript)).
@@ -184,12 +184,8 @@ function resolveViteConfig(env: ConfigEnv): UserConfig {
 const testConfig: UserConfig = {
   test: {
     projects: [
-      // … other projects (node, browser): they inherit the merged root too; `extends: false` opts out …
+      // … other projects (node, browser) …
       {
-        /**
-         * no `extends`: inheriting the merged root is the default since Vitest 5,
-         * and an explicit `extends: true` hides the duplicate-plugin warning
-         */
         plugins: [
           storybookTest({
             configDir: path.join(dirname, ".storybook"),
@@ -218,7 +214,7 @@ const testConfig: UserConfig = {
         },
         test: {
           name: "storybook",
-          // no setupFiles: since Storybook 10.3 the plugin auto-applies preview annotations (see setupFiles note above)
+          // no setupFiles: the plugin auto-applies preview annotations (see setupFiles note above)
           browser: {
             enabled: true,
             headless: true,
@@ -260,10 +256,9 @@ impossible, the output is 90% MSW request/response bodies.
 
 **Debugging failures:** read Vitest's **"Unhandled Errors"** block first: a component
 that throws during render shows up there with the Svelte component stack (e.g.
-`in Frame.svelte`, `in DecoratorHandler.svelte`), even though its story is reported as
-passed and decorators are involved (measured). Then open the story in the **Storybook
+`in Frame.svelte`, `in DecoratorHandler.svelte`). Then open the story in the **Storybook
 browser UI** via Playwright to reproduce it interactively; the browser console shows the
-same error plus anything logged around it.
+same error.
 
 **Common Svelte 5 error:** `props_invalid_value` ("Cannot do `bind:%key%={undefined}` when `%key%` has a fallback value", [Svelte runtime errors](https://svelte.dev/docs/svelte/runtime-errors#Client-errors-props_invalid_value)). It happens when `bind:prop={value}` passes `undefined` to a prop declared with any fallback, and `null` counts as a fallback: `$bindable(null)` throws exactly like `$bindable('x')` (measured). Fix it on one side: give the bound variable a defined initial value in the parent, or declare the prop without a fallback (`prop = $bindable()`, measured to render) when `undefined` is a valid value.
 

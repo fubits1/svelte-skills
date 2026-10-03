@@ -51,7 +51,7 @@ when the parent binds `undefined` (measured).
 ```
 
 ```diff
-<!-- child: or drop the fallback when undefined is a valid value (measured to render) -->
+<!-- child: or drop the fallback when undefined is a valid value -->
 - search = $bindable(null),
 + search = $bindable(),
 ```
@@ -61,10 +61,10 @@ when the parent binds `undefined` (measured).
 **ALWAYS read the actual error before changing anything:**
 
 1. Read Vitest's "Unhandled Errors" block: render-time errors land there with the Svelte
-   component stack, even when every story is reported green (measured)
+   component stack
 2. Open the story at your Storybook URL (default `localhost:6006`) via Playwright
-3. Check console errors: the browser shows the full Svelte error with component stack trace
-4. The error points to the exact file and line
+3. Check console errors: the browser shows the full Svelte error with the component stack
+   trace, down to the file and line
 
 **NEVER blame decorators without seeing the error.**
 
@@ -75,8 +75,8 @@ in vitest headless mode.
 
 In the Storybook browser UI, decorators DO propagate context.
 
-Fix: provide the context from an `asChild` wrapper component (see `asChild` pattern below), as
-the main skill says. Only if the component must also work without any provider, give it a
+Fix: provide the context from an `asChild` wrapper component (see `asChild` pattern below).
+Only if the component must also work without any provider, give it a
 `hasContext` check with a writable-store fallback; that changes production code for a test
 problem, so prefer the wrapper.
 
@@ -90,7 +90,7 @@ component rendering:
  import { defineMeta } from '@storybook/addon-svelte-csf'
  import { expect, within } from 'storybook/test'
  import MyComponent from './MyComponent.svelte' // renders <p>{prop} / {$ctx}</p>
- import MyWrapper from './MyWrapper.svelte' // see below
+ import MyWrapper from './MyWrapper.svelte'
 
  const { Story } = defineMeta({ title: 'MyComponent', component: MyComponent })
 </script>

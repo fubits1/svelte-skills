@@ -22,7 +22,7 @@ This skill carries what those pages do not: where the Svelte and Storybook toolc
 | Vitest browser | `setupWorker` in a setup file | narrow: per-test `worker.use()` |
 | Dev app | gated entry import (`hooks.client.ts` on SvelteKit) | narrow: only what the backend lacks |
 
-For Vitest browser, put the `setupWorker` file in the **browser project's** `setupFiles`, not the root `test.setupFiles`: since Vitest 5 inline projects inherit root `setupFiles` (arrays concatenate), so a root entry also loads `msw/browser` in node projects. That inheritance was measured on Vitest 5 with a generic setup file; the MSW runs in the compatibility line above predate it. A node project that must not inherit the root needs `extends: false` (`frontend:vitest`).
+For Vitest browser, put the `setupWorker` file in the **browser project's** `setupFiles`, not the root `test.setupFiles`: inline projects inherit root `setupFiles` (arrays concatenate), so a root entry also loads `msw/browser` in node projects. That inheritance was measured on Vitest 5 with a generic setup file; the MSW runs in the compatibility line above predate it. A node project that must not inherit the root needs `extends: false` (`frontend:vitest`).
 
 One shared array across all three means dev stops talking to your backend the moment someone adds a catch-all for a story. The rest, including the catch-all failure signature and stateful factories, is in `references/handlers.md`.
 

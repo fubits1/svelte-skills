@@ -34,7 +34,7 @@ Use semantic role-based queries for better accessibility and
 maintainability:
 
 ```typescript
-// ✅ BEST - semantic queries (exact, case-sensitive since Vitest 5; RegExp or { exact: false } for partial)
+// ✅ BEST - semantic queries (exact, case-sensitive; RegExp or { exact: false } for partial)
 page.getByRole('button', { name: 'Submit' });
 page.getByRole('textbox', { name: 'Email' });
 page.getByRole('heading', { name: 'Welcome', level: 1 });
@@ -102,16 +102,13 @@ await expect
 `force: true` skips the actionability checks (visible, stable, receives events). On a button
 covered by an overlay a normal `click()` times out, which is the bug a real user would hit;
 `click({ force: true })` reports success while the button's handler never runs (measured:
-click counter stayed at 0). The test then passes on a broken UI.
+click counter stayed at 0).
 
 ```typescript
 // ❌ DON'T - hides "a user cannot click this"
 await button.click({ force: true });
 
-/**
- * ✅ DO - a plain click already waits for the element to be visible, stable and
- * unobstructed; if it times out, the UI is really blocked: fix that, not the test
- */
+// ✅ DO - if it times out, the UI is blocked: fix that, not the test
 await button.click();
 ```
 
@@ -166,6 +163,6 @@ expect(writeText).toHaveBeenCalledWith('48.78, 9.18')
 writeText.mockRestore()
 ```
 
-`navigator.clipboard` is a getter in Chromium (the browser `@vitest/browser-playwright` drives), so reassigning it throws (measured). Spy on the method instead. The spy is needed at all because the real `writeText` rejects in a headless test run with `NotAllowedError: Failed to execute 'writeText' on 'Clipboard': Document is not focused.` (measured).
+`navigator.clipboard` is a getter in Chromium (the browser `@vitest/browser-playwright` drives), so reassigning it throws (measured). Spy on the method instead. The spy is needed because the real `writeText` rejects in a headless test run with `NotAllowedError: Failed to execute 'writeText' on 'Clipboard': Document is not focused.` (measured).
 
 ---

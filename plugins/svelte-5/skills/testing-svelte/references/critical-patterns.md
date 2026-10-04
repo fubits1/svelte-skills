@@ -4,15 +4,18 @@
 
 ### Form Handling in SvelteKit
 
-**NEVER click submit buttons** in SvelteKit forms - they trigger full
-page navigation:
+**Never click submit on a form that posts natively** (no `preventDefault` in its submit
+handler): the browser navigates the test iframe and the whole file fails with
+`Cannot connect to the iframe. Did you change the location or submitted a form?` (measured).
+A form whose submit handler calls `event.preventDefault()` can be submitted by clicking and
+its outcome asserted (measured; see troubleshooting Error 4).
 
 ```typescript
-// ❌ DON'T - Causes navigation/hangs
+// ❌ DON'T - natively posting form: navigates the iframe, the file fails
 const submit = page.getByRole('button', { name: /submit/i });
-await submit.click(); // ⚠️ Infinite hang
+await submit.click();
 
-// ✅ DO - Test form state directly
+// ✅ DO - test the native form's states directly
 await render(MyForm, { props: { errors: { email: 'Required' } } });
 
 const emailInput = page.getByRole('textbox', { name: /email/i });
@@ -31,18 +34,18 @@ Use semantic role-based queries for better accessibility and
 maintainability:
 
 ```typescript
-// ✅ BEST - Semantic queries
+// ✅ BEST - semantic queries (exact, case-sensitive; RegExp or { exact: false } for partial)
 page.getByRole('button', { name: 'Submit' });
 page.getByRole('textbox', { name: 'Email' });
 page.getByRole('heading', { name: 'Welcome', level: 1 });
-page.getByLabel('Email address');
+page.getByLabelText('Email address');
 page.getByText('Welcome back');
-
-// ⚠️ OK - Use when no role available
-page.getByTestId('custom-widget');
 page.getByPlaceholder('Enter your email');
 
-// ❌ AVOID - Brittle, implementation-dependent
+// ⚠️ LAST RESORT, with its reason: the third-party chart canvas exposes no role or accessible name
+page.getByTestId('custom-widget');
+
+// ❌ AVOID without a reason - brittle, implementation-dependent, no retry
 container.querySelector('.submit-button');
 ```
 
@@ -70,28 +73,43 @@ page.getByRole('button', { name: 'Submit' });
 Test user-visible behavior, not internal implementation:
 
 ```typescript
+/**
+ * fragment: `html` is SSR output (`render(Page).body` from svelte/server);
+ * the BEST case is a browser test (`page` from vitest/browser)
+ */
+
 // ❌ BRITTLE - Tests exact SVG path
 expect(html).toContain(
  'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
 );
 // Breaks when icon library updates!
 
-// ✅ ROBUST - Tests semantic structure
+// ⚠️ WEAK - a CSS class is an implementation detail and `<svg` only proves an icon exists
 expect(html).toContain('text-success'); // CSS class
 expect(html).toContain('<svg'); // Icon present
 
-// ✅ BEST - Tests user experience
+/**
+ * ✅ BEST - tests user experience: the success state, by its exact accessible name
+ * (in an SSR test: expect(html).toContain('aria-label="Payment succeeded"'))
+ */
 await expect
- .element(page.getByRole('img', { name: /success/i }))
+ .element(page.getByRole('img', { name: 'Payment succeeded' }))
  .toBeInTheDocument();
 ```
 
-### Using `force: true` for Animations
+### Don't use `force: true` to get past animations or overlays
+
+`force: true` skips the actionability checks (visible, stable, receives events). On a button
+covered by an overlay a normal `click()` times out, which is the bug a real user would hit;
+`click({ force: true })` reports success while the button's handler never runs (measured:
+click counter stayed at 0).
 
 ```typescript
-// Some elements require force: true due to animations
+// ❌ DON'T - hides "a user cannot click this"
 await button.click({ force: true });
-await input.fill('text', { force: true });
+
+// ✅ DO - if it times out, the UI is blocked: fix that, not the test
+await button.click();
 ```
 
 ### Conditional `{@attach}` to keep third-party-bridging wrappers test-mountable
@@ -112,7 +130,7 @@ In production `appState.condition` is truthy after the third-party context mount
 When a wrapper reads from a module-level `$state` controller (e.g. a `menuState` exported from `someController.svelte.ts`), the test harness must seed that state BEFORE the wrapper's first render. Use plain assignments in the harness `<script>` body, NOT in `$effect`:
 
 ```svelte
-<!-- TestHarness.svelte — synchronous seed in script body -->
+<!-- TestHarness.svelte: synchronous seed in script body -->
 <script lang="ts">
   import { menuState } from '$lib/.../someController.svelte'
 
@@ -133,7 +151,9 @@ If you write the same assignments in `$effect`, they fire AFTER the first render
 ### Mock `navigator.clipboard.writeText` with `vi.spyOn`, not `Object.assign`
 
 ```typescript
-// ❌ DON'T — TypeError: Cannot set property clipboard of #<Navigator> (getter only)
+import { expect, vi } from 'vitest'
+
+// ❌ DON'T: TypeError: Cannot set property clipboard of #<Navigator> which has only a getter
 Object.assign(navigator, { clipboard: { writeText: vi.fn() } })
 
 // ✅ DO
@@ -143,6 +163,6 @@ expect(writeText).toHaveBeenCalledWith('48.78, 9.18')
 writeText.mockRestore()
 ```
 
-`navigator.clipboard` is a getter in Chromium (which `vitest-browser-svelte` drives). Spy on the method, don't reassign the whole property.
+`navigator.clipboard` is a getter in Chromium (the browser `@vitest/browser-playwright` drives), so reassigning it throws (measured). Spy on the method instead. The spy is needed because the real `writeText` rejects in a headless test run with `NotAllowedError: Failed to execute 'writeText' on 'Clipboard': Document is not focused.` (measured).
 
 ---

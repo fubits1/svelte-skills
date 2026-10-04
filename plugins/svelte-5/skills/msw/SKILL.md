@@ -22,6 +22,8 @@ This skill carries what those pages do not: where the Svelte and Storybook toolc
 | Vitest browser | `setupWorker` in a setup file | narrow: per-test `worker.use()` |
 | Dev app | gated entry import (`hooks.client.ts` on SvelteKit) | narrow: only what the backend lacks |
 
+For Vitest browser, put the `setupWorker` file in the **browser project's** `setupFiles`, not the root `test.setupFiles`: inline projects inherit root `setupFiles` (arrays concatenate), so a root entry also loads `msw/browser` in node projects. That inheritance was measured on Vitest 5 with a generic setup file; the MSW runs in the compatibility line above predate it. A node project that must not inherit the root needs `extends: false` (`frontend:vitest`).
+
 One shared array across all three means dev stops talking to your backend the moment someone adds a catch-all for a story. The rest, including the catch-all failure signature and stateful factories, is in `references/handlers.md`.
 
 The worker script comes from [`msw init <dir> --save`](https://mswjs.io/docs/cli/init), into `public/` on Vite and `static/` on SvelteKit, and Storybook must serve it via `staticDirs`. When every story fails at once rather than one of them, suspect the worker before the handlers: open `/mockServiceWorker.js` in the browser, and a 404 or a MIME-type error there means it is not being served ([browser integration](https://mswjs.io/docs/integrations/browser)).

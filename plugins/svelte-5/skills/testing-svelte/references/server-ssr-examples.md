@@ -19,6 +19,7 @@ describe('Page SSR', () => {
 		).not.toThrow();
 	});
 
+	// SSR output is a string: assert semantic elements with their text, not wrappers or classes
 	test('renders correct HTML structure', () => {
 		const { body } = render(PageComponent, {
 			props: {
@@ -35,14 +36,17 @@ describe('Page SSR', () => {
 		expect(body).toContain('<li>Gamma</li>');
 	});
 
-	test('applies correct CSS classes', () => {
+	test('renders the success state', () => {
 		const { body } = render(PageComponent, {
 			props: { data: { status: 'success' } },
 		});
 
-		// Test semantic CSS classes, not implementation details
-		expect(body).toContain('text-success');
-		expect(body).toContain('<svg'); // Icon present
+		/**
+		 * assert what the user gets for this status (text, accessible name);
+		 * a class name or `<svg` only proves markup exists (critical-patterns: WEAK)
+		 */
+		expect(body).toContain('aria-label="Payment succeeded"');
+		expect(body).toContain('Payment received');
 	});
 
 	test('handles empty data gracefully', () => {

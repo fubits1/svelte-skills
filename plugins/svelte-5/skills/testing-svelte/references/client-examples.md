@@ -11,15 +11,23 @@ Real browser testing with user interactions:
 import { render } from 'vitest-browser-svelte';
 import { test, expect, describe } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
-import Button from './button.svelte';
+// labeled-counter.svelte: <button onclick={() => count++}>{label}: {count}</button>
+import Button from './labeled-counter.svelte';
+import ButtonGroup from './button-group.svelte';
 
 describe('Button Component', () => {
 	test('increments counter on click', async () => {
-		await render(Button, { props: { label: 'Click me' } });
+		await render(Button, { props: { label: 'Clicked' } });
 
-		const button = page.getByRole('button', { name: /click me/i });
+		/**
+		 * locators are lazy and re-query on every use: locate by something
+		 * that survives the click (the role, or a RegExp on the stable part
+		 * of the name)
+		 */
+		const button = page.getByRole('button', { name: /^clicked/i });
 
 		await userEvent.click(button);
+		// exact match, so assert the full text
 		await expect.element(button).toHaveTextContent('Clicked: 1');
 
 		await userEvent.click(button);
@@ -27,13 +35,14 @@ describe('Button Component', () => {
 	});
 
 	test('supports keyboard interaction', async () => {
-		await render(Button, { props: { label: 'Press me' } });
+		await render(Button, { props: { label: 'Pressed' } });
 
-		const button = page.getByRole('button', { name: /press me/i });
+		const button = page.getByRole('button', { name: /^pressed/i });
+		// locators have no .focus(); element() returns the DOM node
 		await button.element().focus();
 		await userEvent.keyboard('{Enter}');
 
-		await expect.element(button).toHaveTextContent('Clicked: 1');
+		await expect.element(button).toHaveTextContent('Pressed: 1');
 	});
 
 	test('handles multiple buttons with .first()', async () => {
@@ -43,13 +52,13 @@ describe('Button Component', () => {
 		const firstButton = page.getByRole('button').first();
 		const secondButton = page.getByRole('button').nth(1);
 
+		// different click counts per button, so the assertions tell the buttons apart
 		await firstButton.click();
-		await expect.element(firstButton).toHaveTextContent('Clicked: 1');
-
+		await firstButton.click();
 		await secondButton.click();
-		await expect
-			.element(secondButton)
-			.toHaveTextContent('Clicked: 1');
+
+		await expect.element(firstButton).toHaveTextContent('Clicked: 2');
+		await expect.element(secondButton).toHaveTextContent('Clicked: 1');
 	});
 });
 ```
@@ -62,6 +71,7 @@ import { render } from 'vitest-browser-svelte';
 import { test, expect } from 'vitest';
 import { flushSync } from 'svelte';
 import Counter from './counter.svelte';
+import FormComponent from './form-component.svelte';
 
 test('$state and $derived reactivity', async () => {
 	const { component } = await render(Counter);
@@ -106,19 +116,13 @@ Test with real FormData/Request objects:
 
 ```typescript
 // api/users/server.test.ts
-import { test, expect, describe, beforeEach, vi } from 'vitest';
+import { test, expect, describe, vi } from 'vitest';
 import { POST } from './+server';
 import * as database from '$lib/server/database';
 
 vi.mock('$lib/server/database');
 
 describe('POST /api/users', () => {
-	// Vitest 4 defaults clearMocks: false - call history leaks between
-	// tests, breaking the not.toHaveBeenCalled() assertions below
-	beforeEach(() => {
-		vi.clearAllMocks();
-	});
-
 	test('creates user with valid data', async () => {
 		// Mock only external services
 		vi.mocked(database.createUser).mockResolvedValue({
@@ -162,7 +166,8 @@ describe('POST /api/users', () => {
 		const data = await response.json();
 
 		expect(response.status).toBe(400);
-		expect(data.errors.email).toBeDefined();
+		// the exact message the endpoint returns, not just "some error exists"
+		expect(data.errors.email).toBe('Invalid email format');
 		expect(database.createUser).not.toHaveBeenCalled();
 	});
 
@@ -179,8 +184,10 @@ describe('POST /api/users', () => {
 		const data = await response.json();
 
 		expect(response.status).toBe(400);
-		expect(data.errors.email).toBeDefined();
-		expect(data.errors.password).toBeDefined();
+		expect(data.errors).toEqual({
+			email: 'Email is required',
+			password: 'Password is required',
+		});
 		expect(database.createUser).not.toHaveBeenCalled();
 	});
 });

@@ -9,7 +9,14 @@
 ## `vitest-browser-svelte`
 
 - v3 gives `/pure` full export parity with the main entry and exports the `RenderResult` type
-- The main entry calls `cleanup()` in `beforeEach`, so the last test's DOM stays mounted until the file ends. `vitest-browser-svelte/pure` never cleans up on its own: call `cleanup()` in `afterEach`, or await the `unmount()` from each render. Use `/pure` for `it.concurrent` tests: with the main entry's cleanup they destroy each other's DOM
+- The main entry calls `cleanup()` in `beforeEach`, so the last test's DOM stays mounted until the file ends. `cleanup()` removes every component rendered with `render` ([docs](https://vitest.dev/api/browser/svelte#cleanup)), and `vitest-browser-svelte/pure` never calls it on its own
+- Sequential tests under `/pure`: call `cleanup()` in `afterEach`, or await the `unmount()` from each render
+<!-- TODO: revise: rests on Vitest 5 + vitest-browser-svelte 3 measurements and an undocumented gap; re-measure on each Vitest major and when vitest-dev/vitest#9751 or #5665 closes -->
+- **Don't use `it.concurrent` for browser component tests.** Concurrent tests share one page, and the retrying `expect.element` breaks there. Evidence (measured, 3 runs each, with two or three `it.concurrent` tests in one file):
+  - The global `expect.element` passes when called right after `render`, and throws `expect.poll() must be called inside a test` once the test has awaited something (a 300ms wait) while another concurrent test ran. The global `expect` finds its test through the current-test tracker, which concurrent tests do not keep (`vitest/dist/chunks/index.*.js`, `createExpectPoll`)
+  - The test-context `expect`, which the [test API docs](https://vitest.dev/api/test#test-concurrent) require for assertions in concurrent tests, has no `.element`: `TypeError: expect.element is not a function`. That failure also reports `Cannot take a screenshot in a concurrent test because concurrent tests run at the same time in the same iframe` (`@vitest/browser/dist/context.js`)
+  - A shared `cleanup()` in `afterEach` removed a still-running test's component (`document.body` was empty when it asserted), because hooks of concurrent tests overlap ([parallelism guide](https://vitest.dev/guide/parallelism))
+  - No Vitest doc or issue describes the `expect.element` gap; [vitest#9751](https://github.com/vitest-dev/vitest/issues/9751) (open) reports that concurrent browser tests also corrupt the shared `expect.element` timeout
 - Under `/pure`, a document-wide query can hit a previous test's element, and the render result's own selectors are document-wide too (`screen.getByRole('button')` found both of two rendered buttons, measured). Scope to the render's container with `page.elementLocator(screen.container).getByRole(...)` (found one, measured), or give each render a unique id. A test that reads DOM left by the previous test passes in the full file and fails when run alone (`-t`, `--tags-filter`, shuffle)
 
 ## Locators

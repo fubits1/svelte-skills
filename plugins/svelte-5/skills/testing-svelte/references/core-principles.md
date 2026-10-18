@@ -9,11 +9,13 @@ a one-line comment saying why no accessible locator works (a third-party
 widget without roles, an overlay that intercepts clicks).
 
 ```typescript
-// ❌ default to raw DOM: no retry logic, brittle tests
+// ❌ default to raw DOM: no retry logic, and no accessibility check
 const { container } = await render(MyComponent);
 const button = container.querySelector('button');
+```
 
-// ✅ locator: auto-retry, resilient tests
+```typescript
+// ✅ locator: retries until the element is there
 await render(MyComponent);
 const button = page.getByRole('button', { name: 'Submit' });
 await button.click();
@@ -33,28 +35,24 @@ When multiple elements match a locator, use `.first()`, `.nth()`, or
 
 ```typescript
 // ❌ FAILS: "strict mode violation: resolved to 2 elements"
-page.getByRole('link', { name: 'Home' }); // Desktop + mobile nav
+page.getByRole('link', { name: 'Home' }); // desktop + mobile nav
 
 // ✅ CORRECT: Handle multiple elements explicitly
 page.getByRole('link', { name: 'Home' }).first();
-page.getByRole('link', { name: 'Home' }).nth(1); // Second element
+page.getByRole('link', { name: 'Home' }).nth(1); // second element
 page.getByRole('link', { name: 'Home' }).last();
 ```
 
 ## 3. Read `$derived` Values Directly
 
-Defensive convention: [sveltest](https://sveltest.dev/docs/runes-testing) wraps `$derived` reads in `untrack()` to avoid leaking test-time reads into reactive scopes.
-
-Access `$derived` values directly in tests; no `untrack()` needed:
+Access `$derived` values directly in tests; no `untrack()` needed. [sveltest](https://sveltest.dev/docs/runes-testing) wraps such reads in `untrack()` as a defensive convention, so they cannot leak into a reactive scope (troubleshooting Error 3).
 
 ```typescript
-// ✅ Access $derived values
-const value = component.derivedValue;
-expect(value).toBe(42);
+// ✅ a getter that returns a $derived value: read it
+expect(component.derivedValue).toBe(42);
 
-// ✅ For getters: call the function directly
-const derivedFn = component.computedValue;
-expect(derivedFn()).toBe(expected);
+// ✅ an exported function: call it
+expect(component.computeTotal()).toBe(42);
 ```
 
 ## 4. Real FormData/Request Objects
@@ -64,8 +62,8 @@ mismatches:
 
 ```typescript
 /**
- * fragment: `vi` from 'vitest', `database` from '$lib/server/database'
- * (mocked with a top-level `vi.mock('$lib/server/database')`)
+ * fragment: `vi` from 'vitest', `database` from '#lib/server/database.js'
+ * (mocked with a top-level `vi.mock('#lib/server/database.js')`)
  */
 
 // ❌ BRITTLE: Mocks hide API mismatches
@@ -83,7 +81,7 @@ const request = new Request('http://localhost/api/users', {
 	body: formData,
 });
 
-// Only mock external services
+// only mock external services
 vi.mocked(database.createUser).mockResolvedValue({
 	id: '123',
 	email: 'test@example.com',

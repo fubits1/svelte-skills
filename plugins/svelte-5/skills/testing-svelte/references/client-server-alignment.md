@@ -14,9 +14,10 @@ Use real `FormData` and `Request` objects. Only mock external services
 
 ```typescript
 /**
- * api/register/server.test.ts (fragment): `vi`, `database` and `POST` come from
- * `import { vi } from 'vitest'`, `import * as database from '$lib/server/database'`,
- * `import { POST } from './+server'`, with `vi.mock('$lib/server/database')` at the top level
+ * src/routes/api/register/server.test.ts (fragment): `vi`, `database` and `POST` come from
+ * `import { vi } from 'vitest'`, `import * as database from '#lib/server/database.js'`,
+ * `import { POST } from './+server'`, with `vi.mock('#lib/server/database.js')` at the top level
+ * (SvelteKit 3; on SvelteKit 2 the specifier is '$lib/server/database', and '$lib/validation' below)
  */
 
 // ❌ BRITTLE APPROACH
@@ -28,25 +29,25 @@ const mockRequest = {
 		}),
 	}),
 };
-// This passes even if real FormData API differs!
+// this passes even if real FormData API differs!
 
 // ✅ ROBUST APPROACH
 const formData = new FormData();
 formData.append('email', 'test@example.com');
 formData.append('password', 'pass123');
 
-const request = new Request('http://localhost/register', {
+const request = new Request('http://localhost/api/register', {
 	method: 'POST',
 	body: formData,
 });
 
-// Only mock external services
+// only mock external services
 vi.mocked(database.createUser).mockResolvedValue({
 	id: '123',
 	email: 'test@example.com',
 });
 
-const response = await POST({ request });
+const response = await POST({ request } as Parameters<typeof POST>[0]);
 ```
 
 ### Shared Validation Logic
@@ -54,16 +55,18 @@ const response = await POST({ request });
 Use the same validation on client and server:
 
 ```typescript
-// lib/validation.ts
+// src/lib/validation.ts
 export function validateEmail(email: string) {
 	if (!email) return 'Email is required';
 	if (!email.includes('@')) return 'Invalid email format';
 	return null;
 }
+```
 
-// validation.test.ts: unit test for the shared rule
+```typescript
+// src/lib/validation.test.ts: unit test for the shared rule
 import { expect, test } from 'vitest';
-import { validateEmail } from '$lib/validation';
+import { validateEmail } from '#lib/validation.js';
 test('validates email', () => {
 	expect(validateEmail('')).toBe('Email is required');
 	expect(validateEmail('invalid')).toBe('Invalid email format');
@@ -72,19 +75,19 @@ test('validates email', () => {
 ```
 
 ```typescript
-// routes/api/register/+server.ts: the endpoint uses the same validation
-import { json } from '@sveltejs/kit';
+// src/routes/api/register/+server.ts: the endpoint uses the same validation
 import type { RequestHandler } from './$types';
-import { validateEmail } from '$lib/validation';
+import { validateEmail } from '#lib/validation.js';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
-	// FormData.get() returns string | File | null - narrow before validating
+	// `FormData.get()` returns string | File | null: coerce to a string before validating
 	const emailError = validateEmail(String(formData.get('email') ?? ''));
 	if (emailError) {
-		return json({ errors: { email: emailError } }, { status: 400 });
+		return Response.json({ errors: { email: emailError } }, { status: 400 });
 	}
 	// …create the user
+	return Response.json({ ok: true }, { status: 201 });
 };
 ```
 

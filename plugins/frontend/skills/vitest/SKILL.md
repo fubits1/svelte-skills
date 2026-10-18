@@ -9,16 +9,16 @@ user-invocable: true
 
 ## Config
 
-- **Docs:** if unsure about an API, fetch `https://vitest.dev/llms.txt`. Do not guess.
-- **Config file:** use **`vitest.config.{ts,mts,js,mjs}`** for `test` / `test.projects`. Vitest-only-in-`vite.config` merges badly with multiple projects and Storybook.
-- **Gate:** no `vitest.config.*` but `vite.config` has **`test:`** (or no Vitest file), **ask** before adding projects or Storybook whether to introduce `vitest.config.ts` and move `test` out of Vite.
+- **Docs:** if unsure about an API, fetch `https://vitest.dev/llms.txt`. Do not guess
+- **Config file:** use **`vitest.config.{ts,mts,js,mjs}`** for `test` / `test.projects`. Vitest-only-in-`vite.config` merges badly with multiple projects and Storybook
+- **Gate:** no `vitest.config.*` but `vite.config` has **`test:`** (or no Vitest file), **ask** before adding projects or Storybook whether to introduce `vitest.config.ts` and move `test` out of Vite
 - **Projects inherit the root (Vitest 5):** inline `test.projects` get the root's `plugins`, `resolve`, `optimizeDeps`, and `setupFiles`; `extends: false` opts out. **NEVER repeat an inherited root plugin inside a project**: a second `svelte()` compiles components twice. Inheritance rules, `sharedViteServer`, tags: [references/config-projects.md](references/config-projects.md)
 - Upgrade: bump all **`@vitest/*`** together. Vitest 4 to 5 breaking changes and post-upgrade cleanup: [references/vitest-5-upgrade.md](references/vitest-5-upgrade.md)
 - **`browser.provider`:** `import { playwright } from '@vitest/browser-playwright'` to `provider: playwright()` (factory, not a string). Use `import { page } from 'vitest/browser'`: not `@vitest/browser/context`
-- **`optimizeDeps.exclude`:** Svelte 5 runes in `.svelte.js` (e.g. Melt UI) so vite-plugin-svelte handles them, not Vite's dependency pre-bundler (Rolldown since Vite 8, esbuild before).
-- **`optimizeDeps.include`:** deps that trigger mid-test optimization (e.g. `minisearch`) to reduce flakes. Root cause and `optimizeDeps.entries`: [references/flake-hygiene.md](references/flake-hygiene.md)
-- **Storybook:** **`vitest.config.ts`** + `storybookTest` + browser `playwright()`: `svelte-5:storybook-vitest`, [manual setup](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#manual-setup-advanced).
-- **Reports and coverage:** report paths go in `test.outputFile` (reporter options beat the CLI); coverage thresholds take flat metric keys, a Jest-style `global` key enforces nothing: [references/config-projects.md](references/config-projects.md)
+- **`optimizeDeps.exclude`:** the usual workaround for a dependency whose runes fail with `The $derived rune is only available inside .svelte and .svelte.js/ts files` (e.g. Melt UI); not measured here. Pre-bundling alone does not strip runes: vite-plugin-svelte compiles `.svelte.js`/`.svelte.ts` during pre-bundling (read from its `setup-optimizer.js`): `svelte-5:testing-svelte` troubleshooting
+- **`optimizeDeps.include`:** deps that trigger mid-test optimization (e.g. `minisearch`) to reduce flakes; once you list one msw entry point, list every one you import, or narrow frames with `frame.protocol` (`svelte-5:msw`). Root cause and `optimizeDeps.entries`: [references/flake-hygiene.md](references/flake-hygiene.md)
+- **Storybook:** **`vitest.config.ts`** + `storybookTest` + browser `playwright()`: `svelte-5:storybook-vitest`, [manual setup](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon#manual-setup-advanced)
+- **Reports and coverage:** file-reporter paths go in `test.outputFile` (reporter options beat the CLI, measured with `junit`; the HTML reporter takes `outputDir`); coverage thresholds take flat metric keys, a Jest-style `global` key enforces nothing: [references/config-projects.md](references/config-projects.md)
 
 ## Writing tests
 

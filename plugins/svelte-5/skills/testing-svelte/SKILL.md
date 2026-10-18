@@ -1,7 +1,7 @@
 ---
 name: testing-svelte
 # prettier-ignore
-description: Fix and create Svelte 5 tests with vitest-browser-svelte and Playwright. Use when fixing broken tests, debugging failures, writing unit/SSR/e2e tests, or working with vitest/Playwright.
+description: Fix and create Svelte 5 tests with vitest-browser-svelte and Playwright. Use for broken or flaky tests, 'Cannot connect to the iframe', strict mode violations, or unit/SSR/e2e tests.
 user-invocable: true
 ---
 
@@ -29,39 +29,41 @@ test("button click increments counter", async () => {
 
 ## Interaction Tests Are Mandatory
 
-**Every test for an interactive component MUST include meaningful interaction.** A render-only test proves the component mounts, it does NOT prove it works.
+Every test for an interactive component (inputs, autocompletes, buttons, forms) must interact with it and assert the result: a render-only test proves only that the component mounts.
 
-For components with inputs, autocompletes, buttons, or forms:
-
-1. **Interact**: click, type, select, submit
-2. **Assert the outcome**: the selected value text, the callback data content, the DOM state change
-3. **Never silently skip**: no `if (items.length > 0)` guards that skip the interaction when the precondition fails. ASSERT the precondition instead
-4. **Verify callback data**: capture what callbacks received and assert it; a fixture component that renders the payload into an output element works (give it an accessible name, or comment why a test id is used). Checking "callback was called" is not enough; check WHAT it was called with
-
-Example failure: tests that "verified" autocomplete interaction by checking "a selection exists" without checking which value; this missed a bug where onChange returned objects instead of strings.
+1. Interact: click, type, select, submit
+2. Assert the outcome: the selected value text, the callback data content, the DOM state change
+3. Assert the precondition instead of guarding it: no `if (items.length > 0)` that skips the interaction when the precondition fails
+4. Verify callback data: capture what a callback received and assert it; a fixture component that renders the payload into an output element works (give it an accessible name, or comment why a test id is used). "The callback was called" misses an `onChange` that passes objects instead of strings
 
 ## Core Principles
 
-- **Prefer locators**: `page.getBy*()` methods first. A raw `querySelector` or `data-testid` needs a one-line comment saying why no accessible locator works (`frontend:vitest` query rule)
-- **Multiple elements**: Use `.first()`, `.nth()`, `.last()` to avoid strict mode violations
-- **Real API objects**: Test with FormData/Request, minimal mocking
-- **Mock at the right seam**: `vi.mock` for module boundaries, MSW for the network boundary. MSW is this rule applied to HTTP: keep the real component and the real `fetch`, swap only what crosses the wire (`svelte-5:msw`)
-- **`vi.mock` / `vi.hoisted` / `vi.unmock` at the top level only**: inside `describe`, `test`, or a function they throw in Vitest 5 (`was defined outside of the module's top level scope`). `vi.doMock` may go anywhere. Factories, SvelteKit `$app/*` stubs, component swaps: `frontend:vitest` mocking reference
+- Prefer locators: `page.getBy*()` methods first. A raw `querySelector` or `data-testid` needs a one-line comment saying why no accessible locator works (`frontend:vitest` query rule)
+- Multiple elements: use `.first()`, `.nth()`, `.last()` to avoid strict mode violations
+- Real API objects: test with `FormData` and `Request`, with minimal mocking
+- Mock at the right seam: `vi.mock` for module boundaries, MSW for the network boundary. MSW is this rule applied to HTTP: keep the real component and the real `fetch`, swap only what crosses the wire (`svelte-5:msw`)
+- `vi.mock` / `vi.hoisted` / `vi.unmock` at the top level only: inside `describe`, `test`, or a function they throw in Vitest 5 (`was defined outside of the module's top level scope`). `vi.doMock` may go anywhere. Factories, SvelteKit `$app/*` stubs, component swaps: `frontend:vitest` mocking reference
 
 ## Reference Files
 
-[core-principles](references/core-principles.md) | [foundation-first](references/foundation-first.md) | [client-examples](references/client-examples.md) | [server-ssr-examples](references/server-ssr-examples.md) | [critical-patterns](references/critical-patterns.md) | [client-server-alignment](references/client-server-alignment.md) | [troubleshooting](references/troubleshooting.md) (incl. Astro + Svelte type errors)
+- [core-principles](references/core-principles.md): read when choosing locators, handling strict mode, reading runes state, or deciding what to mock
+- [foundation-first](references/foundation-first.md): read when planning a test file before writing it
+- [client-examples](references/client-examples.md): read for complete browser component, runes and API-route test files
+- [server-ssr-examples](references/server-ssr-examples.md): read when testing server code or SSR output
+- [critical-patterns](references/critical-patterns.md): read for forms, semantic queries, animations, `{@attach}` wrappers, seeded module state and the clipboard
+- [client-server-alignment](references/client-server-alignment.md): read when client and server share validation or request shapes
+- [troubleshooting](references/troubleshooting.md): read when a test fails with a known error, including Astro + Svelte type errors
 
 ## Running Tests
 
-- **Storybook + Vitest** (`@storybook/addon-vitest`): `svelte-5:storybook-vitest` skill: `vitest.config.ts`, `test.projects` entry, `vitest --project=storybook`, `storybookUrl` for CI links.
-- `pnpm test:unit` or `vitest run --project browser`: run vitest browser tests only (fast, no dev server needed); plain `vitest run` runs every project
-- `pnpm test`: runs vitest + Playwright e2e concurrently (e2e needs a dev server)
-- `pnpm validate`: runs vitest + lint + typecheck + svelte-check (CI pipeline, no e2e)
+- Storybook + Vitest (`@storybook/addon-vitest`): `svelte-5:storybook-vitest` skill: `vitest.config.ts`, `test.projects` entry, `pnpm test:storybook` (runs the storybook project with `--silent`), `storybookUrl` for CI links
+- `pnpm test:unit`: the node and browser vitest projects (fast, no dev server needed); `vitest run --project browser` runs the browser project alone, and plain `vitest run` runs every project, `storybook` included
+- `pnpm test`: runs vitest + Playwright e2e concurrently (e2e needs a dev server); script names as in `SETUP.md`
+- `pnpm validate`: runs `test:unit` and the lint summary (knip, svelte-check, oxlint, eslint, stylelint) concurrently, then `test:storybook` (CI pipeline, no e2e; the template in `SETUP.md`)
 
 ## After Writing/Editing Test Files
 
-- **LINT: `pnpm lint:tests`.** One command, all 5 linters (oxlint, tsgo, eslint, knip, svelte-check). Must exit 0. No exceptions.
+- Lint with `pnpm lint:tests`: one command, 4 linters (oxlint, eslint, knip, and svelte-check with `--tsgo`). It must exit 0 before the tests count as done
 
 ## Notes
 

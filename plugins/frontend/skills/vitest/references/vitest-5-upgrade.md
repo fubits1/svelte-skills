@@ -1,6 +1,6 @@
 # Vitest 4 to 5 upgrade checklist
 
-Source: [Migrating to Vitest 5.0](https://vitest.dev/guide/migration) unless an item says otherwise. Items 0a-0f are the changes most likely to break a Svelte browser suite; details in [config-projects.md](config-projects.md) (0a, 0b), [browser-mode.md](browser-mode.md) (0c, 0f), [assertions.md](assertions.md) (0d), and [visual-regression.md](visual-regression.md) (0e).
+Source: [Migrating to Vitest 5.0](https://vitest.dev/guide/migration) unless an item says otherwise. Items 0a-0f are the changes most likely to break a Svelte browser suite; details in [config-projects.md](config-projects.md) (0a, 0b), [browser-mode.md](browser-mode.md) (0c), the `vitest-browser-svelte` bullet of the main SKILL.md (0f), [assertions.md](assertions.md) (0d), and [visual-regression.md](visual-regression.md) (0e).
 
 - 0a. Inline `test.projects` inherit the root config by default (`extends` defaults to `true`); `extends: false` opts out. Do not repeat root plugins in a project
 - 0b. `sharedViteServer` defaults to `true`: inline projects that don't change the Vite config share one server, and the root config's plugin `config` hooks run once

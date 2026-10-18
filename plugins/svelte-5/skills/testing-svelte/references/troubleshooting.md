@@ -12,10 +12,10 @@ desktop + mobile nav)
 **Solution:**
 
 ```typescript
-// Before
+// before
 page.getByRole('link', { name: 'Home' });
 
-// After
+// after
 page.getByRole('link', { name: 'Home' }).first();
 ```
 
@@ -35,9 +35,9 @@ expect(element).toHaveTextContent('text');
 await expect.element(element).toHaveTextContent('text');
 ```
 
-### Error 3: Cannot Access $derived
+### Error 3: Reading `$derived` in a Test
 
-**Error:** Unsure whether reading a `$derived`/`$state` value in a test needs `untrack()`
+**Question:** Unsure whether reading a `$derived`/`$state` value in a test needs `untrack()`
 
 **Cause:** Normally it does not: read it directly (the Svelte testing docs do). `untrack()` only exempts a read from dependency tracking *inside* a `$derived`/`$effect`; you might want it when reading state inside an `$effect.root`-wrapped effect test, and [sveltest](https://sveltest.dev/docs/runes-testing) wraps reads in it defensively.
 
@@ -50,7 +50,7 @@ import { untrack } from 'svelte';
 const value = component.derivedValue;
 
 // ✅ defensive (sveltest): untrack() prevents the read leaking as a dependency
-const value = untrack(() => component.derivedValue);
+const untrackedValue = untrack(() => component.derivedValue);
 ```
 
 ### Error 4: Form Submit Kills the Test File
@@ -81,15 +81,15 @@ await expect.element(page.getByText('Required')).toBeInTheDocument();
 
 ```typescript
 // ❌ Wrong roles
-page.getByRole('input', { name: 'Email' }); // No "input" role
-page.getByRole('div', { name: 'Container' }); // No "div" role
+page.getByRole('input', { name: 'Email' }); // no "input" role
+page.getByRole('div', { name: 'Container' }); // no "div" role
 
 // ✅ Correct roles
-page.getByRole('textbox', { name: 'Email' }); // For <input>
-page.getByRole('button', { name: 'Submit' }); // For <button>
-page.getByRole('link', { name: 'Home' }); // For <a>
+page.getByRole('textbox', { name: 'Email' }); // for <input>
+page.getByRole('button', { name: 'Submit' }); // for <button>
+page.getByRole('link', { name: 'Home' }); // for <a>
 
-// 💡 Tip: Check DevTools → Accessibility tab for actual roles
+// 💡 check the DevTools Accessibility tab for actual roles
 ```
 
 ### Error 6: Astro `PropsWithClientDirectives` Type Mismatch
@@ -103,16 +103,20 @@ page.getByRole('link', { name: 'Home' }); // For <a>
 ```jsonc
 // tsconfig.json: exclude test files
 { "exclude": ["dist", "src/**/*.svelte.test.ts"] }
+```
 
-// tsconfig.test.json: no astro/client types
+```jsonc
+// tsconfig.tests.json: no astro/client types
 {
   "extends": "./tsconfig.json",
   "include": ["src/**/*.svelte.test.ts"],
+  // an inherited exclude would drop the test files again
+  "exclude": ["dist"],
   "compilerOptions": { "types": ["node", "svelte"] }
 }
-
-// vitest.config.ts: point to the test tsconfig with test.typecheck.tsconfig: './tsconfig.test.json'
 ```
+
+Without the `exclude` override, the test config inherits the base `exclude` and `tsc -p tsconfig.tests.json` stops with `TS18003: No inputs were found in config file` (measured). In `vitest.config.ts`, point to the test tsconfig with `test.typecheck.tsconfig: './tsconfig.tests.json'`.
 
 ### Error 7: Link Click Navigates Iframe Away
 
@@ -126,9 +130,9 @@ page.getByRole('link', { name: 'Home' }); // For <a>
 
 **Error:** `The $derived rune is only available inside .svelte and .svelte.js/ts files`
 
-**Cause:** Vite's `optimizeDeps` pre-bundles `.svelte.js` files with its dependency pre-bundler (Rolldown since Vite 8, esbuild before), which strips runes, instead of letting vite-plugin-svelte process them.
+**Cause:** not established here. Pre-bundling alone does not strip runes: vite-plugin-svelte adds a plugin to Vite's dependency pre-bundler that compiles `.svelte.js` and `.svelte.ts` files with `svelte.compileModule` (`src/plugins/setup-optimizer.js` in 7.x; `esbuildSvelteModulePlugin` in 4.x; read from source).
 
-**Solution:** Exclude the library from optimizeDeps:
+**Solution:** Excluding the library from optimizeDeps is the workaround this page has carried; it was not measured here:
 
 ```ts
 // vitest.config.ts: inside project object
@@ -139,7 +143,7 @@ optimizeDeps: { exclude: ['melt'] }
 
 **Error:** `input.focus is not a function`
 
-**Cause:** Vitest browser locators don't have `.focus()` (Playwright's own locators do). Only DOM elements do.
+**Cause:** Vitest browser locators don't have `.focus()`, unlike Playwright's own locators; call it on the DOM element.
 
 **Solution:** Use `.click()` to focus, or use `page.getByRole('textbox').element().focus()` for direct DOM access.
 
@@ -182,8 +186,8 @@ await expect.element(banner).toMatchTextContent(/error/i);
 - Use `.first()`, `.nth()`, `.last()` for multiple elements
 - Read `$derived` values directly
 - Click animated elements with a plain `click()`, which waits until they are actionable; never `force: true` (see critical-patterns)
-- Test form validation lifecycle: initial (valid) to validate to invalid
-  to fix
+- Test the form validation lifecycle: valid at first, invalid after
+  validating empty fields, valid again once fixed
 - Use real `FormData`/`Request` objects in server tests
 - Test semantic structure: roles, exact accessible names, visible text (not CSS classes)
 - Focus on user-visible behavior
@@ -203,7 +207,7 @@ await expect.element(banner).toMatchTextContent(/error/i);
 ### Common Locator Methods
 
 ```typescript
-// Semantic queries (preferred)
+// semantic queries (preferred)
 page.getByRole('button', { name: 'Submit' });
 page.getByRole('textbox', { name: 'Email' });
 page.getByRole('heading', { name: 'Title', level: 1 });
@@ -214,16 +218,16 @@ page.getByPlaceholder('Enter email');
 // fallback, with its reason: the third-party chart canvas exposes no role or accessible name
 page.getByTestId('custom-widget');
 
-// Multiple element handling
-page.getByRole('link').first(); // First match
-page.getByRole('link').nth(1); // Second match (0-indexed)
-page.getByRole('link').last(); // Last match
+// multiple element handling
+page.getByRole('link').first();
+page.getByRole('link').nth(1); // second match (0-indexed)
+page.getByRole('link').last();
 ```
 
 ### Test File Patterns
 
 ```typescript
-// button.test.ts: browser component test
+// button.svelte.test.ts: browser component test
 import { render } from 'vitest-browser-svelte';
 import { expect, test } from 'vitest';
 import { page } from 'vitest/browser';
@@ -234,8 +238,13 @@ test('component behavior', async () => {
  await page.getByRole('button').click();
  await expect.element(page.getByRole('button')).toHaveTextContent('Clicked: 1');
 });
+```
 
-// passing static children
+```typescript
+// card.svelte.test.ts: passing static children
+import { render } from 'vitest-browser-svelte';
+import { expect, test } from 'vitest';
+import { page } from 'vitest/browser';
 import { createRawSnippet } from 'svelte';
 import Card from './card.svelte'; // renders {@render children?.()}
 
@@ -244,15 +253,16 @@ test('card renders its children', async () => {
  await render(Card, { children });
  await expect.element(page.getByText('child content')).toBeInTheDocument();
 });
+```
 
-// Server-side API test
-// api/users/server.test.ts
+```typescript
+// src/routes/api/users/server.test.ts: server-side API test (SvelteKit 3; on SvelteKit 2 the import is '$lib/server/database')
 import { expect, test, vi } from 'vitest';
-import * as database from '$lib/server/database';
+import * as database from '#lib/server/database.js';
 import { POST } from './+server';
 
 // mock the external service only: the request stays a real Request with real FormData
-vi.mock('$lib/server/database');
+vi.mock('#lib/server/database.js');
 
 test('API endpoint creates a user', async () => {
  vi.mocked(database.createUser).mockResolvedValue({ id: 'user-1', email: 'user@example.com' });
@@ -263,15 +273,15 @@ test('API endpoint creates a user', async () => {
   method: 'POST',
   body: formData,
  });
- const response = await POST({ request });
+ // the handler reads only `request`; the cast stands in for the rest of the RequestEvent
+ const response = await POST({ request } as Parameters<typeof POST>[0]);
  expect(response.status).toBe(201);
  expect((await response.json()).email).toBe('user@example.com');
 });
 ```
 
 ```typescript
-// SSR test
-// page.ssr.test.ts
+// page.ssr.test.ts: SSR test
 import { expect, test } from 'vitest';
 import { render } from 'svelte/server';
 import PageComponent from './+page.svelte';

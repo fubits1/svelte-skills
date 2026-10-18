@@ -1,56 +1,62 @@
 ---
 name: storybook
-description: Storybook workflow, MCP tools, fixtures, CSS import chains. Auto-invoke when working with Storybook stories or components.
+description: "Storybook authoring and browser verification for Svelte: Storybook MCP story instructions and previews, Playwright checks, Svelte 4 store wrappers, CSS import chains in `.storybook/preview.ts`. Use when writing, editing or reviewing stories or `.stories.svelte` files, when a story renders with empty data, or when a story excluded from tests still needs checking."
 user-invocable: true
 ---
 
 # Storybook
 
-- ALWAYS use `mcp__storybook__get-storybook-story-instructions` before writing stories.
-- ALWAYS use `mcp__storybook__preview-stories` to preview stories after writing them.
-- Stories use `parameters.fixtures` for fixture overrides.
-- API mocking (handlers, fixtures, story-scoped overrides, `msw-storybook-addon` wiring and its v2→v3 break): `svelte-5:msw` skill.
-- Storybook is usually already running: just navigate with Playwright MCP.
-- Verify every story in the browser via Playwright MCP: don't assume it works.
-- CSS imports: trace chains through BOTH `App.svelte` AND `.storybook/preview.ts`. Moving imports out of the SCSS chain breaks Storybook unless also added to `preview.ts` or `storybook.scss`.
+- When the Storybook MCP is configured, call its `get-storybook-story-instructions` tool before writing stories: per Storybook's docs it "returns instructions on how to write useful stories, including which props to capture and how to write interaction tests". After writing them, preview them with its preview tool (`stories-preview`; `@storybook/addon-mcp` releases from before the rename call it `preview-stories`). The tool prefix is your MCP server's name (`mcp__storybook__get-storybook-story-instructions` when the server is called `storybook`)
+- API mocking (handlers, fixtures, story-scoped overrides through `parameters.msw`, `msw-storybook-addon` wiring and its 2 to 3 break): `svelte-5:msw` skill
+- Check whether Storybook already runs (default `http://localhost:6006`) and navigate there with Playwright MCP before starting another instance
+- Verify every story in the browser via Playwright MCP: a story file that compiles can still render empty or broken
+- CSS imports: trace the chain from `App.svelte` and from `.storybook/preview.ts`. Moving an import out of the SCSS chain breaks Storybook unless you also add it to `preview.ts` or to the stylesheet `preview.ts` imports
 
 ## Svelte 4 writable stores need wrapper components in stories
 
 Components that import and read from Svelte 4 module-level
-`writable()` stores (from `svelte/store`) render with default/
-empty data in Storybook unless the stores are populated before
-the component mounts. This does NOT apply to Svelte 5 runes-
-based state in `.svelte.ts` modules, those are reactive on
-their own.
+`writable()` stores (from `svelte/store`) render with default
+or empty data in Storybook unless the stores are populated
+before the component mounts. Svelte 5 runes-based state in
+`.svelte.ts` modules is not affected: it is reactive on its own.
 
 **Pattern:** Create a `<ComponentName>Wrapper.svelte` that:
 
 1. Calls `setContext()` for any required Svelte contexts
 2. Calls `store.set()` with mock data for every Svelte 4
    `writable()` store the component imports
-3. Wraps children in a layout div with sensible dimensions
+3. Wraps children in a layout div with a fixed `max-width`, as in the example below
 
-Use `asChild` in the story, NEVER decorators for components
-that depend on Svelte 4 writable stores. Decorators lose
-complex args (Writable stores, objects with methods) through
-Storybook's arg serialization.
+Render the wrapper inside `<Story asChild>`, not as a decorator: a decorator's
+`setContext` did not reach the story component in Vitest headless runs (observed in a
+real project, not measured). Do not add a decorator to an `asChild` story either. The
+decorator internals and the full wrapper pattern are in `svelte-5:storybook-vitest`
+(`references/storybook-decorator.md`).
 
 ```svelte
 <!-- stories/MyComponentWrapper.svelte -->
 <script lang="ts">
-  import { setContext } from 'svelte'
-  import { writable } from 'svelte/store'
-  import { myWritableStore } from '../stores'  // Svelte 4 writable()
+  import { setContext, type Snippet } from 'svelte'
+  import { myWritableStore } from '../stores' // a writable() store from svelte/store
+  let { children }: { children: Snippet } = $props()
   setContext('myContext', true)
   myWritableStore.set({ /* mock data */ })
 </script>
 <div style="max-width: 600px; padding: 1rem;">
-  <slot />
+  {@render children()}
 </div>
 ```
 
 ```svelte
 <!-- stories/MyComponent.stories.svelte -->
+<script module>
+  import { defineMeta } from '@storybook/addon-svelte-csf'
+  import MyComponent from '../MyComponent.svelte'
+  import MyComponentWrapper from './MyComponentWrapper.svelte'
+
+  const { Story } = defineMeta({ title: 'MyComponent', component: MyComponent })
+</script>
+
 <Story name="Default" asChild>
   <MyComponentWrapper>
     <MyComponent />
@@ -64,22 +70,18 @@ Using `() => {}` for callback props in stories means the
 callback is never verified. If the component passes wrong
 data types to the callback, the noop silently swallows it.
 
-For critical callbacks (onChange, onSubmit, onParameterChanged):
+For critical callbacks (onChange, onSubmit, onSelect):
 
 - Use a tracking function that captures args
-- Add a play function that triggers the callback and verifies
-  what was received
-- At minimum, verify the callback fires: don't just noop it
+- Add a play function that triggers the callback and asserts
+  the exact value it received (`svelte-5:storybook-vitest`,
+  "`.stories.svelte` + `play`")
 
-A common failure: a `noop` callback hides a bug where
-onChange passes full selection objects instead of expected
-string values. The story "passes" because noop accepts
-anything.
+## A story excluded from tests still needs a browser check
 
-## skip-vitest ≠ skip verification
-
-When adding `skip-vitest` to a story, IMMEDIATELY verify it
-renders correctly in the Storybook UI via Playwright MCP.
-Navigate to the story URL, wait for render, take a screenshot,
-check console for 0 errors. `skip-vitest` means "can't
-automate as vitest test", it does NOT mean "don't verify."
+When excluding a story from the Vitest run (the `!test` tag, or
+a custom opt-out tag), verify in the same change that it renders
+in the Storybook UI via Playwright MCP. Navigate to the story
+URL, wait for render, take a screenshot, check console for 0
+errors. The opt-out removes the story from the automated run, so
+this check is the only one it gets.

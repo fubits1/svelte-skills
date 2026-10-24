@@ -1,5 +1,11 @@
 # Client Component Test Examples
 
+## Contents
+
+- Example 1: client-side component test
+- Example 2: testing Svelte 5 runes
+- Example 3: server-side API test
+
 ## Complete Examples
 
 ### Example 1: Client-Side Component Test
@@ -69,7 +75,7 @@ describe('LabeledCounter', () => {
 import { render } from 'vitest-browser-svelte';
 import { test, expect } from 'vitest';
 /**
- * the test reads what the components export (measured):
+ * the test reads what the components export:
  * counter.svelte: let count = $state(0); const doubled = $derived(count * 2);
  *   export function increment() { count++ }; export { count, doubled };
  * form-component.svelte: const email = $state({ value: '', error: '' });
@@ -112,7 +118,7 @@ test('form validation lifecycle', async () => {
 Test with real FormData/Request objects:
 
 ```typescript
-// src/routes/api/users/server.test.ts (SvelteKit 3 `#lib` import; SvelteKit 2: '$lib/server/database')
+// src/routes/api/users/server.test.ts (`#lib/*` needs the `package.json` `imports` entry that `sv create` adds)
 import { test, expect, describe, vi } from 'vitest';
 import { POST } from './+server';
 import * as database from '#lib/server/database.js';

@@ -1,7 +1,7 @@
 ---
 name: testing-svelte
 # prettier-ignore
-description: Fix and create Svelte 5 tests with vitest-browser-svelte and Playwright. Use for broken or flaky tests, 'Cannot connect to the iframe', strict mode violations, or unit/SSR/e2e tests.
+description: Fix or write Svelte 5 tests with vitest-browser-svelte and Playwright. Use when debugging broken or flaky tests, 'Cannot connect to the iframe', strict mode violations, or writing unit/SSR/e2e tests.
 user-invocable: true
 ---
 
@@ -29,11 +29,11 @@ test("button click increments counter", async () => {
 
 ## Interaction Tests Are Mandatory
 
-Every test for an interactive component (inputs, autocompletes, buttons, forms) must interact with it and assert the result: a render-only test proves only that the component mounts.
+Every test for an interactive component (inputs, autocompletes, buttons, forms) **MUST interact with it and assert the result**: a render-only test proves only that the component mounts.
 
 1. Interact: click, type, select, submit
 2. Assert the outcome: the selected value text, the callback data content, the DOM state change
-3. Assert the precondition instead of guarding it: no `if (items.length > 0)` that skips the interaction when the precondition fails
+3. Never silently skip: assert the precondition instead of guarding it with an `if (items.length > 0)` that skips the interaction when it fails
 4. Verify callback data: capture what a callback received and assert it; a fixture component that renders the payload into an output element works (give it an accessible name, or comment why a test id is used). "The callback was called" misses an `onChange` that passes objects instead of strings
 
 ## Core Principles
@@ -57,25 +57,26 @@ Every test for an interactive component (inputs, autocompletes, buttons, forms) 
 ## Running Tests
 
 - Storybook + Vitest (`@storybook/addon-vitest`): `svelte-5:storybook-vitest` skill: `vitest.config.ts`, `test.projects` entry, `pnpm test:storybook` (runs the storybook project with `--silent`), `storybookUrl` for CI links
-- `pnpm test:unit`: the node and browser vitest projects (fast, no dev server needed); `vitest run --project browser` runs the browser project alone, and plain `vitest run` runs every project, `storybook` included
-- `pnpm test`: runs vitest + Playwright e2e concurrently (e2e needs a dev server); script names as in `SETUP.md`
-- `pnpm validate`: runs `test:unit` and the lint summary (knip, svelte-check, oxlint, eslint, stylelint) concurrently, then `test:storybook` (CI pipeline, no e2e; the template in `SETUP.md`)
+- `pnpm test:unit`: the node and browser vitest projects (fast, no dev server needed); `pnpm exec vitest run --project browser` runs the browser project alone (`client` in an `sv add vitest` setup), and `pnpm exec vitest run` runs every project, `storybook` included but without `--silent` (prefer `pnpm test:unit` plus `pnpm test:storybook`)
+- These skills target Vitest 5; if `package.json` lists Vitest 4, upgrade first (`frontend:vitest`, `references/vitest-5-upgrade.md`)
+- `pnpm test`, where a project defines it, runs whatever scripts it chains. `sv add vitest` makes `test` run `test:unit -- --run`, and `sv add playwright` makes it also run `test:e2e` (in the `playwright.config` that `sv add playwright` writes, `webServer` builds and previews the app first; in another config, its `webServer` setting decides whether a server must already run). Script names: [`SETUP.md`](https://github.com/fubits1/svelte-skills/blob/main/SETUP.md)
+- `pnpm validate`: runs `test:unit` and the lint summary (knip, svelte-check, oxlint, eslint, stylelint) concurrently, then `test:storybook` (CI pipeline, no e2e; the template in `SETUP.md`). Read its lint table: the template's `lint-summary.ts` exits 0 even when a lint task fails (`frontend:validate`)
 
 ## After Writing/Editing Test Files
 
-- Lint with `pnpm lint:tests`: one command, 4 linters (oxlint, eslint, knip, and svelte-check with `--tsgo`). It must exit 0 before the tests count as done
+- **LINT: `pnpm lint:tests`.** One command, 4 linters: oxlint and eslint on the test files matching `TEST_GLOBS` (`src/**/*.test.ts` and `tests/**/*.test.ts` by default), knip and svelte-check (with `--tsgo` by default) on what `knip.tests.jsonc` and `tsconfig.tests.json` cover. Must exit 0. No exceptions. Lint a `*.e2e.ts` test from `sv add playwright`, a `*.spec.ts` test, or a test file outside the `TEST_GLOBS` patterns with `pnpm lint:file`. Setup and the cases where a step reports `✓` without checking: `frontend:validate` and `SETUP.md`
 
 ## Notes
 
-- Never click submit on a form that posts natively: the iframe navigates and the whole file fails (`Cannot connect to the iframe…`, measured). Forms whose submit handler calls `preventDefault()` are safe to submit; assert the outcome with `await expect.element()` (troubleshooting Error 4)
-- Test file names: the `.svelte` infix (`foo.svelte.test.ts`) lets the test file itself use runes (`$state`, `$effect.root`), in any environment. Whether a file runs in the browser or in node is decided by the projects' `include` globs; `.ssr.test.ts` (SSR) and `server.test.ts` (API) are naming conventions for node projects
+- Never click submit on a form that posts natively: the iframe navigates and the whole file fails (`Cannot connect to the iframe…`). Forms whose submit handler calls `preventDefault()` are safe to submit; assert the outcome with `await expect.element()` (troubleshooting Error 4)
+- Test file names: the `.svelte` infix (`foo.svelte.test.ts`) lets the test file itself use runes (`$state`, `$effect.root`) in a browser project that loads the Svelte plugin; node projects are not covered here. Whether a file runs in the browser or in node is decided by the projects' `include` globs; `.ssr.test.ts` (SSR) and `server.test.ts` (API) are naming conventions for node projects
 - Import `page` from `vitest/browser`, not `@vitest/browser/context`
-- `vitest-browser-svelte` v3: `render` is **async-only**, always `await render(...)`; the returned `unmount()` is async too. The result is `RenderResult` (extends the locator selectors, no `page` field), so get `page` from `vitest/browser`
+- `vitest-browser-svelte` v3: `render` is **async-only**, always `await render(...)`; the returned `unmount()` is async too. The result is `RenderResult` (the locator selectors plus `container`, `baseElement`, `component`, `wrapper`, `debug`, `rerender`, `unmount` and `locator`, no `page` field), so get `page` from `vitest/browser`
 - Vitest 5 locators match text exactly: `getByText('Save')` misses `Save draft`, and so does `getByRole('button', { name: 'Save' })`. Use the full text, a `RegExp`, or `{ exact: false }`. `toHaveTextContent` is exact too; `toMatchTextContent` takes partial strings and `RegExp`
 - Label lookup is `page.getByLabelText(...)`; `page.getByLabel` does not exist
 - Locators have no `.focus()` method: use `.click()` to focus elements, or `locator.element().focus()` when a click would trigger the action under test
-- Clicking a navigation link (`<a href="/page">`) navigates the iframe away and fails the file (measured). Hash links and links whose handler calls `preventDefault()` are safe; for real navigation links assert the `href` instead (troubleshooting Error 7)
-- Never `click({ force: true })`: it skips the actionability checks and passes on elements a user cannot click (measured: handler never ran) (critical-patterns)
+- Clicking a navigation link (`<a href="/page">`) navigates the iframe away and fails the file. Hash links and links whose handler calls `preventDefault()` are safe; for real navigation links assert the `href` instead (troubleshooting Error 7)
+- Never `click({ force: true })`: it skips the actionability checks and passes on elements a user cannot click, while their handler never runs (critical-patterns)
 - Async waits: `await expect.element()` for locators; `vi.waitFor()` or `expect.poll()` for spies and non-DOM state (both work in browser mode). A fixed `setTimeout` sleep is only a settle window before a negative assertion, never a wait for a positive one
 
 <!--
@@ -84,5 +85,5 @@ PROGRESSIVE DISCLOSURE GUIDELINES:
 - Use 1-2 code blocks only (recommend 1)
 - Keep description <200 chars for Level 1 efficiency
 - Move detailed docs to references/ for Level 3 loading
-- This is Level 2 - quick reference ONLY, not a manual
+- This is Level 2: quick reference ONLY, not a manual
 -->

@@ -1,14 +1,25 @@
 # Critical Testing Patterns
 
+## Contents
+
+- Form Handling in SvelteKit
+- Semantic Queries (Preferred)
+- Common Role Mistakes
+- Avoid Testing Implementation Details
+- Don't use `force: true` to get past animations or overlays
+- Conditional `{@attach}` to keep third-party-bridging wrappers test-mountable
+- Seed module-level `$state` synchronously in the test harness
+- Mock `navigator.clipboard.writeText` with `vi.spyOn`, not `Object.assign`
+
 ## Critical Patterns
 
 ### Form Handling in SvelteKit
 
 **Never click submit on a form that posts natively** (no `preventDefault` in its submit
 handler): the browser navigates the test iframe and the whole file fails with
-`Cannot connect to the iframe. Did you change the location or submitted a form?` (measured).
+`Cannot connect to the iframe. Did you change the location or submitted a form?`.
 A form whose submit handler calls `event.preventDefault()` can be submitted by clicking and
-its outcome asserted (measured; see troubleshooting Error 4).
+its outcome asserted (troubleshooting Error 4).
 
 ```typescript
 // ❌ DON'T - natively posting form: navigates the iframe, the file fails
@@ -96,8 +107,7 @@ await expect
 
 `force: true` skips the actionability checks (visible, stable, receives events). On a button
 covered by an overlay a normal `click()` times out, which is the bug a real user would hit;
-`click({ force: true })` reports success while the button's handler never runs (measured:
-click counter stayed at 0).
+`click({ force: true })` reports success while the button's handler never runs.
 
 ```typescript
 // ❌ DON'T - hides "a user cannot click this"
@@ -127,7 +137,7 @@ In production `appState.condition` is truthy after the third-party context mount
 
 ### Seed module-level `$state` synchronously in the test harness
 
-When a wrapper reads from a module-level `$state` controller (e.g. a `menuState` exported from `someController.svelte.ts`), the test harness must seed that state before the wrapper's first render. Assign it synchronously in the harness `<script>` body, not in `$effect`:
+When a wrapper reads from a module-level `$state` controller (e.g. a `menuState` exported from `someController.svelte.ts`), the test harness must seed that state BEFORE the wrapper's first render. Assign it synchronously in the harness `<script>` body, NOT in `$effect`:
 
 ```svelte
 <!-- TestHarness.svelte: synchronous seed in script body -->
@@ -139,7 +149,10 @@ When a wrapper reads from a module-level `$state` controller (e.g. a `menuState`
   type Props = { lat: number; lon: number; open?: boolean }
   let { lat, lon, open = true }: Props = $props()
 
-  // runs before the wrapper's first render; untrack marks the one-time read of the props as intended
+  /**
+   * runs before the wrapper's first render; untrack marks the one-time read
+   * of the props as intended (no state_referenced_locally warning)
+   */
   untrack(() => {
     menuState.lat = lat
     menuState.lon = lon
@@ -150,7 +163,7 @@ When a wrapper reads from a module-level `$state` controller (e.g. a `menuState`
 <Wrapper>…</Wrapper>
 ```
 
-If you write the same assignments in `$effect`, they fire after the first render and the wrapper renders against stale `{ lat: 0, lon: 0 }` defaults. Tests that read the data-payload off the first frame see zeros and fail.
+If you write the same assignments in `$effect`, they fire AFTER the first render and the wrapper renders against stale `{ lat: 0, lon: 0 }` defaults. Tests that read the data-payload off the first frame see zeros and fail.
 
 ### Mock `navigator.clipboard.writeText` with `vi.spyOn`, not `Object.assign`
 
@@ -171,6 +184,6 @@ test('copies the coordinates', async () => {
 })
 ```
 
-`navigator.clipboard` is a getter in Chromium (the browser `@vitest/browser-playwright` drives), so reassigning it throws (measured). Spy on the method instead. The spy is needed because the real `writeText` rejects in a headless test run with `NotAllowedError: Failed to execute 'writeText' on 'Clipboard': Document is not focused.` (measured).
+`navigator.clipboard` is a getter in Chromium (the browser the configs in these skills run), so reassigning it throws. Spy on the method instead. The spy is needed because the real `writeText` rejects in a headless test run with `NotAllowedError: Failed to execute 'writeText' on 'Clipboard': Document is not focused.` before any interaction, and with the same prefix ending in `Write permission denied.` once a click has focused the page.
 
 ---

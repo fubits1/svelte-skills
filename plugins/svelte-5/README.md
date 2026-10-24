@@ -4,8 +4,8 @@ Claude Code plugin for Svelte-specific development workflows. Part of the [svelt
 
 ## Dependencies
 
-- **`frontend` plugin** -- skills reference `frontend:validate`, `frontend:playwright`, and others. Install it first.
-- **Svelte MCP plugin** (`svelte/svelte`) -- required for the autofixer, docs lookup, and the `svelte:svelte-file-editor` subagent. See the [official Svelte AI tools docs](https://svelte.dev/docs/ai/overview).
+- **`frontend` plugin**: skills reference `frontend:validate`, `frontend:playwright`, and others. Install it first.
+- **Svelte MCP plugin** (`svelte/svelte`): required for the autofixer, docs lookup, and the `svelte:svelte-file-editor` subagent. See the [official Svelte AI tools docs](https://svelte.dev/docs/ai/overview).
 
 For installation and setup, see the [root README](https://github.com/fubits1/svelte-skills#readme).
 
@@ -13,17 +13,17 @@ For installation and setup, see the [root README](https://github.com/fubits1/sve
 
 | Skill | Purpose |
 | --- | --- |
-| `code-style-svelte` | Svelte component style -- docs, reactivity, Svelte 5 syntax, interop rules |
-| `composition-svelte` | Composing Svelte 5 features by role -- Composition shape and Non-Svelte Host (Provider is a behaviour within Composition), snippet API, state location, third-party DOM bridging, overlay a11y |
+| `code-style-svelte` | Svelte component style: docs, reactivity, Svelte 5 syntax, interop rules |
+| `composition-svelte` | Composing Svelte 5 features by role: Composition shape and Non-Svelte Host (Provider is a behaviour within Composition), snippet API, state location, third-party DOM bridging, overlay a11y |
 | `doc-component` | `@component` JSDoc for Svelte components |
-| `msw` | Mock Service Worker (msw 3 and 2) in Storybook, Vitest browser tests and SvelteKit -- handler sets, unmocked-request guard, msw 2 to 3 upgrade |
-| `storybook` | Storybook workflow -- MCP tools, CSS imports, wrapper pattern |
-| `storybook-vitest` | Svelte CSF + addon-vitest -- `.stories.svelte` as Vitest browser tests |
+| `msw` | Mock Service Worker (msw 3) in Storybook, Vitest browser tests and SvelteKit: handler sets, unmocked-request guard, msw 2 to 3 migration |
+| `storybook` | Storybook workflow: MCP tools, CSS imports, wrapper pattern |
+| `storybook-vitest` | Svelte CSF + addon-vitest: `.stories.svelte` as Vitest browser tests |
 | `testing-svelte` | Svelte 5 tests with vitest-browser-svelte and Playwright |
 
 ## Template scripts
 
-TypeScript + dax script under `scripts/`. Runs vitest for a specific story file by pattern. Reads `VITEST_STORYBOOK_PROJECT` env var (default `storybook`) for the project name.
+TypeScript + dax script under `scripts/`. Runs the project's Vitest (Vitest 5 needs Node 22.12+, 24 or 26+) for a specific story file by pattern. Reads `VITEST_STORYBOOK_PROJECT` env var (default `storybook`) for the project name.
 
 > **Migration note (0.5.0):** the bash variant (`test-story.sh`) was removed. Swap `"test:story": "bash scripts/test-story.sh"` for the TS line below and copy `bin/test-story.ts` + `validate/test-story.ts` into your project's `scripts/`.
 
@@ -31,7 +31,7 @@ TypeScript + dax script under `scripts/`. Runs vitest for a specific story file 
 | --- | --- |
 | `bin/test-story.ts` (calls `validate/test-story.ts`) | `"test:story": "node --experimental-strip-types scripts/bin/test-story.ts"` |
 
-See [SETUP.md](../../SETUP.md) for full setup.
+See [SETUP.md](https://github.com/fubits1/svelte-skills/blob/main/SETUP.md) for full setup.
 
 ## Dependency chain
 

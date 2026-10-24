@@ -14,11 +14,26 @@ A single passing run on this kind of suite tells you nothing about whether your 
 
 ## Mid-run dependency optimization
 
-Symptoms: `✨ new dependencies optimized: …` or `Re-optimizing dependencies` in the output, followed by `Vitest failed to find the current suite`, failed dynamic imports, or Svelte errors such as `effect_orphan` in third-party components. Vite discovered a dependency after the run started, re-optimized, and reloaded modules under running tests.
+Symptoms: any of the lines below, usually followed by `Vitest failed to find the current suite`, failed dynamic imports, or Svelte errors such as `effect_orphan` in third-party components:
 
-- With Vite 8, the dependency scan of a Storybook Svelte project failed on one unresolvable relative import inside `@storybook/svelte`'s `PreviewRender.svelte` and skipped pre-bundling altogether (`Failed to run dependency scan. Skipping dependency pre-bundling.`, [storybook#34304](https://github.com/storybookjs/storybook/issues/34304)), so dependencies were discovered mid-run. [PR #34783](https://github.com/storybookjs/storybook/pull/34783) fixed `PreviewRender.svelte` in the Svelte renderer; on `@storybook/svelte` releases without it, seed the imports yourself
+- `dependency optimized: …` or `dependencies optimized: …`, then `optimized dependencies changed. reloading`
+- in earlier Vite releases: `✨ new dependencies optimized: …`, then `✨ optimized dependencies changed. reloading`
+- Vitest's `Vite unexpectedly reloaded a test`
+
+Vite discovered a dependency after the run started, re-optimized, and reloaded modules under running tests.
+
+1. If the output shows `Failed to run dependency scan. Skipping dependency pre-bundling.`, Vite skipped the scan; dependencies outside `optimizeDeps.include` may then be found while tests run. Read the error printed with it and fix its cause; when it points into a dependency, report it to that package
+2. Apply the `optimizeDeps` settings below
+
+Settings:
+
 - `optimizeDeps.entries`: list the files the scanner should start from (for Storybook: `.storybook/preview.ts` plus the `stories` globs from `.storybook/main.ts`, without the leading `../`)
-- `optimizeDeps.include`: add each dependency named in the "new dependencies optimized" line, copied verbatim from your own imports. If you build the list at config time (e.g. by scanning source files), sort it: a list whose order changes between runs was observed to trigger `Re-optimizing dependencies because vite config has changed` on every run. Once the list names one msw entry point, name every one your code imports, or narrow frames with `frame.protocol` instead of `instanceof`: `msw/browser` without `msw/experimental` loads two copies of msw's classes (`svelte-5:msw`)
+- `optimizeDeps.include`: add each dependency named in the `dependency optimized:` or `dependencies optimized:` line (earlier Vite releases: the `✨ new dependencies optimized:` line), copied verbatim from your own imports
+- msw entry points in `optimizeDeps.include`: once the list names one, name every one your code imports, or narrow frames with `frame.protocol` instead of `instanceof`: `msw/browser` without `msw/experimental` loads two copies of msw's classes (`svelte-5:msw`)
+
+## Startup dependency re-optimization
+
+`Re-optimizing dependencies because vite config has changed` at startup, on a run that keeps the deps cache (`node_modules/.vite`, or `node_modules/.cache/storybook` for the storybook project), with no config file edited since the run that wrote that cache, means a hashed config value changes between runs. Compare `optimizeDeps.include` and `exclude` between runs and, on Vite 7 and 8, the rest of the hashed config (Vite plugin names, `resolve`, `root`, `assetsInclude`, `NODE_ENV` or `mode`, and the pre-bundler options with their plugin names: `optimizeDeps.esbuildOptions` on Vite 7, `optimizeDeps.rolldownOptions` on Vite 8; `entries` is not hashed). A list built at config time, e.g. by scanning source files, can change; Vite sorts `include` before hashing it, so the order alone does not trigger the re-optimization. Which other fields Vite 6.4 hashes is not covered here. A command that shows which value changed, and making a changing field stable, are not covered here.
 
 ## Test-craft patterns that remove flakes
 

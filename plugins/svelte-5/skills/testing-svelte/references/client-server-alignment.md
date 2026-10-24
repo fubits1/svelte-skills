@@ -17,7 +17,6 @@ Use real `FormData` and `Request` objects. Only mock external services
  * src/routes/api/register/server.test.ts (fragment): `vi`, `database` and `POST` come from
  * `import { vi } from 'vitest'`, `import * as database from '#lib/server/database.js'`,
  * `import { POST } from './+server'`, with `vi.mock('#lib/server/database.js')` at the top level
- * (SvelteKit 3; on SvelteKit 2 the specifier is '$lib/server/database', and '$lib/validation' below)
  */
 
 // ❌ BRITTLE APPROACH
@@ -78,6 +77,7 @@ test('validates email', () => {
 // src/routes/api/register/+server.ts: the endpoint uses the same validation
 import type { RequestHandler } from './$types';
 import { validateEmail } from '#lib/validation.js';
+import { createUser } from '#lib/server/database.js';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
@@ -86,7 +86,7 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (emailError) {
 		return Response.json({ errors: { email: emailError } }, { status: 400 });
 	}
-	// …create the user
+	await createUser({ email: String(formData.get('email')), password: String(formData.get('password') ?? '') });
 	return Response.json({ ok: true }, { status: 201 });
 };
 ```

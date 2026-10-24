@@ -18,7 +18,7 @@ This page covers `msw-storybook-addon` 3, which needs Storybook 9 or later, with
 2. Register `mswLoader(setup)` in `.storybook/preview.ts`, with the baseline handlers in its `setupWorker(...)` (the `preview.ts` loader, where the baseline lives). The Storybook handler set comes from your mocks index (handlers reference, one handler set per surface). Add `".storybook/**/*.ts"` to the tsconfig `include` that your `check` script uses, or nothing in `preview.ts` is type-checked; a plain `".storybook"` entry matches no file
 3. Serve the worker script to Storybook: `msw()` in the Vite config serves `storybook dev` (open `/mockServiceWorker.js` on its origin to confirm); a built Storybook needs a committed file in Vite's `publicDir` (the worker-script bullets under the `preview.ts` loader)
 4. Override per story with `beforeEach={({ msw }) => msw.use(...)}` on `<Story>` (per-story overrides)
-5. Run one story file in the Vitest storybook project without `--silent` and fix every unhandled-request warning, then take the three runs from the skill's Verify section
+5. Run `pnpm exec vitest run --project storybook --silent=false` (`storybook` being your storybook project's name; append a story file `<file>` to narrow it) and fix every unhandled-request warning, then take the three runs from the skill's Verify section
 
 ## Upstream sources that mislead a Svelte reader
 

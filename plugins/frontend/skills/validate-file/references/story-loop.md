@@ -4,7 +4,7 @@ For component + story pairs, follow this exact sequence:
 
 1. **Test first:** `pnpm test:story <Pattern>` (`<Pattern>` is a Vitest file filter, e.g. part of the story file name): see the failure before changing anything
    - New story with a `play`: write it, temporarily change the expected value in its assertion, confirm the story fails, then restore it
-   - New story without a `play`: its test only proves that it mounts; add a `play` if the component is interactive (`svelte-5:storybook-vitest`)
+   - New story without a `play`: its test passes even when a component inside the story throws while rendering (the error shows under "Unhandled Errors" and the run exits 1), and under a decorator that returns a bare component it can stay green with the wrapper missing (`svelte-5:storybook-vitest`, `references/storybook-decorator.md`, "Decorator return form"); add a `play` if the component is interactive (`svelte-5:storybook-vitest`); a failing first run for a non-interactive story without a `play` is not covered here
 2. **Read the error:** understand the root cause. `pnpm test:story` passes `--silent`, which hides console output and msw warnings; `svelte-5:storybook-vitest` shows how to see them
 3. **Fix the component or story:** context guards, prop guards and the like
 4. **LINT BEFORE TESTING:** `pnpm lint:file <component> <story>` must exit 0
@@ -15,11 +15,9 @@ For component + story pairs, follow this exact sequence:
    that would crash at runtime, so testing unlinted code wastes time. Fix ALL
    errors, not just yours
 5. **Run the Svelte autofixer** (`mcp__svelte__svelte-autofixer`) on every
-   edited `.svelte`, `.svelte.ts` and `.svelte.js` file that uses Svelte 5
-   patterns (`$state`, `$derived`, `$props`, `$effect`, `$bindable`, snippets,
-   `{@render}`). It catches leftover Svelte 4 patterns and other migration
+   edited `.svelte`, `.svelte.ts` and `.svelte.js` file. It catches leftover Svelte 4 patterns and other migration
    issues, such as a `<slot />` where a snippet and `{@render children()}`
-   belong, or a store where a rune belongs. Skip it for a pure Svelte 4 file (`export let`, `$:`, `<slot />`)
+   belong, or a store where a rune belongs. Skip it for a `.svelte` file not yet migrated (pure Svelte 4: `export let`, `$:`, `<slot />`, no runes)
 6. **Test AFTER lint:** `pnpm test:story <Pattern>`, once steps 4 and 5 are clean
 7. **Check it in the browser:** open the story in Storybook through
    Playwright MCP (`svelte-5:storybook`): navigate to the story (how to

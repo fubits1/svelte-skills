@@ -149,9 +149,9 @@ Docs example: **`vitest --project=storybook`** ([CLI](https://storybook.js.org/d
 }
 ```
 
-**`--silent`:** run storybook tests with `--silent` (`test:storybook` above and `pnpm test:story` pass it). Without it, the errors are buried in console output from the stories and msw's warnings, plus msw's request logs when a setup leaves out `quiet: true`. Vitest's `default` reporter prints that output for every story. When an AI agent runs Vitest and neither the config nor the CLI sets a reporter, Vitest uses its `minimal` reporter (`silent: 'passed-only'`), which prints it for failing stories only. `--silent` hides all of it, msw's unhandled-request warnings included, for failing stories too. To find a missing fixture, rerun with `pnpm exec vitest run --project storybook --silent=false`, with a story file `<file>` appended once you know which one makes the request (`svelte-5:msw`).
+**`--silent`:** run storybook tests with `--silent` (`test:storybook` above and `pnpm test:story` pass it). Without it, the errors are buried in console output from the stories and msw's warnings, plus msw's request logs when a setup leaves out `quiet: true` in `worker.start`. Vitest's `default` reporter prints that output for every story. When an AI agent runs Vitest and neither the config nor the CLI sets a reporter, Vitest uses its `minimal` reporter (`silent: 'passed-only'`), which prints it for failing stories only. `--silent` hides all of it, msw's unhandled-request warnings included, for failing stories too. To find a missing fixture, rerun with `pnpm exec vitest run --project storybook --silent=false`, with a story file `<file>` appended once you know which one makes the request (`svelte-5:msw`).
 
-**Debugging failures and `props_invalid_value`:** [storybook-decorator.md](storybook-decorator.md).
+**Debugging failures, `props_invalid_value`, and a decorator that works in the Storybook UI but not in the Vitest run:** [storybook-decorator.md](storybook-decorator.md).
 
 [Vitest IDE](https://vitest.dev/guide/ide.html) can run/debug these tests from the editor.
 

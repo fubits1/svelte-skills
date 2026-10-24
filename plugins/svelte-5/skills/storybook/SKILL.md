@@ -19,20 +19,33 @@ user-invocable: true
 
 Components that import and read from Svelte 4 module-level
 `writable()` stores (from `svelte/store`) render with default
-or empty data in Storybook unless the stores are populated
-before the component mounts. Svelte 5 runes-based state in
-`.svelte.ts` modules is not affected: it is reactive on its own.
+or empty data in Storybook until the stores are set. A
+component that subscribes (`$store`) updates when the store is
+set later; one that reads it once at init (`get(store)`) only
+sees a value set before it mounts. Svelte 5 runes state in
+`.svelte.ts` modules behaves the same way: a template read
+updates on a later change, a copy taken in the component
+script (`const v = state.v`) does not. Set stores and runes
+state in the wrapper, which runs before the component mounts.
 
 **Pattern:** Create a `<ComponentName>Wrapper.svelte` that:
 
 1. Calls `setContext()` for any required Svelte contexts
 2. Calls `store.set()` with mock data for every Svelte 4
-   `writable()` store the component imports
+   `writable()` store the component imports, and sets mock
+   values on the properties of any runes module state
+   (`.svelte.ts`) it reads
 3. Wraps children in a layout div with a fixed `max-width`, as in the example below
 
 Render the wrapper inside `<Story asChild>`, as below, and pass any props to
-the component there. A decorator that calls `setContext` also reaches the story
-component. The decorator internals and the full wrapper pattern are in
+the component there. The wrapper also works as a decorator when the decorator
+returns `{ Component }`: `decorators: [() => ({ Component: MyComponentWrapper })]`.
+A decorator that returns the bare component (`() => MyComponentWrapper`) works in
+the Storybook UI, but in the Vitest run an argless instance of the `defineMeta`
+component (if it has one) renders in its place. The wrapper markup, `setContext` and
+`store.set` are always missing; depending on the `defineMeta` component, an `asChild`
+story's content or an args story's own instance can disappear, an args story's component
+can render twice, or the story fails when that component throws without props. The decorator internals and the full wrapper pattern are in
 `svelte-5:storybook-vitest` (`references/storybook-decorator.md`).
 
 ```svelte

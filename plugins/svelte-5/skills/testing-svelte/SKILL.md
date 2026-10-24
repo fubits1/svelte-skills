@@ -41,7 +41,7 @@ Every test for an interactive component (inputs, autocompletes, buttons, forms) 
 - Prefer locators: `page.getBy*()` methods first. A raw `querySelector` or `data-testid` needs a one-line comment saying why no accessible locator works (`frontend:vitest` query rule)
 - Multiple elements: use `.first()`, `.nth()`, `.last()` to avoid strict mode violations
 - Real API objects: test with `FormData` and `Request`, with minimal mocking
-- Mock at the right seam: `vi.mock` for module boundaries, MSW for the network boundary. MSW is this rule applied to HTTP: keep the real component and the real `fetch`, swap only what crosses the wire (`svelte-5:msw`)
+- Mock at the right seam: `vi.mock` for module boundaries, `msw` for the network boundary. `msw` is this rule applied to HTTP: keep the real component and the real `fetch`, swap only what crosses the wire (`svelte-5:msw`)
 - `vi.mock` / `vi.hoisted` / `vi.unmock` at the top level only: inside `describe`, `test`, or a function they throw in Vitest 5 (`was defined outside of the module's top level scope`). `vi.doMock` may go anywhere. Factories, SvelteKit `$app/*` stubs, component swaps: `frontend:vitest` mocking reference
 
 ## Reference Files
@@ -78,12 +78,3 @@ Every test for an interactive component (inputs, autocompletes, buttons, forms) 
 - Clicking a navigation link (`<a href="/page">`) navigates the iframe away and fails the file. Hash links and links whose handler calls `preventDefault()` are safe; for real navigation links assert the `href` instead (troubleshooting Error 7)
 - Never `click({ force: true })`: it skips the actionability checks and passes on elements a user cannot click, while their handler never runs (critical-patterns)
 - Async waits: `await expect.element()` for locators; `vi.waitFor()` or `expect.poll()` for spies and non-DOM state (both work in browser mode). A fixed `setTimeout` sleep is only a settle window before a negative assertion, never a wait for a positive one
-
-<!--
-PROGRESSIVE DISCLOSURE GUIDELINES:
-- Keep this file under 100 lines (write-a-skill budget)
-- Use 1-2 code blocks only (recommend 1)
-- Keep description <200 chars for Level 1 efficiency
-- Move detailed docs to references/ for Level 3 loading
-- This is Level 2: quick reference ONLY, not a manual
--->

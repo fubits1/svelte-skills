@@ -1,6 +1,6 @@
 # Browser test flake hygiene
 
-Browser/MSW/storybook suites are flaky on a single run. Before any "green" claim:
+Browser/`msw`/storybook suites are flaky on a single run. Before any "green" claim:
 
 1. `lsof -ti :<test-server-port>`: kill any holder
 2. `rm -rf node_modules/.vite node_modules/.cache/storybook`
@@ -8,7 +8,7 @@ Browser/MSW/storybook suites are flaky on a single run. Before any "green" claim
 4. Run AGAIN: counts must match within ±0 tests, setup time within ±30%
 5. Run a THIRD time: same
 
-If any of (3)(4)(5) diverge: the suite is flaky. Investigate the flake itself (missing `optimizeDeps.entries`, race in async teardowns, MSW handler order or a missing `worker.resetHandlers()` in `afterEach`: `svelte-5:msw`) BEFORE claiming any fix works.
+If any of (3)(4)(5) diverge: the suite is flaky. Investigate the flake itself (missing `optimizeDeps.entries`, race in async teardowns, `msw` handler order or a missing `worker.resetHandlers()` in `afterEach`: `svelte-5:msw`) BEFORE claiming any fix works.
 
 A single passing run on this kind of suite tells you nothing about whether your fix worked. It tells you only that ONE possible execution order happened to pass.
 

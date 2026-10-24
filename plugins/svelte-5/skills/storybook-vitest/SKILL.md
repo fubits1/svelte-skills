@@ -13,7 +13,7 @@ Stories are **`.stories.svelte`** with **`defineMeta`** and **`<Story>`** from `
 
 - Plugin **`storybookTest`** turns stories into Vitest tests via [portable stories (Vitest)](https://storybook.js.org/docs/api/portable-stories/portable-stories-vitest). **No Storybook server** required for the test run
 - Each `<Story>`: smoke render; a **`play`** function runs as the interaction test ([interaction testing](https://storybook.js.org/docs/writing-tests/interaction-testing), [asserting with expect](https://storybook.js.org/docs/writing-tests/interaction-testing#asserting-with-expect))
-- Errors do not fail the story they come from. A component that throws during render leaves its story green, with or without a decorator. Vitest reports the throw as an "unhandled error", exits non-zero, and names "the last test to run before this error". Find the throwing component in the component stack of that block. A `console.error` alone does not fail anything. Read the "Unhandled Errors" block, not just the pass count
+- A component inside the story that throws while the story renders leaves its story green, with or without a decorator, unless a `play` assertion fails on what did not render. Vitest reports that throw as an "unhandled error", exits non-zero, and names "the last test to run before this error". Find the throwing component in that block's `❯` source frames: its component stack can show it as `in <unknown>`. Exception: when a decorator returns a bare component (`() => Wrapper`), the Vitest run renders the `defineMeta` component without props in its place, and a throw from that instance fails its story and prints under that failed story (`references/storybook-decorator.md`, "Decorator return form"). A `console.error` alone does not fail anything. Read the "Unhandled Errors" block, not just the pass count
 - `--silent` hides the console output of every story. Separately, an AI agent's run with no reporter set in the config or the CLI uses Vitest's `minimal` reporter, which hides the output of passing stories even without `--silent`. `--silent=false` shows it (`references/config.md`)
 - To make logged errors fail a story, install the spy before the story renders (a spy created inside `play` misses errors logged during render):
   1. Declare `let errorSpy;` in `<script module>` (`let errorSpy: ReturnType<typeof spyOn>;` in `lang="ts"`)
@@ -29,7 +29,8 @@ Use **`storybook/test`** (`expect`, `within`, `userEvent`, `waitFor`) in `play`.
 **Every story with interactive elements (inputs, autocompletes,
 buttons, forms) MUST have a `play` function** that interacts and
 asserts the result. A smoke render (`<Story name="Default" />`)
-only proves the component mounts. In `play`:
+stays green even when a component inside the story throws while rendering, or the story
+renders nothing. In `play`:
 
 1. Interact: click, type, select, submit
 2. Assert the result: the selected value, the changed text, the
@@ -90,19 +91,20 @@ A `!test` story next to a running story in the same file leaves `Tests 1 passed 
   4. Any fix for this error is **UNVERIFIED** until the flake-hygiene protocol passes
 - **Single-run bias:** this addon is PARTICULARLY prone to different test counts between runs on the same checkout. A "Test Files N passed (N)" line on one run does NOT prove the suite is healthy: NEVER claim "fixed" or "green" from a single run on this suite. If the user shows a failing screenshot and your run goes green, first acknowledge you cannot reproduce their failure and ask for their log or reproduction conditions, rather than re-running for another green. See `frontend:validate` flake rules and the `frontend:vitest` flake-hygiene reference
 - **Do not enshrine unverified approaches as "better fixes" in this skill.** A new approach to a storybook/vitest problem goes through the full flake-hygiene protocol on a real failure before it is written down as a recommendation; unverified does not go in the skill
-- **ALWAYS run the storybook project with `--silent`** (the [`SETUP.md`](https://github.com/fubits1/svelte-skills/blob/main/SETUP.md) scripts `test:storybook` and `test:story` pass it): otherwise story and MSW console output buries the errors. To see the console output of one story file, run `pnpm exec vitest run --project storybook --silent=false <file>` (`storybook` being your storybook project's name), not `pnpm test:story`, which always passes `--silent`. Which reporter shows what: `references/config.md`
+- **ALWAYS run the storybook project with `--silent`** (the [`SETUP.md`](https://github.com/fubits1/svelte-skills/blob/main/SETUP.md) scripts `test:storybook` and `test:story` pass it): otherwise story and `msw` console output buries the errors. To see the console output of one story file, run `pnpm exec vitest run --project storybook --silent=false <file>` (`storybook` being your storybook project's name), not `pnpm test:story`, which always passes `--silent`. Which reporter shows what: `references/config.md`
 - More FAQ items (Interactions panel vs CLI, Vitest internal errors, `publicDir`, CI isolation and sharding, WebGL launch args, isolating `test` from `vite.config`): `references/config.md`
 
 ## `asChild`, decorators, and context
 
-1. A decorator that calls `setContext` provides that context to the story component, in the Vitest run and in the Storybook UI: with Svelte CSF, `DecoratorHandler` renders the CSF story renderer inside the decorator, and the story component inside that
-2. `asChild` and a decorator can share a story: the `asChild` content renders inside the story renderer, so the component renders once, with the props you pass
-3. Use `asChild` when the story passes props to the component inline rather than through `args`, or renders a wrapper component around it (`references/storybook-decorator.md`, "`asChild` pattern"; `svelte-5:storybook`)
+1. Return a decorator component as `() => ({ Component: Wrapper })`. A bare `() => Wrapper` works in the Storybook UI but not in the Vitest run, where an argless instance of the `defineMeta` component (if it has one) renders in its place, with no render error unless that component throws without props (`references/storybook-decorator.md`, "Decorator return form")
+2. A decorator in that form that calls `setContext` provides that context to the story component, in the Vitest run and in the Storybook UI: with Svelte CSF, `DecoratorHandler` renders the CSF story renderer inside the decorator, and the story component inside that
+3. `asChild` and a decorator in that form can share a story: the `asChild` content renders inside the story renderer, so the component renders once, with the props you pass
+4. Use `asChild` when the story passes props to the component inline rather than through `args`, or renders a wrapper component around it (`references/storybook-decorator.md`, "`asChild` pattern"; `svelte-5:storybook`)
 
 ## Related
 
 - Vitest/browser projects: `frontend:vitest` skill
 - Svelte tests outside Storybook: `svelte-5:testing-svelte` skill
-- MSW in `.storybook/preview`, handlers, story-scoped mocks, and the msw and `msw-storybook-addon` 2 to 3 migration: `svelte-5:msw` skill
-- `references/storybook-decorator.md`: read when a story throws `props_invalid_value` or renders empty, and for the `asChild` wrapper pattern
+- `msw` in `.storybook/preview`, handlers, story-scoped mocks, and the `msw` and `msw-storybook-addon` 2 to 3 migration: `svelte-5:msw` skill
+- `references/storybook-decorator.md`: read when a story throws `props_invalid_value` or renders empty, when a decorator's markup, context or store values work in the Storybook UI but are missing in the Vitest run, when a story fails only in the Vitest run with its `defineMeta` component throwing as if it had no props, and for the `asChild` wrapper pattern
 - `references/config.md`: read when setting up `@storybook/addon-vitest`, or creating or changing `vitest.config`, the storybook project, test scripts, `--silent` or plugin options

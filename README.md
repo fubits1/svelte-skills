@@ -28,7 +28,7 @@ frontend  <--  svelte-5  <--  svelte-5-migration
 | Plugin | Skills/Hooks | What it does |
 | --- | --- | --- |
 | [frontend](plugins/frontend/) | 13 skills | Validation, pixel-perfect, editing, code style, testing, migration, JS/CSS config |
-| [svelte-5](plugins/svelte-5/) | 7 skills | Svelte code style, component docs, composition patterns, Storybook, Svelte testing, MSW API mocking |
+| [svelte-5](plugins/svelte-5/) | 7 skills | Svelte code style, component docs, composition patterns, Storybook, Svelte testing, `msw` API mocking |
 | [svelte-5-migration](plugins/svelte-5-migration/) | 1 skill | Svelte 3/4 to 5 migration workflow |
 
 ## Migration from 0.3.x
@@ -143,7 +143,7 @@ See [Using these skills in OpenCode](https://github.com/fubits1/ronin-skills#usi
 
 ## Context budget
 
-Claude Code loads the name and description of every skill without `disable-model-invocation: true` into context (that flag removes a skill from Claude's context entirely). Once the listing exceeds its budget, it drops descriptions, starting with the skills you invoke least; every listed name stays. The budget scales at 1% of the model's context window. Each skill's combined `description` and `when_to_use` text is truncated at 1,536 characters by default, configurable with `skillListingMaxDescChars` ([skills docs](https://code.claude.com/docs/en/skills#skill-descriptions-are-cut-short)). With this marketplace (~21 skills) plus `agent@ronin-skills` (~15), superpowers (~14), and Svelte MCP (~2), about 52 descriptions share that budget, so with a smaller context window, and its smaller budget, Claude Code drops descriptions sooner, which lowers auto-invocation accuracy.
+Claude Code loads the name and description of every skill without `disable-model-invocation: true` into context (that flag removes a skill from Claude's context entirely). Once the listing exceeds its budget, it drops descriptions, starting with the skills you invoke least; every listed name stays. The budget scales at 1% of the model's context window. Each skill's combined `description` and `when_to_use` text is truncated at 1,536 characters by default, configurable with `skillListingMaxDescChars` ([skills docs](https://code.claude.com/docs/en/skills#skill-descriptions-are-cut-short)). This marketplace's skills share that budget with every other skill Claude Code lists (other plugins, personal and project skills), so with a smaller context window, and its smaller budget, Claude Code drops descriptions sooner, which lowers auto-invocation accuracy.
 
 Run `/doctor` for the listing's context cost, or `/context` for its size after the budget. Raise the budget with the `skillListingBudgetFraction` setting (for example `0.02`) or `SLASH_COMMAND_TOOL_CHAR_BUDGET=<chars>`.
 
@@ -177,7 +177,7 @@ These tools are referenced by the skills. Not all are required: install what you
 | [Playwright](https://playwright.dev/) | [microsoft/playwright](https://github.com/microsoft/playwright) |
 | [Storybook addon-vitest](https://storybook.js.org/docs/writing-tests/integrations/vitest-addon) | [storybookjs/storybook](https://github.com/storybookjs/storybook) (`code/addons/vitest/`) |
 | [Storybook addon-svelte-csf](https://storybook.js.org/addons/@storybook/addon-svelte-csf) | [storybookjs/addon-svelte-csf](https://github.com/storybookjs/addon-svelte-csf) |
-| [MSW](https://mswjs.io/) | [mswjs/msw](https://github.com/mswjs/msw) |
+| [`msw`](https://mswjs.io/) | [mswjs/msw](https://github.com/mswjs/msw) |
 | [msw-storybook-addon](https://storybook.js.org/addons/msw-storybook-addon) | [mswjs/msw-storybook-addon](https://github.com/mswjs/msw-storybook-addon) |
 | [Prettier](https://prettier.io/) | [prettier/prettier](https://github.com/prettier/prettier) |
 | [markdownlint-cli](https://npmx.dev/package/markdownlint-cli) | [igorshubovych/markdownlint-cli](https://github.com/igorshubovych/markdownlint-cli) |

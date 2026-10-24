@@ -82,11 +82,16 @@ import { createUser } from '#lib/server/database.js';
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
 	// `FormData.get()` returns string | File | null: coerce to a string before validating
-	const emailError = validateEmail(String(formData.get('email') ?? ''));
-	if (emailError) {
-		return Response.json({ errors: { email: emailError } }, { status: 400 });
+	const email = String(formData.get('email') ?? '');
+	const password = String(formData.get('password') ?? '');
+	const errors: Record<string, string> = {};
+	const emailError = validateEmail(email);
+	if (emailError) errors.email = emailError;
+	if (!password) errors.password = 'Password is required';
+	if (Object.keys(errors).length > 0) {
+		return Response.json({ errors }, { status: 400 });
 	}
-	await createUser({ email: String(formData.get('email')), password: String(formData.get('password') ?? '') });
+	await createUser({ email, password });
 	return Response.json({ ok: true }, { status: 201 });
 };
 ```

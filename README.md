@@ -66,7 +66,7 @@ For local development/testing:
 /plugin install superpowers
 ```
 
-**ronin-skills marketplace** (required by `frontend`; provides the `agent` plugin):
+**ronin-skills marketplace** (required by all three plugins; provides the `agent` plugin):
 
 ```
 /plugin marketplace add fubits1/ronin-skills

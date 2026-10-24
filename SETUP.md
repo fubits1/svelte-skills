@@ -119,7 +119,7 @@ pnpm add -D @storybook/addon-vitest@<that version> @storybook/addon-svelte-csf
 
 Then run the peer check (`svelte-5:storybook-vitest`, `references/config.md`, Setup B step 4).
 
-Register `@storybook/addon-vitest` and `@storybook/addon-svelte-csf` in `.storybook/main.ts` `addons` if they are not listed, and, if the stories entry in `stories` lacks `svelte`, add it to its extensions, keeping the other entries (the `@storybook/addon-svelte-csf` README uses `'../src/**/*.stories.@(js|jsx|mjs|ts|tsx|svelte)'`). Then install the browser-testing packages below. Add the storybook project (`storybookTest()` with browser mode) to `vitest.config.*` as `svelte-5:storybook-vitest`, `references/config.md`, Setup B step 3 (second case) describes, from its sub-step 2; that case includes the check that the root loads the Svelte plugin.
+Register `@storybook/addon-vitest` and `@storybook/addon-svelte-csf` in `.storybook/main.ts` `addons` if they are not listed, and, if the stories entry in `stories` lacks `svelte`, add it to its extensions, keeping the other entries (the `@storybook/addon-svelte-csf` README uses `'../src/**/*.stories.@(js|jsx|mjs|ts|tsx|svelte)'`). Then install the browser-testing packages below. To add the storybook project (`storybookTest()` with browser mode) to `vitest.config.*`, open `svelte-5:storybook-vitest`, `references/config.md`, Setup B step 3, second case. Follow it from sub-step 2, which adds the project; sub-step 3 checks that the root loads the Svelte plugin.
 
 For browser testing (Vitest 5 needs Node 22.12+, 24 or 26+ and Vite >=6.4; SvelteKit 3 needs Node 22.17+; keep every `@vitest/*` package on the same version as `vitest`; `playwright` is a peer of `@vitest/browser-playwright`):
 

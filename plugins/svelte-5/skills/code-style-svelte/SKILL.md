@@ -39,7 +39,7 @@ Two reasons:
 
 NEVER use `addEventListener` or `removeEventListener` in Svelte components. Svelte 5 has multiple declarative mechanisms for event handling, `on*` attributes, callback props, `svelte:window`, `svelte:document`, `svelte:body`, and the `on` action from `svelte/events`. These handle cleanup automatically and integrate with Svelte's reactivity.
 
-When unsure which pattern to use, invoke the Svelte MCP autofixer (`mcp__svelte__svelte-autofixer`) or fetch the relevant docs via `mcp__svelte__get-documentation` (sections: `svelte-events`, `svelte-window`, `svelte-document`, `svelte-body`).
+When unsure which pattern to use, invoke the Svelte MCP autofixer (`mcp__plugin_svelte_svelte__svelte-autofixer`) or fetch the relevant docs via `mcp__plugin_svelte_svelte__get-documentation` (sections: `svelte-events`, `svelte-window`, `svelte-document`, `svelte-body`).
 
 ## Svelte 5 parent + Svelte 4 child: use `slot=`, not `{#snippet}`
 

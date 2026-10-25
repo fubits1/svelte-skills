@@ -14,8 +14,8 @@ Invoke these at the indicated points. This skill says WHEN; they say HOW.
 
 | Skill | When | Source |
 | --- | --- | --- |
-| `svelte:svelte-code-writer` | Before writing/editing ANY `.svelte` or `.svelte.ts` | plugin: `svelte/svelte` |
-| `svelte:svelte-core-bestpractices` | Before writing ANY Svelte 5 component logic | plugin: `svelte/svelte` |
+| `svelte:svelte-code-writer` | Before writing/editing ANY `.svelte` or `.svelte.ts` | plugin: `svelte@svelte` |
+| `svelte:svelte-core-bestpractices` | Before writing ANY Svelte 5 component logic | plugin: `svelte@svelte` |
 | `svelte-5:code-style-svelte` | After every `.svelte` file edit | this marketplace |
 | `frontend:code-style` | After every file edit | this marketplace |
 | `frontend:editing` | During every code edit | this marketplace |
@@ -28,7 +28,7 @@ Invoke these at the indicated points. This skill says WHEN; they say HOW.
 | `frontend:validate-file` | After EVERY file edit | this marketplace |
 | `frontend:migration` | Framework-agnostic phases this skill builds on | this marketplace |
 
-Prefer delegating each `.svelte` create/edit/review to the `svelte:svelte-file-editor` subagent (plugin `svelte/svelte`). It runs in its own context window, so its docs lookup and autofixer iteration don't spend the main agent's context during a long migration. The companion skills above still say WHEN; the subagent is where the per-file edit happens.
+Prefer delegating each `.svelte` create/edit/review to the `svelte:svelte-file-editor` subagent (plugin `svelte@svelte`). It runs in its own context window, so its docs lookup and autofixer iteration don't spend the main agent's context during a long migration. The companion skills above still say WHEN; the subagent is where the per-file edit happens.
 
 ## Phase 1: Capture baselines BEFORE any code changes
 

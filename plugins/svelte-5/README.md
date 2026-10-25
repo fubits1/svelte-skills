@@ -4,10 +4,47 @@ Claude Code plugin for Svelte-specific development workflows. Part of the [svelt
 
 ## Dependencies
 
-- **`frontend` plugin**: skills reference `frontend:validate`, `frontend:playwright`, and others. Install it first.
-- **Svelte MCP plugin** (`svelte/svelte`): required for the autofixer, docs lookup, and the `svelte:svelte-file-editor` subagent. See the [official Svelte AI tools docs](https://svelte.dev/docs/ai/overview).
+Install these first. As of Claude Code v2.1.275, `/plugin install <name> --marketplace <source>` adds the marketplace if needed and opens the plugin's details, where you install it.
 
-For installation and setup, see the [root README](https://github.com/fubits1/svelte-skills#readme).
+- **`superpowers` plugin**: the `agent` plugin requires it.
+
+  ```
+  /plugin install superpowers@claude-plugins-official
+  ```
+
+- **`agent` plugin from [fubits1/ronin-skills](https://github.com/fubits1/ronin-skills)**: skills in this plugin reference `agent:done`, `agent:before-you-act`, and others.
+
+  ```
+  /plugin install agent --marketplace fubits1/ronin-skills
+  ```
+
+- **`svelte` plugin from sveltejs/ai-tools**: it provides the autofixer, docs lookup, the `svelte:svelte-code-writer` and `svelte:svelte-core-bestpractices` skills, and the `svelte:svelte-file-editor` subagent. See the [official Svelte AI tools docs](https://svelte.dev/docs/ai/overview).
+
+  ```
+  /plugin install svelte --marketplace sveltejs/ai-tools
+  ```
+
+- **`frontend` plugin**: skills in this plugin reference `frontend:validate`, `frontend:vitest`, `frontend:code-style`, and others. `frontend` needs the Playwright MCP server. Add it from your shell, then install `frontend`:
+
+  ```bash
+  claude mcp add playwright -- npx @playwright/mcp@latest
+  ```
+
+  ```
+  /plugin install frontend --marketplace fubits1/svelte-skills
+  ```
+
+- **Storybook MCP** (optional): `svelte-5:storybook` uses it when configured. See the [root README](https://github.com/fubits1/svelte-skills#1-install-prerequisites) for setup.
+
+## Install
+
+Then install this plugin:
+
+```
+/plugin install svelte-5 --marketplace fubits1/svelte-skills
+```
+
+To install from your shell instead, run `claude plugin install svelte-5 --marketplace fubits1/svelte-skills`. For the full setup, see the [root README](https://github.com/fubits1/svelte-skills#readme).
 
 ## Skills
 
@@ -33,8 +70,6 @@ TypeScript + dax script under `scripts/`. Runs the project's Vitest (Vitest 5 ne
 
 See [SETUP.md](https://github.com/fubits1/svelte-skills/blob/main/SETUP.md) for full setup.
 
-## Dependency chain
+## License
 
-```
-agent  <--  frontend  <--  svelte-5  <--  svelte-5-migration
-```
+MIT. The plugin icon is the [Svelte logo](https://github.com/sveltejs/branding), used under the Svelte branding guidelines. This plugin is not affiliated with or endorsed by the Svelte project.

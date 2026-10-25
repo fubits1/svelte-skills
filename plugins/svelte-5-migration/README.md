@@ -22,21 +22,36 @@ The skill drives migration through seven phases:
 
 A dedicated section covers known traps: third-party component wrappers, snippets passed to unmigrated Svelte 4 children, nested store reactivity, and noop callback defaults.
 
+The skill calls 13 companion skills from the other plugins. The companion skills table in [`SKILL.md`](skills/migration-svelte-5/SKILL.md) lists when to invoke each one.
+
 ## Dependencies
 
-This plugin depends on **all three** other plugins in the marketplace:
+This plugin needs the Playwright MCP server for baseline screenshots and post-migration verification. Add it from your shell:
 
-- `agent`
-- `frontend`
-- `svelte-5`
+```bash
+claude mcp add playwright -- npx @playwright/mcp@latest
+```
 
-It also requires two MCP servers:
+This plugin also needs the plugins below, installed in this order. `superpowers` is required by `agent`. The `svelte` plugin from sveltejs/ai-tools provides the Svelte MCP server with the autofixer and docs lookup, the `svelte:svelte-code-writer` and `svelte:svelte-core-bestpractices` skills, and the `svelte:svelte-file-editor` subagent. See the [official Svelte AI tools docs](https://svelte.dev/docs/ai/overview). As of Claude Code v2.1.275, `/plugin install <name> --marketplace <source>` adds the marketplace if needed and opens the plugin's details, where you install it.
 
-- **Svelte MCP** (`svelte/svelte`) -- for the autofixer, official docs lookup, and the `svelte:svelte-file-editor` subagent. See the [official Svelte AI tools docs](https://svelte.dev/docs/ai/overview).
-- **Playwright MCP** -- for baseline screenshots and post-migration verification.
+```
+/plugin install superpowers@claude-plugins-official
+/plugin install agent --marketplace fubits1/ronin-skills
+/plugin install svelte --marketplace sveltejs/ai-tools
+/plugin install frontend --marketplace fubits1/svelte-skills
+/plugin install svelte-5 --marketplace fubits1/svelte-skills
+```
 
-The skill orchestrates all 13 companion skills from the other plugins. The companion skills table in [`SKILL.md`](skills/migration-svelte-5/SKILL.md) maps each skill to the point in the migration where it should be invoked.
+## Install
 
-## Installation
+Then install this plugin:
 
-See the [svelte-skills root README](https://github.com/fubits1/svelte-skills) for installation instructions. Installing the full marketplace is recommended -- this plugin will not function without its three sibling plugins.
+```
+/plugin install svelte-5-migration --marketplace fubits1/svelte-skills
+```
+
+To install from your shell instead, run `claude plugin install svelte-5-migration --marketplace fubits1/svelte-skills`. For the full setup, see the [svelte-skills root README](https://github.com/fubits1/svelte-skills).
+
+## License
+
+MIT. The plugin icon is the [Svelte logo](https://github.com/sveltejs/branding), used under the Svelte branding guidelines. This plugin is not affiliated with or endorsed by the Svelte project.

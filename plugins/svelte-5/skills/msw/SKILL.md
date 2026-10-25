@@ -26,7 +26,7 @@ Keep one handler set per surface; one shared array makes dev stop reaching your 
 
 Before step 1: install msw (`pnpm add -D msw`, or the `@msw/sveltekit` add-on on SvelteKit), serve the worker script (next section), and create the mocks index module the setup files import (handlers, "One handler set per surface").
 
-1. Put the `setupWorker` file in the browser project's `setupFiles`, not the root `test.setupFiles`. Inline projects inherit root `setupFiles` (arrays concatenate), so a root entry also reaches node projects, where `msw/browser` does not resolve (its export map sets the `node` condition to `null`), and in the Vitest storybook project it starts a second worker next to `mswLoader`'s, which fails every story with the `WebSocket` error from step 2. A node project that must not inherit the root needs `extends: false` (`frontend:vitest`)
+1. Put the `setupWorker` file in the browser project's `setupFiles`, not the root `test.setupFiles`. Inline projects inherit root `setupFiles` (arrays concatenate), so a root entry also reaches node projects, where `msw/browser` does not resolve (its export map sets the `node` condition to `null`), and in the Vitest storybook project it starts a second worker next to `mswLoader`'s, which fails every story with the `WebSocket` error from step 2. A node project that must not inherit the root needs `extends: false` (`svelte-5:vitest`)
 2. Start one worker per page: keep the promise that `start()` returns in a `globalThis` slot, and let `start()` create and start the worker. msw 3 throws on a second worker (`Failed to replace a global value at "WebSocket": already replaced.`), and a test that imports `worker` from the setup file evaluates it a second time. The full file and the reasons are in [msw-3](references/msw-3.md)
 
    ```ts
@@ -75,7 +75,7 @@ Baseline handlers go in `setupWorker(...)` inside `mswLoader(...)` from `msw-sto
 - A string path ignores the query: `http.get('/api/items', ...)` also answers `/api/items?page=2`, and a `?` in the path (`http.get('/api/items?page=1', ...)`) is dropped with `Found a redundant usage of query parameters`; match the query with a predicate ([handlers](references/handlers.md))
 - A matched handler whose resolver returns nothing does not make the request unhandled. MSW falls through to the next matching handler and, if none answers, sends the request to the network; `onUnhandledFrame` never sees it. To leave other queries unhandled, match only the query you answer: [handlers](references/handlers.md) has a predicate handler for that
 - msw 3 intercepts navigations, including iframe loads ([msw#2721](https://github.com/mswjs/msw/pull/2721)): a same-origin `<iframe>` load goes through the worker like a `fetch`, so give the framed URL a handler or it is handled as an unmocked request (a warning, or a failure under the guard). A cross-origin frame document never reaches the page's worker; cross-origin `fetch` calls from the page still do
-- Handler modules must be import-safe. Warn on a missing fixture, never throw: Vitest tags skip a test body but still import the file (`frontend:vitest`)
+- Handler modules must be import-safe. Warn on a missing fixture, never throw: Vitest tags skip a test body but still import the file (`svelte-5:vitest`)
 - Run the Vitest storybook project with `--silent` (`svelte-5:storybook-vitest`), or console output buries the errors (msw logs every mocked request, plus a start message, when the setup leaves out `quiet: true`). `--silent` also hides the console warnings that name each unhandled request. In an AI agent's run, Vitest hides them for passing stories even without `--silent` when neither the config nor the CLI sets a reporter (it then uses its `minimal` reporter, `silent: 'passed-only'`). To find a missing fixture, run `pnpm exec vitest run --project storybook --silent=false` (`storybook` being your storybook project's name), with a story file `<file>` appended once you know which one makes the request; the `test:story` script from `svelte-5:storybook-vitest` always passes `--silent`
 - MSW's Node network never sees server-side `event.fetch` calls to your own `+server.js` routes. With SSR on (the default) the browser worker does not mock them on first load either, and fetches from a server `load` never reach it ([sveltekit](references/sveltekit.md))
 
@@ -95,7 +95,7 @@ E2E is a separate surface: [`@msw/playwright`](https://github.com/mswjs/playwrig
 
 ## Verify
 
-One run of a browser or MSW suite can pass by chance, so clear the caches and take three runs before calling it green (`frontend:vitest` flake hygiene). Only a test project that mounts a component or opens a story exercises the mocks, whatever its script is named.
+One run of a browser or MSW suite can pass by chance, so clear the caches and take three runs before calling it green (`svelte-5:vitest` flake hygiene). Only a test project that mounts a component or opens a story exercises the mocks, whatever its script is named.
 
 ## Reference files and related skills
 
@@ -107,5 +107,5 @@ One run of a browser or MSW suite can pass by chance, so clear the caches and ta
 - `svelte-5:storybook-vitest`: owns `optimizeDeps` and the Vitest storybook project
 - `svelte-5:storybook`: story authoring, Svelte 4 store wrappers, Playwright verification
 - `svelte-5:testing-svelte`: what to mock at the module seam instead
-- `frontend:vitest`: browser projects, flake hygiene, test tags (in the `frontend` plugin)
+- `svelte-5:vitest`: browser projects, flake hygiene, test tags
 - `frontend:validate`: what counts as verified before declaring done (in the `frontend` plugin)

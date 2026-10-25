@@ -24,7 +24,7 @@ Install these first. As of Claude Code v2.1.275, `/plugin install <name> --marke
   /plugin install svelte --marketplace sveltejs/ai-tools
   ```
 
-- **`frontend` plugin**: skills in this plugin reference `frontend:validate`, `frontend:vitest`, `frontend:code-style`, and others. `frontend` needs the Playwright MCP server. Add it from your shell, then install `frontend`:
+- **`frontend` plugin**: skills in this plugin reference `frontend:validate`, `frontend:code-style`, and others. `frontend` needs the Playwright MCP server. Add it from your shell, then install `frontend`:
 
   ```bash
   claude mcp add playwright -- npx @playwright/mcp@latest
@@ -57,6 +57,7 @@ To install from your shell instead, run `claude plugin install svelte-5 --market
 | `storybook` | Storybook workflow: MCP tools, CSS imports, wrapper pattern |
 | `storybook-vitest` | Svelte CSF + addon-vitest: `.stories.svelte` as Vitest browser tests |
 | `testing-svelte` | Svelte 5 tests with vitest-browser-svelte and Playwright |
+| `vitest` | Vitest config (projects, browser mode, flake hygiene) |
 
 ## Template scripts
 

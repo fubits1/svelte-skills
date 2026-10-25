@@ -23,7 +23,7 @@ await button.click();
 /**
  * ✅ escape hatch, with its reason: the third-party date picker's day cells carry no
  * role or accessible name. `page.css` is a custom locator added with
- * `locators.extend` (frontend:vitest browser-mode reference)
+ * `locators.extend` (svelte-5:vitest browser-mode reference)
  */
 const day = page.css('.calendar-day[data-day="15"]');
 ```

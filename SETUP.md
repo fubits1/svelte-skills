@@ -75,9 +75,9 @@ Lint test files the globs miss (for example `*.spec.ts`) with `pnpm lint:file`.
 The skills assume these scripts, project names and versions:
 
 - `test:unit` runs the node and browser Vitest projects, `test:storybook` the storybook project. `sv add vitest` writes `test:unit` as `vitest`, which watches in an interactive terminal and runs every project; replace it with the line in the block above, using your project names (next bullet)
-- Name the Vitest projects `node`, `browser` and `storybook` (`sv add vitest` names them `server` and `client`), or edit the `--project` names in `test:unit` and `test:storybook` and set `VITEST_PROJECTS` and `VITEST_STORYBOOK_PROJECT` for `test:file` and `test:story`. When the config's `test.projects` name neither `node` nor `browser`, `test:unit` exits with `No projects were found … The filter matched no projects: node, browser`; with only one of them, it runs that one. A config without `test.projects` is not covered here. Creating the `node` and `browser` projects in a project without them is not covered here (inheritance rules: `frontend:vitest` skill, `references/config-projects.md`)
+- Name the Vitest projects `node`, `browser` and `storybook` (`sv add vitest` names them `server` and `client`), or edit the `--project` names in `test:unit` and `test:storybook` and set `VITEST_PROJECTS` and `VITEST_STORYBOOK_PROJECT` for `test:file` and `test:story`. When the config's `test.projects` name neither `node` nor `browser`, `test:unit` exits with `No projects were found … The filter matched no projects: node, browser`; with only one of them, it runs that one. A config without `test.projects` is not covered here. Creating the `node` and `browser` projects in a project without them is not covered here (inheritance rules: `svelte-5:vitest` skill, `references/config-projects.md`)
 - `test` may chain more than Vitest (`sv add playwright` makes it call `test:e2e`); for Vitest alone, the skills run `test:unit` and `test:storybook`
-- The skills target Vitest 5; if `package.json` lists Vitest 4, upgrade first (`frontend:vitest` skill, `references/vitest-5-upgrade.md`)
+- The skills target Vitest 5; if `package.json` lists Vitest 4, upgrade first (`svelte-5:vitest` skill, `references/vitest-5-upgrade.md`)
 
 `--experimental-strip-types` requires Node 22.6+. If you're on an older Node, swap to `tsx` (`pnpm add -D tsx`, then `tsx scripts/bin/lint-file.ts`). `tsx` lifts only that floor: the tools the scripts call keep their own Node ranges (`pnpm view <tool> engines.node`), and `test:file` and `test:story` run the project's Vitest, which needs Node 22.12+, 24 or 26+ (Vitest 5).
 
@@ -139,7 +139,7 @@ pnpm exec msw init public --save    # SvelteKit: pnpm exec msw init static --sav
 
 `msw init` writes `mockServiceWorker.js` into that directory and records it under `msw.workerDirectory` in `package.json`; commit the file. `storybook dev`, `storybook build` and Vitest browser projects without `msw()` (the storybook project included) pick it up from Vite's `publicDir`, so no `staticDirs` entry is needed (a worker script outside `publicDir`: `svelte-5:msw` skill). Vite's `publicDir` defaults to `public/`; `sveltekit()` sets it to `static/`. Re-run `msw init` after every msw upgrade: msw 3 does not refresh the file on install.
 
-After any of the three Storybook setups above (and the msw setup, if your stories use msw), run `pnpm test:storybook` as the `frontend:vitest` flake-hygiene reference describes.
+After any of the three Storybook setups above (and the msw setup, if your stories use msw), run `pnpm test:storybook` as the `svelte-5:vitest` flake-hygiene reference describes.
 
 For markdown linting:
 

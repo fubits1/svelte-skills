@@ -166,7 +166,7 @@ The guard has blind spots:
 
 - If you add the test name to each recorded entry, do not take it from `expect.getState().currentTestName`: it stays set after a test ends, so it names the last test that ran, not always the test that sent a late request
 
-Register the file in the browser project only (`svelte-5:storybook-vitest` and `frontend:vitest` own the rest of the config). A standalone `vitest.config.ts` replaces `vite.config.ts` for Vitest, so it needs the Svelte plugin itself; a config that merges `vite.config.ts` (the storybook-vitest pattern) inherits it and must not add it again, which would compile components twice. On SvelteKit the project configuration (adapter, `compilerOptions`, `files`) lives in the `sveltekit({...})` options in `vite.config.ts`, so a standalone config that calls `sveltekit()` bare compiles with defaults: merge `vite.config.ts` instead, or import one shared options object into both configs:
+Register the file in the browser project only (`svelte-5:storybook-vitest` and `svelte-5:vitest` own the rest of the config). A standalone `vitest.config.ts` replaces `vite.config.ts` for Vitest, so it needs the Svelte plugin itself; a config that merges `vite.config.ts` (the storybook-vitest pattern) inherits it and must not add it again, which would compile components twice. On SvelteKit the project configuration (adapter, `compilerOptions`, `files`) lives in the `sveltekit({...})` options in `vite.config.ts`, so a standalone config that calls `sveltekit()` bare compiles with defaults: merge `vite.config.ts` instead, or import one shared options object into both configs:
 
 ```ts
 // vitest.config.ts
@@ -228,7 +228,7 @@ Replace the string-path handler with one such handler per query you answer (page
 
 ## Handler modules must be import-safe
 
-Warn on a missing fixture; never throw at module scope. Vitest tags skip a test's body but still import the file, so a handler module that throws takes down suites that were supposed to be skipped (`frontend:vitest`).
+Warn on a missing fixture; never throw at module scope. Vitest tags skip a test's body but still import the file, so a handler module that throws takes down suites that were supposed to be skipped (`svelte-5:vitest`).
 
 ## Fixtures
 

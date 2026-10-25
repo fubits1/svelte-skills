@@ -6,6 +6,10 @@ user-invocable: true
 
 # Svelte Code Style
 
+**REQUIRED SUB-SKILL:** invoke `svelte-5:composition-svelte` before you build or restructure a complex feature (wrapper or provider components, snippet APIs, shared state, third-party DOM bridging).
+
+When a `.svelte` file is longer than 300 lines without its `<style>` block, or a component does enough that it should be split into several files, ask the user whether to invoke `svelte-5:composition-svelte` to refactor it.
+
 ## Optional snippet rendering
 
 Use `{@render snippet?.()}` instead of `{#if snippet}{@render snippet()}{/if}`. The optional chaining form is shorter and idiomatic Svelte 5.
@@ -89,7 +93,7 @@ Verified 2026-04-09 with svelte ^5.55.2, svelte-check ^4.4.6.
 
 ## HTML comments in component markup
 
-Svelte supports standard HTML comments in component markup. `<!-- stylelint-disable -->`, `<!-- svelte-ignore ... -->`, and other tool-control comments work in `.svelte` files.
+Svelte supports standard HTML comments in component markup. `<!-- stylelint-disable -->`, `<!-- svelte-ignore ... -->`, and other tool-control comments work in `.svelte` files. When you may use `svelte-ignore` is `frontend:editing`'s rule.
 
 ## Component Documentation (`@component`)
 

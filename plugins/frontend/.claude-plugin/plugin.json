@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "description": "Frontend development discipline — validation, pixel-perfect measurement, editing, code style, testing, migration baselines.",
+  "description": "Frontend development discipline — validation, pixel-perfect measurement, editing, comments, code style, testing, migration baselines.",
   "version": "0.10.1",
   "author": {
     "name": "fubits1"

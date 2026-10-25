@@ -8,7 +8,7 @@ user-invocable: true
 
 Decompose a Svelte 5 feature by ROLE. Wrong role assignment is the root cause of every architectural fuckup. Before generating files, pin three decisions: composition shape, snippet API, state location. Per-file contracts fall out from those.
 
-Rules from `frontend:code-style`, `svelte-5:code-style-svelte`, `frontend:editing`, `svelte:svelte-code-writer`, `svelte:svelte-core-bestpractices` apply throughout. Run `mcp__plugin_svelte_svelte__svelte-autofixer` after every `.svelte` edit.
+Rules from `frontend:code-style`, `svelte-5:code-style-svelte`, `frontend:editing`, `frontend:comments`, `svelte:svelte-code-writer`, `svelte:svelte-core-bestpractices` apply throughout. Run `mcp__plugin_svelte_svelte__svelte-autofixer` after every `.svelte` edit.
 
 ## When to use
 

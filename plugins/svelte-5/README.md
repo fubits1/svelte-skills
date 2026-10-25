@@ -50,7 +50,7 @@ To install from your shell instead, run `claude plugin install svelte-5 --market
 
 | Skill | Purpose |
 | --- | --- |
-| `code-style-svelte` | Svelte component style: docs, reactivity, Svelte 5 syntax, interop rules |
+| `code-style-svelte` | Svelte component style: docs, reactivity, Svelte 5 syntax, interop rules; requires `composition-svelte` for complex features and offers it as a refactor for long or overgrown components |
 | `composition-svelte` | Composing Svelte 5 features by role: Composition shape and Non-Svelte Host (Provider is a behaviour within Composition), snippet API, state location, third-party DOM bridging, overlay a11y |
 | `doc-component` | `@component` JSDoc for Svelte components |
 | `msw` | Mock Service Worker (msw 3) in Storybook, Vitest browser tests and SvelteKit: handler sets, unmocked-request guard, msw 2 to 3 migration |

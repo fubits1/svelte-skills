@@ -19,7 +19,7 @@ Pick the source that matches the task. The sources are maintained upstream: fetc
 | UX rules, palettes, font pairings, design tokens | `ui-ux-pro-max:ui-ux-pro-max`, `ui-ux-pro-max:design-system`, `ui-ux-pro-max:ui-styling` | Invoke the skill |
 | Checking a running page | `chrome-devtools-mcp:a11y-debugging`, `chrome-devtools-mcp:debug-optimize-lcp` | Invoke the skill |
 | Markup, CSS and locale rules the sources miss | `frontend:code-style` ("Markup and Locale"), `frontend:code-style-css` ("Rules for styles you write") | Apply them while writing; check them in a review |
-| Svelte components | Svelte's `a11y_*` compiler warnings, `svelte-5:code-style-svelte`, `svelte:svelte-core-bestpractices` | `svelte-check` and the Svelte autofixer report the warnings. Treat each as a finding; suppress one with `<!-- svelte-ignore <code> -->` only next to a comment that says why |
+| Svelte components | Svelte's `a11y_*` compiler warnings, `svelte-5:code-style-svelte`, `svelte:svelte-core-bestpractices` | `svelte-check` and the Svelte autofixer report the warnings. Treat each as a finding; suppress one only as `frontend:editing` allows |
 
 ## Precedence
 

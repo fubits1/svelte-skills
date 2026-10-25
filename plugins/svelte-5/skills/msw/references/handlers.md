@@ -19,7 +19,7 @@ Read the upstream pages first: [structuring handlers](https://mswjs.io/guides/be
 
 Exporting one array to all three surfaces means dev stops talking to your backend the moment someone adds a catch-all for a story. The three surfaces' needs conflict:
 
-- Storybook: total coverage, because every story must be hermetic (no request leaves the page), so a catch-all belongs at the end of the set. Make it loud: log the request and answer 404, so a missing fixture shows up as a console warning and a failed request rather than as an empty 200. Ordered first by mistake, it then names the specific route it swallowed
+- Storybook: total coverage, because every story must be hermetic (no request leaves the page). A catch-all at the end of the set covers its own pattern, such as your API paths; a request outside it reaches the network, reported by the `onUnhandledFrame` warning alone (next section). Make the catch-all loud: log the request and answer 404, so a missing fixture shows up as a console warning and a failed request rather than as an empty 200. Ordered first by mistake, it then names the specific route it swallowed
 - Vitest browser: a narrow set (whatever every component needs to mount, such as auth and i18n), with each test adding its own via `worker.use()`. Starting the Storybook set here couples every test to every mock
 - Dev app: only the endpoints the backend cannot serve yet, with `onUnhandledFrame: 'bypass'` so everything else reaches the real API
 

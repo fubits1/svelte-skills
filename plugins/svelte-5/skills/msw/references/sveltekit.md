@@ -20,16 +20,16 @@ This page targets SvelteKit 3 with msw 3.
 1. Read what the add-on does before `sv` runs it:
    1. Read `src/index.js` at the tag (`v<version>`) of the version `pnpm view @msw/sveltekit version` reports, and the README for the current file layout
    2. Compare it with the published `dist/index.mjs` on unpkg, which is what `sv` runs. Its only import statements are `sv` and `./sv-utils.mjs`; the `msw/http` import inside the seeded handlers template string is file content
-   3. `dist/sv-utils.mjs` is a large build of the Svelte CLI's `@sveltejs/sv-utils` (`src/sv-utils.js` only re-exports it). Search it without saving it: `curl -sL https://unpkg.com/@msw/sveltekit@<version>/dist/sv-utils.mjs | grep -n -e child_process -e execSync -e 'fetch('`. Expect the `node:child_process` import, `execSync("pnpm --version")`, and one `fetch(url)` inside `downloadJson`; read every other hit before you continue
+   3. `dist/sv-utils.mjs` is a large build of the Svelte CLI's `@sveltejs/sv-utils` (`src/sv-utils.js` only re-exports it). Search it without saving it: `curl -sL https://unpkg.com/@msw/sveltekit@latest/dist/sv-utils.mjs | grep -n -e child_process -e execSync -e 'fetch('`. Expect the `node:child_process` import, `execSync("pnpm --version")`, and one `fetch(url)` inside `downloadJson`; read every other hit before you continue
    4. In total, expect the `pnpm --version` check from sub-step 3, one lookup of msw's latest version on registry.npmjs.org (skipped when `MSW_VERSION` is set), the msw devDependency, and the four pieces under "What the add-on generates"; stop on anything else
-2. Run the version you read, pinned with `@<version>` so `sv` cannot fetch a newer release:
+2. Run the add-on:
 
    ```bash
-   pnpm dlx sv add @msw/sveltekit@<version>          # existing project
-   pnpm dlx sv create --add @msw/sveltekit@<version> # new project
+   pnpm dlx sv@latest add @msw/sveltekit@latest          # existing project
+   pnpm dlx sv@latest create --add @msw/sveltekit@latest # new project
    ```
 
-   Without a terminal, pass every answer as a flag: `pnpm dlx sv add @msw/sveltekit@<version>="environments:browser,node" --install pnpm --no-download-check` (or `environments:node`), plus `--no-git-check` when the working tree has uncommitted changes; for a new project, `pnpm dlx sv create my-app --template minimal --types ts --add @msw/sveltekit@<version>="environments:browser,node" --install pnpm --no-download-check`. The option answers "Where do you want to use MSW?" (the add-on's README documents `environments` and its values); `--install` answers the package-manager prompt; `--no-download-check` skips `sv`'s confirmation for a community add-on, so pass it only after step 1
+   Without a terminal, pass every answer as a flag: `pnpm dlx sv@latest add @msw/sveltekit@latest="environments:browser,node" --install pnpm --no-download-check` (or `environments:node`), plus `--no-git-check` when the working tree has uncommitted changes; for a new project, `pnpm dlx sv@latest create my-app --template minimal --types ts --add @msw/sveltekit@latest="environments:browser,node" --install pnpm --no-download-check`. The option answers "Where do you want to use MSW?" (the add-on's README documents `environments` and its values); `--install` answers the package-manager prompt; `--no-download-check` skips `sv`'s confirmation for a community add-on, so pass it only after step 1
 
 3. Ignore a compatibility warning from `sv` about the add-on's `sv` peer when the add-on applies cleanly
 4. If it does not apply cleanly, install msw (`pnpm add -D msw`) and apply the four pieces below by hand
@@ -131,11 +131,14 @@ Options, in order of preference:
    // src/hooks.server.ts
    import type { HandleFetch } from "@sveltejs/kit/hooks";
 
-   export const handleFetch: HandleFetch = async ({ request, fetch }) => {
+   export const handleFetch: HandleFetch = async ({ event, request, fetch }) => {
+     const url = new URL(request.url);
      if (
        import.meta.env.DEV &&
        import.meta.env.VITE_MSW === "true" &&
-       new URL(request.url).pathname === "/api/thing"
+       // handleFetch also sees external requests: match only your own origin
+       url.origin === event.url.origin &&
+       url.pathname === "/api/thing"
      ) {
        const { default: fixture } = await import("./mocks/fixtures/thing.json");
        return Response.json(fixture);

@@ -1,6 +1,6 @@
 ---
 name: code-style-svelte
-description: "Svelte component code style rules. Auto-invoke when creating new .svelte files or editing Svelte component structure. Covers component documentation comments and Svelte-specific style conventions."
+description: "Svelte component code style rules. Auto-invoke when creating .svelte files, editing component structure, transitions or layout reads, or SvelteKit URL state and navigation guards. Covers component docs and Svelte style conventions."
 user-invocable: true
 ---
 
@@ -40,6 +40,15 @@ Two reasons:
 NEVER use `addEventListener` or `removeEventListener` in Svelte components. Svelte 5 has multiple declarative mechanisms for event handling, `on*` attributes, callback props, `svelte:window`, `svelte:document`, `svelte:body`, and the `on` action from `svelte/events`. These handle cleanup automatically and integrate with Svelte's reactivity.
 
 When unsure which pattern to use, invoke the Svelte MCP autofixer (`mcp__plugin_svelte_svelte__svelte-autofixer`) or fetch the relevant docs via `mcp__plugin_svelte_svelte__get-documentation` (sections: `svelte-events`, `svelte-window`, `svelte-document`, `svelte-body`).
+
+## Layout, motion and navigation
+
+- **Read element sizes through bindings.** Use the readonly dimension bindings (`bind:clientWidth`, `bind:clientHeight`, `bind:offsetWidth`, `bind:offsetHeight`, `bind:contentRect`), which Svelte measures with a `ResizeObserver`. The observer can't measure an element with `display: inline`, and CSS transforms don't trigger it.
+- **Read window sizes reactively.** Use `innerWidth.current` and its siblings from `svelte/reactivity/window` (`undefined` on the server), or bind them on `<svelte:window>`.
+- **No layout reads in reactive code.** Don't call `getBoundingClientRect()` or read `offsetHeight` or `scrollTop` inside `$effect` or `$derived`: each read can force a synchronous reflow. For other DOM work, use `{@attach}` (`svelte:svelte-core-bestpractices`).
+- **Reduced motion in transitions needs `prefersReducedMotion`.** Svelte runs `transition:`, `in:` and `out:` through the Web Animations API, so a global `@media (prefers-reduced-motion: reduce)` rule that zeroes `transition-duration` does not affect them. Read `prefersReducedMotion.current` from `svelte/motion` and shorten or drop the motion, for example `transition:fly={{ y: prefersReducedMotion.current ? 0 : 200 }}`.
+- **SvelteKit: put state that must survive a reload in the URL.** Filters and sort order belong in query parameters. Read them from `page.url.searchParams` (`$app/state`) in components and from the `url` parameter in `load`. Change them with a link, a GET `<form>`, or `goto('?key=value')`. `page.url` is readonly, so copy it with `new URL(page.url.href)` before you change it. Disposable UI state, such as whether an accordion is open, stays out of the URL; use a snapshot if it should survive back and forward navigation.
+- **SvelteKit: guard unsaved changes with `beforeNavigate`.** Call `navigation.cancel()` while the form has unsaved changes. For a `leave` navigation (closing the tab or leaving the app), `cancel()` shows the browser's own unload dialog. `beforeNavigate` also runs for shallow routing, so return early when `navigation.shallow` is true, unless that shallow navigation should be guarded too.
 
 ## Svelte 5 parent + Svelte 4 child: use `slot=`, not `{#snippet}`
 

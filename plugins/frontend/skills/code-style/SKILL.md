@@ -1,6 +1,6 @@
 ---
 name: code-style
-description: "Code style rules for all languages: variable naming, brace style, HTML data attributes, CSS nesting. Auto-invoke when editing code files, writing new functions, or naming variables."
+description: "Code style rules for all languages: variable naming, brace style, HTML data attributes, markup, forms and locale formatting, CSS nesting. Auto-invoke when editing code files, writing new functions or markup, or naming variables."
 user-invocable: true
 ---
 
@@ -46,6 +46,17 @@ Always use key-value syntax. Never use bare/boolean data attributes.
 <!-- GOOD -->
 <div data-active="true"></div>
 ```
+
+## Markup and Locale
+
+- Native `<button>` and `<a>` already handle Enter and Space; only a non-semantic element with a `role` needs its own key handler.
+- Give inputs a meaningful `name`, the matching `type` (`email`, `tel`, `url`, `number`) and `inputmode`. Turn off spellcheck on emails, codes and usernames (`spellcheck="false"`), and use `autocomplete="off"` on non-auth fields so password managers stay out of them.
+- Wrap a checkbox or radio and its text in one `<label>`, so the whole row is a single hit target with no dead zone.
+- Keep a submit button enabled until the request starts, then show a spinner while it runs.
+- Warn before the user leaves with unsaved changes: `beforeunload` on plain pages, `beforeNavigate` on SvelteKit (`svelte-5:code-style-svelte`).
+- Never disable zoom with `user-scalable=no` or `maximum-scale=1`. Match `<meta name="theme-color">` to the page background.
+- During a drag, put `inert` on the content that isn't a drop target, not on the dragged element (text selection: `frontend:code-style-css`).
+- Format dates, times, numbers and currency with `Intl.DateTimeFormat` and `Intl.NumberFormat`. Detect the language from `Accept-Language` or `navigator.languages`, not the IP. Mark brand names, code and identifiers with `translate="no"`.
 
 ## Variable Naming
 

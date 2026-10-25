@@ -38,11 +38,11 @@ Every test for an interactive component (inputs, autocompletes, buttons, forms) 
 
 ## Core Principles
 
-- Prefer locators: `page.getBy*()` methods first. A raw `querySelector` or `data-testid` needs a one-line comment saying why no accessible locator works (`frontend:vitest` query rule)
+- Prefer locators: `page.getBy*()` methods first. A raw `querySelector` or `data-testid` needs a one-line comment saying why no accessible locator works (`svelte-5:vitest` query rule)
 - Multiple elements: use `.first()`, `.nth()`, `.last()` to avoid strict mode violations
 - Real API objects: test with `FormData` and `Request`, with minimal mocking
 - Mock at the right seam: `vi.mock` for module boundaries, `msw` for the network boundary. `msw` is this rule applied to HTTP: keep the real component and the real `fetch`, swap only what crosses the wire (`svelte-5:msw`)
-- `vi.mock` / `vi.hoisted` / `vi.unmock` at the top level only: inside `describe`, `test`, or a function they throw in Vitest 5 (`was defined outside of the module's top level scope`). `vi.doMock` may go anywhere. Factories, SvelteKit `$app/*` stubs, component swaps: `frontend:vitest` mocking reference
+- `vi.mock` / `vi.hoisted` / `vi.unmock` at the top level only: inside `describe`, `test`, or a function they throw in Vitest 5 (`was defined outside of the module's top level scope`). `vi.doMock` may go anywhere. Factories, SvelteKit `$app/*` stubs, component swaps: `svelte-5:vitest` mocking reference
 
 ## Reference Files
 
@@ -58,7 +58,7 @@ Every test for an interactive component (inputs, autocompletes, buttons, forms) 
 
 - Storybook + Vitest (`@storybook/addon-vitest`): `svelte-5:storybook-vitest` skill: `vitest.config.ts`, `test.projects` entry, `pnpm test:storybook` (runs the storybook project with `--silent`), `storybookUrl` for CI links
 - `pnpm test:unit`: the node and browser vitest projects (fast, no dev server needed); `pnpm exec vitest run --project browser` runs the browser project alone (`client` in an `sv add vitest` setup), and `pnpm exec vitest run` runs every project, `storybook` included but without `--silent` (prefer `pnpm test:unit` plus `pnpm test:storybook`)
-- These skills target Vitest 5; if `package.json` lists Vitest 4, upgrade first (`frontend:vitest`, `references/vitest-5-upgrade.md`)
+- These skills target Vitest 5; if `package.json` lists Vitest 4, upgrade first (`svelte-5:vitest`, `references/vitest-5-upgrade.md`)
 - `pnpm test`, where a project defines it, runs whatever scripts it chains. `sv add vitest` makes `test` run `test:unit -- --run`, and `sv add playwright` makes it also run `test:e2e` (in the `playwright.config` that `sv add playwright` writes, `webServer` builds and previews the app first; in another config, its `webServer` setting decides whether a server must already run). Script names: [`SETUP.md`](https://github.com/fubits1/svelte-skills/blob/main/SETUP.md)
 - `pnpm validate`: runs `test:unit` and the lint summary (knip, svelte-check, oxlint, eslint, stylelint) concurrently, then `test:storybook` (CI pipeline, no e2e; the template in `SETUP.md`). Read its lint table: the template's `lint-summary.ts` exits 0 even when a lint task fails (`frontend:validate`)
 

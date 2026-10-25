@@ -48,7 +48,7 @@ Setup B is for every other project (Storybook already installed, an existing Vit
    - If the storybook project has `extends: true`, remove it (inheriting is the default)
    - Run `pnpm ls vitest @vitest/browser-playwright playwright`. If `@vitest/browser-playwright` is missing or at another version than `vitest`, run `pnpm add -D @vitest/browser-playwright@<the installed vitest version>`; if `playwright` is missing, run `pnpm add -D playwright`. Then run `pnpm exec playwright install chromium` (CI on Linux: `pnpm exec playwright install --with-deps chromium`)
    - Svelte CSF addon: if `package.json` does not list `@storybook/addon-svelte-csf`, run `pnpm add -D @storybook/addon-svelte-csf`; if `.storybook/main.ts` `addons` does not list it, add `'@storybook/addon-svelte-csf'`; if the stories entry of `stories` lacks `svelte`, add `svelte` to its extensions (in whatever shape the entry has) and keep the other entries (the addon's README: `'../src/**/*.stories.@(js|jsx|mjs|ts|tsx|svelte)'`)
-   - Add the `test:storybook` script if `package.json` lacks it ("CLI & scripts" below), then run `pnpm test:storybook` as the `frontend:vitest` flake-hygiene reference describes (once msw is set up, if your stories use it: `svelte-5:msw`)
+   - Add the `test:storybook` script if `package.json` lacks it ("CLI & scripts" below), then run `pnpm test:storybook` as the `svelte-5:vitest` flake-hygiene reference describes (once msw is set up, if your stories use it: `svelte-5:msw`)
 
 **Playwright Chromium** is required for default browser mode; Setup B step 5 installs it ([Playwright browsers](https://playwright.dev/docs/browsers#install-browsers)).
 

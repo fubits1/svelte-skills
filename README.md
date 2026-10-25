@@ -25,8 +25,8 @@ frontend  <--  svelte-5  <--  svelte-5-migration
 
 | Plugin | Skills/Hooks | What it does |
 | --- | --- | --- |
-| [frontend](plugins/frontend/) | 13 skills | Validation, pixel-perfect, editing, code style, testing, migration, JS/CSS config |
-| [svelte-5](plugins/svelte-5/) | 7 skills | Svelte code style, component docs, composition patterns, Storybook, Svelte testing, `msw` API mocking |
+| [frontend](plugins/frontend/) | 12 skills | Validation, pixel-perfect, editing, code style, testing, migration, JS/CSS config |
+| [svelte-5](plugins/svelte-5/) | 8 skills | Svelte code style, component docs, composition patterns, Storybook, Vitest config, Svelte testing, `msw` API mocking |
 | [svelte-5-migration](plugins/svelte-5-migration/) | 1 skill | Svelte 3/4 to 5 migration workflow |
 
 ## Installation
@@ -102,6 +102,16 @@ claude plugin update svelte-5-migration@svelte-skills
 Then run `/reload-plugins` in open sessions.
 
 Auto-update is off by default for third-party marketplaces. To turn it on, run `/plugin`, open the **Marketplaces** tab, select `svelte-skills`, and choose **Enable auto-update**.
+
+## Migration from 0.8.x
+
+Version 0.9.0 moved the `vitest` skill from `frontend` to `svelte-5`, so `/frontend:vitest` is now `/svelte-5:vitest`. If you have `svelte-5`, update `frontend` and `svelte-5` as described in [Updating](#updating). Otherwise, install it after its prerequisites (see [Installation](#installation)):
+
+```
+/plugin install svelte-5 --marketplace fubits1/svelte-skills
+```
+
+Replace `frontend:vitest` with `svelte-5:vitest` in your own CLAUDE.md files, skills and prompts.
 
 ## Migration from 0.3.x
 

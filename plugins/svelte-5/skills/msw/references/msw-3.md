@@ -118,7 +118,7 @@ The unmocked-request guard in the handlers reference is this file with the callb
 
 `frame instanceof HttpNetworkFrame`, with the class from `msw/experimental` (the narrowing [msw#2797](https://github.com/mswjs/msw/issues/2797) recommends), is `false` for every frame when Vite pre-bundles one msw entry point but not the other: the page then holds two copies of msw's classes. `optimizeDeps.include: ['msw/browser']` alone breaks it; listing `'msw/experimental'` too, or listing neither, keeps it working. Configs list msw entry points there so Vite does not optimize them mid-run: a mid-run optimization reloads the page and fails every test file, as the storybook reference shows for `msw-storybook-addon/preview`. Two fixes:
 
-- list every msw entry point the code imports (for example `msw/browser` and `msw/experimental`), next to `msw/browser` in whichever config lists it (a root-level list reaches every inline project, `frontend:vitest`; a project's own list only that project)
+- list every msw entry point the code imports (for example `msw/browser` and `msw/experimental`), next to `msw/browser` in whichever config lists it (a root-level list reaches every inline project, `svelte-5:vitest`; a project's own list only that project)
 - narrow with `frame.protocol === 'http'`, which works in every case but leaves `frame.data` typed `unknown`
 
 ## The worker script is not refreshed on install

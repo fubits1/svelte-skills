@@ -16,32 +16,27 @@
         "name": "fubits1"
       },
       "category": "workflow",
-      "keywords": [
-        "frontend",
-        "validation",
-        "testing",
-        "css",
-        "playwright",
-        "vitest"
-      ],
+      "keywords": ["css", "frontend", "playwright", "testing", "validation"],
       "license": "MIT"
     },
     {
       "name": "svelte-5",
       "source": "./plugins/svelte-5",
-      "description": "Svelte development workflows — component docs, code style, Storybook, testing with vitest-browser-svelte, MSW API mocking.",
+      "description": "Svelte development workflows — component docs, code style, Storybook, Vitest config, testing with vitest-browser-svelte, MSW API mocking.",
       "version": "0.9.0",
       "author": {
         "name": "fubits1"
       },
       "category": "svelte",
       "keywords": [
-        "svelte",
-        "storybook",
-        "testing",
         "components",
+        "mocking",
         "msw",
-        "mocking"
+        "storybook",
+        "svelte",
+        "sveltekit",
+        "testing",
+        "vitest"
       ],
       "license": "MIT"
     },
@@ -54,11 +49,7 @@
         "name": "fubits1"
       },
       "category": "svelte",
-      "keywords": [
-        "svelte",
-        "migration",
-        "svelte-5"
-      ],
+      "keywords": ["svelte", "svelte-5", "svelte-migration"],
       "license": "MIT"
     }
   ],

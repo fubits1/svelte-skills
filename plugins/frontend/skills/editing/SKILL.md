@@ -53,7 +53,7 @@ user-invocable: true
 - Use Svelte components, not raw HTML strings. No `.setHTML()` or template literals.
 - **`.svelte` / `.svelte.ts` / `.svelte.js` files: prefer delegating creation, editing, and review to the `svelte:svelte-file-editor` subagent.** It runs in a separate context window, so its docs lookup and autofixer iteration don't spend the main agent's context. Name the subagent in your dispatch to delegate. When editing inline instead (small change, or subagent unavailable), follow the two rules below.
 - `.svelte` or `.svelte.ts/.svelte.js` files: ALWAYS invoke `svelte:svelte-code-writer` skill BEFORE writing or editing. No exceptions.
-- `.svelte`, `.svelte.ts`, `.svelte.js` files: ALWAYS run the Svelte autofixer (`mcp__svelte__svelte-autofixer`) after editing to validate Svelte 5 correctness.
+- `.svelte`, `.svelte.ts`, `.svelte.js` files: ALWAYS run the Svelte autofixer (`mcp__plugin_svelte_svelte__svelte-autofixer`) after editing to validate Svelte 5 correctness.
 - When user says "test first" or "write failing test": write the test, run it, confirm it FAILS, only then implement the fix. Never apply both in the same pass.
 - **Don't export types without checking if any consumer imports them.** Run knip via `pnpm lint:file` to catch unused exports (see SETUP.md). If it's only used internally, keep it private.
 - **Before writing a config override**, check what it overrides. If per-item value equals the inherited default, the override does nothing: don't write it.

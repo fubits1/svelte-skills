@@ -61,4 +61,4 @@ This skill edits `.svelte` files, **invoke the `frontend:editing` skill first** 
 
 ## Verification
 
-After writing the comment, run `mcp__svelte__svelte-autofixer` on the file, then read the first few lines to confirm the comment is well-formed HTML.
+After writing the comment, run `mcp__plugin_svelte_svelte__svelte-autofixer` on the file, then read the first few lines to confirm the comment is well-formed HTML.

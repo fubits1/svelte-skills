@@ -23,70 +23,37 @@ Three plugins, layered:
 frontend  <--  svelte-5  <--  svelte-5-migration
 ```
 
-`frontend` soft-depends on [`agent@ronin-skills`](https://github.com/fubits1/ronin-skills): its skills reference it, but the plugin does not declare the dependency, so install it separately (separate repo and marketplace; see [Migration from 0.3.x](#migration-from-03x) below).
-
 | Plugin | Skills/Hooks | What it does |
 | --- | --- | --- |
 | [frontend](plugins/frontend/) | 13 skills | Validation, pixel-perfect, editing, code style, testing, migration, JS/CSS config |
 | [svelte-5](plugins/svelte-5/) | 7 skills | Svelte code style, component docs, composition patterns, Storybook, Svelte testing, `msw` API mocking |
 | [svelte-5-migration](plugins/svelte-5-migration/) | 1 skill | Svelte 3/4 to 5 migration workflow |
 
-## Migration from 0.3.x
-
-In 0.4.0 the `agent` and `bonus` plugins moved out of this marketplace into [fubits1/ronin-skills](https://github.com/fubits1/ronin-skills). Plugin name stays `agent` so existing `agent:research`, `agent:done`, `agent:before-you-act`, etc. cross-references in `frontend:*` and `svelte-5:*` skills continue to resolve, but only if `agent@ronin-skills` is installed. The `frontend`, `svelte-5`, and `svelte-5-migration` plugins all require `agent@ronin-skills` as of 0.4.0. Migration:
-
-```
-/plugin marketplace add fubits1/ronin-skills
-/plugin install agent@ronin-skills
-/plugin uninstall agent@svelte-skills
-/plugin uninstall bonus@svelte-skills
-/plugin marketplace update svelte-skills
-/plugin update frontend@svelte-skills svelte-5@svelte-skills svelte-5-migration@svelte-skills
-```
-
 ## Installation
 
-### 1. Add the marketplace
+As of Claude Code v2.1.275, `/plugin install <name> --marketplace <source>` adds the marketplace if needed and opens the plugin's details, where you install it.
+
+### 1. Install prerequisites
+
+**`superpowers` plugin** (required by the `agent` plugin):
 
 ```
-/plugin marketplace add fubits1/svelte-skills
+/plugin install superpowers@claude-plugins-official
 ```
 
-For local development/testing:
+**`agent` plugin from ronin-skills** (required by all three plugins):
 
 ```
-/plugin marketplace add /path/to/svelte-skills
+/plugin install agent --marketplace fubits1/ronin-skills
 ```
 
-### 2. Install prerequisites
-
-**Superpowers plugin** (required by `agent@ronin-skills`):
+**`svelte` plugin from sveltejs/ai-tools** (required by `svelte-5` and `svelte-5-migration`, and by `frontend` for `.svelte` files). It provides the Svelte MCP server with the autofixer and docs lookup, the `svelte:svelte-code-writer` and `svelte:svelte-core-bestpractices` skills, and the `svelte:svelte-file-editor` subagent. See the [official Svelte AI tools docs](https://svelte.dev/docs/ai/overview).
 
 ```
-/plugin install superpowers
+/plugin install svelte --marketplace sveltejs/ai-tools
 ```
 
-**ronin-skills marketplace** (required by all three plugins; provides the `agent` plugin):
-
-```
-/plugin marketplace add fubits1/ronin-skills
-/plugin install agent@ronin-skills
-```
-
-**Svelte MCP** (required by `svelte-5` and `svelte-5-migration`). Provides the Svelte autofixer, docs lookup, the `svelte:svelte-code-writer` / `svelte:svelte-core-bestpractices` skills, and the `svelte:svelte-file-editor` subagent. See the [official Svelte AI tools docs](https://svelte.dev/docs/ai/overview):
-
-```
-/plugin marketplace add sveltejs/ai-tools
-/plugin install svelte
-```
-
-Or directly via CLI:
-
-```bash
-claude mcp add -t stdio -s project svelte -- npx -y @sveltejs/mcp
-```
-
-**Playwright MCP** (required by `frontend`). Provides browser screenshots, navigation, and `browser_evaluate` for measurements:
+**Playwright MCP** (required by `frontend`). It provides browser screenshots, navigation, and `browser_evaluate` for measurements. Add it from your shell:
 
 ```bash
 claude mcp add playwright -- npx @playwright/mcp@latest
@@ -94,7 +61,7 @@ claude mcp add playwright -- npx @playwright/mcp@latest
 
 See [Playwright MCP docs](https://playwright.dev/docs/getting-started-mcp) for options (headless, scope, etc.).
 
-**Storybook MCP** (optional, used by `svelte-5:storybook`). Provides story instructions and preview tools:
+**Storybook MCP** (optional, used by `svelte-5:storybook`). It provides story instructions and preview tools:
 
 1. If `pnpm ls storybook` lists no `storybook`, set Storybook up first ([SETUP.md](SETUP.md), "For Storybook testing"), then come back here
 2. Compare the installed versions with the latest addon-mcp release's peer ranges:
@@ -108,34 +75,55 @@ See [Playwright MCP docs](https://playwright.dev/docs/getting-started-mcp) for o
 
 The MCP server runs at `/mcp` by default (addon option `endpoint`) on the running Storybook's URL (`http://127.0.0.1:6006/mcp` with the `storybook dev -p 6006` script that `sv add storybook` leaves in `package.json`). Registering the server with Claude Code is not covered here: see the [Storybook MCP docs](https://storybook.js.org/docs/ai/mcp/overview) and [@storybook/addon-mcp](https://storybook.js.org/addons/@storybook/addon-mcp).
 
-### 3. Install the plugins (in order)
+### 2. Install the plugins (in order)
 
 ```
-/plugin install frontend
-/plugin install svelte-5
-/plugin install svelte-5-migration
+/plugin install frontend --marketplace fubits1/svelte-skills
+/plugin install svelte-5 --marketplace fubits1/svelte-skills
+/plugin install svelte-5-migration --marketplace fubits1/svelte-skills
 ```
 
-(`agent@ronin-skills` was installed in step 2 above.)
-
-### 4. Set up your project
+### 3. Set up your project
 
 See [SETUP.md](SETUP.md) for copying template scripts, wiring `package.json` tasks, and installing dev dependencies.
 
 ## Updating
 
-The whole marketplace ships as one version. After a new [release](https://github.com/fubits1/svelte-skills/releases), refresh and update:
+The whole marketplace ships as one version. After a new [release](https://github.com/fubits1/svelte-skills/releases), run `/plugin`, open the **Marketplaces** tab, select `svelte-skills`, and choose **Update marketplace**. Updating the marketplace also updates the plugins you installed from it.
+
+To update from your shell, run:
+
+```bash
+claude plugin update frontend@svelte-skills
+claude plugin update svelte-5@svelte-skills
+claude plugin update svelte-5-migration@svelte-skills
+```
+
+Then run `/reload-plugins` in open sessions.
+
+Auto-update is off by default for third-party marketplaces. To turn it on, run `/plugin`, open the **Marketplaces** tab, select `svelte-skills`, and choose **Enable auto-update**.
+
+## Migration from 0.3.x
+
+Version 0.4.0 moved the `agent` plugin to [fubits1/ronin-skills](https://github.com/fubits1/ronin-skills). The hooks from `bonus` now live in the optional `hooks` plugin there. If you installed `agent` or `bonus` from this marketplace, uninstall them and install `agent` from ronin-skills:
 
 ```
-/plugin marketplace update svelte-skills
-/plugin update frontend           # repeat per installed plugin
+/plugin uninstall agent@svelte-skills
+/plugin uninstall bonus@svelte-skills
+/plugin install agent --marketplace fubits1/ronin-skills
 ```
 
-Or rely on Claude Code's auto-update.
+If you used the `bonus` hooks, also install `hooks`:
+
+```
+/plugin install hooks --marketplace fubits1/ronin-skills
+```
+
+Then update `frontend`, `svelte-5`, and `svelte-5-migration` as described in [Updating](#updating) above.
 
 ## Skill behavior
 
-Skills in this marketplace have auto-invocation triggers defined in their descriptions. Claude Code may invoke them automatically when it detects relevant context (e.g., editing a `.svelte` file, declaring a task done, starting a migration). You can also invoke any skill not marked `user-invocable: false` manually at any time via `/skill-name`. To disable auto-invocation for a specific skill, add `disable-model-invocation: true` to that skill's SKILL.md frontmatter.
+Skills in this marketplace have auto-invocation triggers defined in their descriptions. Claude Code may invoke them automatically when it detects relevant context (e.g., editing a `.svelte` file, declaring a task done, starting a migration). You can also run a skill yourself with `/<plugin>:<skill>`, for example `/frontend:validate`. The exception is `svelte-5:storybook-vitest`, which sets `user-invocable: false`. To turn off a plugin's skills, disable the plugin in `/plugin`.
 
 ## Using these skills in OpenCode
 
@@ -143,7 +131,7 @@ See [Using these skills in OpenCode](https://github.com/fubits1/ronin-skills#usi
 
 ## Context budget
 
-Claude Code loads the name and description of every skill without `disable-model-invocation: true` into context (that flag removes a skill from Claude's context entirely). Once the listing exceeds its budget, it drops descriptions, starting with the skills you invoke least; every listed name stays. The budget scales at 1% of the model's context window. Each skill's combined `description` and `when_to_use` text is truncated at 1,536 characters by default, configurable with `skillListingMaxDescChars` ([skills docs](https://code.claude.com/docs/en/skills#skill-descriptions-are-cut-short)). This marketplace's skills share that budget with every other skill Claude Code lists (other plugins, personal and project skills), so with a smaller context window, and its smaller budget, Claude Code drops descriptions sooner, which lowers auto-invocation accuracy.
+Claude Code loads the name and description of every auto-invocable skill into context. Once the listing exceeds its budget, it drops descriptions, starting with the skills you invoke least; every listed name stays. The budget scales at 1% of the model's context window. Each skill's combined `description` and `when_to_use` text is truncated at 1,536 characters by default, configurable with `skillListingMaxDescChars` ([skills docs](https://code.claude.com/docs/en/skills#skill-descriptions-are-cut-short)). This marketplace's skills share that budget with every other skill Claude Code lists (other plugins, personal and project skills), so with a smaller context window, and its smaller budget, Claude Code drops descriptions sooner, which lowers auto-invocation accuracy.
 
 Run `/doctor` for the listing's context cost, or `/context` for its size after the budget. Raise the budget with the `skillListingBudgetFraction` setting (for example `0.02`) or `SLASH_COMMAND_TOOL_CHAR_BUDGET=<chars>`.
 
@@ -153,11 +141,10 @@ Source: [Claude Code skills docs](https://code.claude.com/docs/en/skills)
 
 - For forward-looking Svelte 5 or SvelteKit specific skills, see [spences10/skills](https://github.com/spences10/skills).
 - [mattpocock/skills](https://github.com/mattpocock/skills): standalone skills including `grill-me` (get relentlessly interviewed about a plan or design, or use it to grill the agent about its own plan before it starts implementing).
-- [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman): ultra-compressed communication mode (caveman-style speech, fragments, no fluff). Claims to cut token usage ~75% while preserving full technical accuracy. Install as a separate marketplace:
+- [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman): ultra-compressed communication mode (caveman-style speech, fragments, no fluff). Claims to cut token usage ~75% while preserving full technical accuracy. To install it, run:
 
   ```
-  /plugin marketplace add JuliusBrussee/caveman
-  /plugin install caveman
+  /plugin install caveman --marketplace JuliusBrussee/caveman
   ```
 
 ## Recommended tooling
@@ -191,6 +178,7 @@ Watchlist (not referenced by the skills in this marketplace):
 ## Skill development / Ops
 
 - use `agent:update-skills` (from [fubits1/ronin-skills](https://github.com/fubits1/ronin-skills)) to update skills from a local dir to this plugin dir.
+- To test local changes, start Claude Code with `claude --plugin-dir /path/to/svelte-skills/plugins`. This loads all three plugins.
 
 ## Releases
 
@@ -199,3 +187,5 @@ Browse release history at [Releases](https://github.com/fubits1/svelte-skills/re
 ## License
 
 MIT
+
+The plugin icons are the [Svelte logo](https://github.com/sveltejs/branding), used under the Svelte branding guidelines. This marketplace is not affiliated with or endorsed by the Svelte project.

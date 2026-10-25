@@ -88,11 +88,12 @@ git push --follow-tags origin main
 
 ## Rollback
 
-A bad release stays in users' caches for ~7 days per Claude Code's orphan policy. Fix forward: ship the next patch.
+Claude Code installs from `main`. Existing installs update only when a release bumps the version. Auto-update is off by default for third-party marketplaces, so users keep a bad release until they update.
 
-To remove an erroneous Release before any user has pulled it:
+To fix forward, revert the bad commits on `main`, newest first. Use `git revert -m 1 <sha>` for a merge commit. Do not revert the `chore(release)` commit. Then push and run `./scripts/release.sh <next-patch-version>`.
+
+Deleting the GitHub Release and its tag does not roll back any install. Delete them only to remove the bad release notes:
 
 ```bash
-gh release delete v0.1.0 --yes --cleanup-tag   # deletes the Release AND the tag
-git revert <release-commit-sha>                 # then re-release with a new patch
+gh release delete v<bad-version> --yes --cleanup-tag
 ```

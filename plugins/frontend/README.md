@@ -2,20 +2,45 @@
 
 Frontend development discipline: validation, pixel-perfect measurement, editing, code style, testing, migration baselines.
 
-Part of the [svelte-skills](https://github.com/fubits1/svelte-skills) plugin marketplace. This is a framework-agnostic plugin that sits between `agent@ronin-skills` (cross-marketplace required dependency) and the framework-specific plugins (e.g. `svelte-5`).
-
-For installation and setup, see the [root README](https://github.com/fubits1/svelte-skills#readme).
+Part of the [svelte-skills](https://github.com/fubits1/svelte-skills) plugin marketplace. It is framework-agnostic and sits between `agent@ronin-skills` and the framework-specific plugins, such as `svelte-5`.
 
 ## Dependencies
 
-- **`agent` plugin from [fubits1/ronin-skills](https://github.com/fubits1/ronin-skills)**: skills in this plugin reference `agent:research`, `agent:done`, and others. Add the marketplace and install the plugin before installing `frontend`:
+Install these first. As of Claude Code v2.1.275, `/plugin install <name> --marketplace <source>` adds the marketplace if needed and opens the plugin's details, where you install it.
+
+- **`superpowers` plugin**: the `agent` plugin requires it.
 
   ```
-  /plugin marketplace add fubits1/ronin-skills
-  /plugin install agent@ronin-skills
+  /plugin install superpowers@claude-plugins-official
   ```
 
-- **Playwright MCP**: required for browser verification and screenshot workflows.
+- **`agent` plugin from [fubits1/ronin-skills](https://github.com/fubits1/ronin-skills)**: skills in this plugin reference `agent:research` and `agent:done`.
+
+  ```
+  /plugin install agent --marketplace fubits1/ronin-skills
+  ```
+
+- **Playwright MCP**: browser verification and screenshot workflows need it. Add it from your shell:
+
+  ```bash
+  claude mcp add playwright -- npx @playwright/mcp@latest
+  ```
+
+- **`svelte` plugin from sveltejs/ai-tools**: on `.svelte` files, skills in this plugin call its autofixer, the `svelte:svelte-code-writer` skill, and the `svelte:svelte-file-editor` subagent.
+
+  ```
+  /plugin install svelte --marketplace sveltejs/ai-tools
+  ```
+
+## Install
+
+Then install this plugin:
+
+```
+/plugin install frontend --marketplace fubits1/svelte-skills
+```
+
+To install from your shell instead, run `claude plugin install frontend --marketplace fubits1/svelte-skills`. For the full setup, see the [root README](https://github.com/fubits1/svelte-skills#readme).
 
 ## Skills
 
@@ -48,3 +73,7 @@ TypeScript + dax scripts under `scripts/{lib,validate,bin}/`. Parallel execution
 | `bin/lint-staged.ts` | `pnpm lint:staged` | Lint the working-tree content of the `.ts`, `.js` and `.svelte` files staged in git inside the directory of the `package.json` that defines the script. Pass `--committed` to also include commits ahead of upstream (with no upstream: commits not on any remote-tracking ref; with no remote-tracking refs either, it skips them with a warning) |
 | `bin/test-file.ts` | `pnpm test:file` | Run vitest for specific files (node + browser projects) |
 | `lint-summary.ts` | `pnpm lint:summary` | Dashboard view of all lint results as a table |
+
+## License
+
+MIT. The plugin icon is the [Svelte logo](https://github.com/sveltejs/branding), used under the Svelte branding guidelines. This plugin is not affiliated with or endorsed by the Svelte project.

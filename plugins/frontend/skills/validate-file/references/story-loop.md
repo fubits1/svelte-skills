@@ -14,7 +14,7 @@ For component + story pairs, follow this exact sequence:
    a type check can report `✓` without checking a file. Lint catches type errors
    that would crash at runtime, so testing unlinted code wastes time. Fix ALL
    errors, not just yours
-5. **Run the Svelte autofixer** (`mcp__svelte__svelte-autofixer`) on every
+5. **Run the Svelte autofixer** (`mcp__plugin_svelte_svelte__svelte-autofixer`) on every
    edited `.svelte`, `.svelte.ts` and `.svelte.js` file. It catches leftover Svelte 4 patterns and other migration
    issues, such as a `<slot />` where a snippet and `{@render children()}`
    belong, or a store where a rune belongs. Skip it for a `.svelte` file not yet migrated (pure Svelte 4: `export let`, `$:`, `<slot />`, no runes)

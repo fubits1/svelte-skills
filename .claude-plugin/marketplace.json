@@ -1,7 +1,7 @@
 {
-  "$schema": "https://cdn.claude.ai/plugins/marketplace.schema.json",
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "svelte-skills",
-  "description": "Claude Code plugin marketplace for Svelte developers — agent discipline, frontend workflows, Svelte development, and Svelte 5 migration.",
+  "description": "Claude Code plugin marketplace for Svelte developers — frontend workflows, Svelte development, and Svelte 5 migration.",
   "owner": {
     "name": "fubits1",
     "email": "contact@fubits.dev"
@@ -57,9 +57,7 @@
       "keywords": [
         "svelte",
         "migration",
-        "svelte-5",
-        "runes",
-        "upgrade"
+        "svelte-5"
       ],
       "license": "MIT"
     }

@@ -8,7 +8,7 @@ user-invocable: true
 
 Decompose a Svelte 5 feature by ROLE. Wrong role assignment is the root cause of every architectural fuckup. Before generating files, pin three decisions: composition shape, snippet API, state location. Per-file contracts fall out from those.
 
-Rules from `frontend:code-style`, `svelte-5:code-style-svelte`, `frontend:editing`, `svelte:svelte-code-writer`, `svelte:svelte-core-bestpractices` apply throughout. Run `mcp__svelte__svelte-autofixer` after every `.svelte` edit.
+Rules from `frontend:code-style`, `svelte-5:code-style-svelte`, `frontend:editing`, `svelte:svelte-code-writer`, `svelte:svelte-core-bestpractices` apply throughout. Run `mcp__plugin_svelte_svelte__svelte-autofixer` after every `.svelte` edit.
 
 ## When to use
 
@@ -61,7 +61,7 @@ When a pattern appears in 2+ components, extract to `$utils/<category>.ts`. Don'
 
 ## Tooling
 
-Delegate creating, editing, or reviewing any `.svelte` / `.svelte.ts` / `.svelte.js` file to the `svelte:svelte-file-editor` subagent (per `agent:before-you-act` "Consider before doing it yourself"), multi-file refactors most of all. The subagent runs in its own context window, so its docs lookup (`mcp__svelte__get-documentation`) and autofixer iteration (`mcp__svelte__svelte-autofixer`) don't spend the main agent's context.
+Delegate creating, editing, or reviewing any `.svelte` / `.svelte.ts` / `.svelte.js` file to the `svelte:svelte-file-editor` subagent (per `agent:before-you-act` "Consider before doing it yourself"), multi-file refactors most of all. The subagent runs in its own context window, so its docs lookup (`mcp__plugin_svelte_svelte__get-documentation`) and autofixer iteration (`mcp__plugin_svelte_svelte__svelte-autofixer`) don't spend the main agent's context.
 
 ## Symmetric bugs
 
@@ -77,7 +77,7 @@ Overlay-specific. Other feature types (forms, tables, panels without close behav
 - [ ] Each interactive child click: both cleared
 - [ ] Opening another overlay of the same kind: opens through the Controller's handler, which closes the prior overlay automatically (see `references/composition-shape.md` Controller)
 - [ ] Analogous components have the same UX behaviour
-- [ ] `mcp__svelte__svelte-autofixer`: zero new issues. `$effect calling function` advisories on imperative third-party calls are OK; `bind:this` suggestions are NOT.
+- [ ] `mcp__plugin_svelte_svelte__svelte-autofixer`: zero new issues. `$effect calling function` advisories on imperative third-party calls are OK; `bind:this` suggestions are NOT.
 - [ ] Vitest: green for the file + regression neighbours
 - [ ] Lint, type check: no new warnings/errors
 

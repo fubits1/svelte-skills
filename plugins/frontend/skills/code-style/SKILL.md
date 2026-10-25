@@ -49,8 +49,9 @@ Always use key-value syntax. Never use bare/boolean data attributes.
 
 ## Markup and Locale
 
-- Native `<button>` and `<a>` already handle Enter and Space; only a non-semantic element with a `role` needs its own key handler.
-- Give inputs a meaningful `name`, the matching `type` (`email`, `tel`, `url`, `number`) and `inputmode`. Turn off spellcheck on emails, codes and usernames (`spellcheck="false"`), and use `autocomplete="off"` on non-auth fields so password managers stay out of them.
+- A native `<button>` activates on Enter and Space, an `<a href>` on Enter only. Use `<button>` for actions and `<a href>` for navigation to a real URL; only a non-semantic element with a `role` needs its own key handler.
+- Give inputs a meaningful `name`, the matching `type` (`email`, `tel`, `url`, `number`) and `inputmode`, and turn off spellcheck on emails, codes and usernames (`spellcheck="false"`).
+- Give every field that collects information about the user its `autocomplete` token (`name`, `email`, `tel`, `street-address`, `one-time-code`), which WCAG 1.3.5 requires. Use `autocomplete="off"` only on a field that must never be autofilled.
 - Wrap a checkbox or radio and its text in one `<label>`, so the whole row is a single hit target with no dead zone.
 - Keep a submit button enabled until the request starts, then show a spinner while it runs.
 - Warn before the user leaves with unsaved changes: `beforeunload` on plain pages, `beforeNavigate` on SvelteKit (`svelte-5:code-style-svelte`).

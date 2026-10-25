@@ -23,12 +23,12 @@ Pick the source that matches the task. The sources are maintained upstream: fetc
 
 ## Precedence
 
-- WCAG 2.2 AA is the floor: text contrast at least 4.5:1 (3:1 for large text and UI components) and targets at least 24x24 CSS px. A stricter value from a design skill, such as 44x44 px touch targets, is a target on top of that floor.
+- WCAG 2.2 AA is the floor: text contrast at least 4.5:1 (3:1 for large text and UI components) and targets at least 24x24 CSS px. Before you flag a smaller target, check the exceptions in WCAG 2.5.8: enough spacing, an equivalent control, a target inline in text, a size the browser sets, or an essential presentation. A stricter value from a design skill, such as 44x44 px touch targets, is a target on top of that floor.
 - The project's own rules (CLAUDE.md, this marketplace's skills) override the generic sources.
 
 ## Interactive states
 
-Buttons and links have a hover state, and hover, active and focus states raise the contrast over the resting state.
+Buttons and links show a visible change on hover, active and focus. The cues that mark focus or selection meet 3:1 against adjacent colors (WCAG 1.4.11), and no state lowers the control's own contrast. A hover cue on its own doesn't need 3:1.
 
 ## Copy and typography
 

@@ -264,7 +264,10 @@ verify behavior:
 2. Render the wrapper with `<Story asChild>`, or from a decorator
    that returns `{ Component: Wrapper }`. A decorator that returns
    the bare component (`() => Wrapper`) loses the wrapper in the
-   Vitest run (`svelte-5:storybook-vitest`)
+   Vitest run (`svelte-5:storybook-vitest`). `asChild` content gets
+   no story args or Controls values: pass the props it needs in
+   the markup, or drop `asChild` and render through a `template`
+   snippet, which receives `args`
 3. Use `fn()` from `storybook/test` as callback spy for critical
    callbacks, NOT `noop`. Pass the spy in the `asChild` markup
    AND assert it in the play function.

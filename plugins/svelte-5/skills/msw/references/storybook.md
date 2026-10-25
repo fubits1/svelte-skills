@@ -67,7 +67,8 @@ const storybookRequest =
 await worker.start({
   quiet: true,
   onUnhandledFrame({ frame, defaults }) {
-    if (frame.protocol !== "http") return;
+    // a WebSocket a story opened: Storybook's and Vite's own sockets open before the worker starts
+    if (frame.protocol !== "http") return defaults.warn();
     const { request } = frame.data as { request: Request };
     // a custom callback replaces msw's built-in asset skip
     if (isCommonAssetRequest(request)) return;
@@ -79,6 +80,8 @@ await worker.start({
 ```
 
 The addon's own pattern ends at `\.stories\.`, so component modules such as `/src/stories/Button.svelte` still warn; `|\.svelte$` covers them. Test it against the pathname: a component's `<style>` block loads as `/src/lib/Thing.svelte?svelte&type=style&lang.css`, which `\.svelte$` misses on the full URL. The `isCommonAssetRequest` check also silences API paths ending in `.json` and other common extensions (msw-3 reference, unhandled-frame item 4), so an unmocked `/api/items.json` does not warn here.
+
+The callback warns on every unhandled WebSocket frame, with no URL filter. Under `storybook dev`, Storybook's and Vite's own sockets open before `mswLoader` starts the worker, so they never reach the callback, and after a dev-server restart Vite reloads the page rather than reconnecting through the worker. An unmocked socket a story opens does reach it, and an early `return` for non-HTTP frames would let it connect with no warning.
 
 Around the `preview.ts` loader:
 

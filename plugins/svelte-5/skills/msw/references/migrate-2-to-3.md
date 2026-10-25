@@ -72,13 +72,12 @@ The codemod writes `frame instanceof HttpNetworkFrame` into every migrated callb
    -onUnhandledRequest(request, print) {
    -  print.warning();
    -},
-   +onUnhandledFrame({ frame, defaults }) {
-   +  if (frame.protocol !== "http") return;
+   +onUnhandledFrame({ defaults }) {
    +  defaults.warn();
    +},
    ```
 
-   Adding `if (isCommonAssetRequest(request)) return;` (from `msw`, with `const { request } = frame.data as { request: Request };` before it) silences asset warnings, and also API paths ending in `.json`, `.csv` and other common extensions (msw-3 reference, unhandled-frame item 4); a callback that must report API calls checks the path prefix instead
+   `defaults.warn()` prints the default warning for HTTP and WebSocket frames alike, so this keeps msw 2's warning for an unhandled WebSocket connection; an `if (frame.protocol !== "http") return;` before it drops that warning. Adding `if (isCommonAssetRequest(request)) return;` (from `msw`, inside an `if (frame.protocol === "http")` branch, with `const { request } = frame.data as { request: Request };` before it) silences asset warnings, and also API paths ending in `.json`, `.csv` and other common extensions (msw-3 reference, unhandled-frame item 4); a callback that must report API calls checks the path prefix instead
 
 3. Await `worker.stop()` where you keep it, because it returns a Promise; in a Vitest browser setup file, delete it
 4. In the `.svelte` files the codemod cannot see, move `graphql` imports to `msw/graphql` (the `msw` root no longer exports it) and rewrite `graphql.query()` as `graphql.link(url).query()`. Root imports of `http`, `HttpResponse`, `ws`, `sse`, `delay`, `bypass`, `passthrough` and `isCommonAssetRequest` keep working; the migration guide and the codemod move them to subpaths such as `msw/http`, `msw/ws`, `msw/sse` and kebab-case `msw/utils/*` files (`msw/utils/is-common-asset-request`); moving them is optional

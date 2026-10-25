@@ -81,9 +81,14 @@ import { createUser } from '#lib/server/database.js';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const formData = await request.formData();
-	// `FormData.get()` returns string | File | null: coerce to a string before validating
-	const email = String(formData.get('email') ?? '');
-	const password = String(formData.get('password') ?? '');
+	/**
+	 * `FormData.get()` returns string | File | null: keep strings only,
+	 * since String(file) is "[object File]" and passes the required check
+	 */
+	const rawEmail = formData.get('email');
+	const rawPassword = formData.get('password');
+	const email = typeof rawEmail === 'string' ? rawEmail : '';
+	const password = typeof rawPassword === 'string' ? rawPassword : '';
 	const errors: Record<string, string> = {};
 	const emailError = validateEmail(email);
 	if (emailError) errors.email = emailError;

@@ -1,5 +1,11 @@
 # Client Component Test Examples
 
+## Contents
+
+- Example 1: client-side component test
+- Example 2: testing Svelte 5 runes
+- Example 3: server-side API test
+
 ## Complete Examples
 
 ### Example 1: Client-Side Component Test
@@ -7,17 +13,17 @@
 Real browser testing with user interactions:
 
 ```typescript
-// button.svelte.test.ts
+// labeled-counter.svelte.test.ts
 import { render } from 'vitest-browser-svelte';
 import { test, expect, describe } from 'vitest';
 import { page, userEvent } from 'vitest/browser';
 // labeled-counter.svelte: <button onclick={() => count++}>{label}: {count}</button>
-import Button from './labeled-counter.svelte';
+import LabeledCounter from './labeled-counter.svelte';
 import ButtonGroup from './button-group.svelte';
 
-describe('Button Component', () => {
+describe('LabeledCounter', () => {
 	test('increments counter on click', async () => {
-		await render(Button, { props: { label: 'Clicked' } });
+		await render(LabeledCounter, { props: { label: 'Clicked' } });
 
 		/**
 		 * locators are lazy and re-query on every use: locate by something
@@ -35,20 +41,19 @@ describe('Button Component', () => {
 	});
 
 	test('supports keyboard interaction', async () => {
-		await render(Button, { props: { label: 'Pressed' } });
+		await render(LabeledCounter, { props: { label: 'Pressed' } });
 
 		const button = page.getByRole('button', { name: /^pressed/i });
 		// locators have no .focus(); element() returns the DOM node
-		await button.element().focus();
+		button.element().focus();
 		await userEvent.keyboard('{Enter}');
 
 		await expect.element(button).toHaveTextContent('Pressed: 1');
 	});
 
 	test('handles multiple buttons with .first()', async () => {
-		await render(ButtonGroup); // Renders multiple buttons
+		await render(ButtonGroup); // renders several buttons, each showing "Clicked: N"
 
-		// Handle multiple buttons explicitly
 		const firstButton = page.getByRole('button').first();
 		const secondButton = page.getByRole('button').nth(1);
 
@@ -69,43 +74,41 @@ describe('Button Component', () => {
 // counter.svelte.test.ts
 import { render } from 'vitest-browser-svelte';
 import { test, expect } from 'vitest';
-import { flushSync } from 'svelte';
+/**
+ * the test reads what the components export:
+ * counter.svelte: let count = $state(0); const doubled = $derived(count * 2);
+ *   export function increment() { count++ }; export { count, doubled };
+ * form-component.svelte: const email = $state({ value: '', error: '' });
+ *   export function validateAllFields() and isFormValid(); export { email };
+ * without the export { ... } line, component.count is undefined
+ */
 import Counter from './counter.svelte';
 import FormComponent from './form-component.svelte';
 
 test('$state and $derived reactivity', async () => {
 	const { component } = await render(Counter);
 
-	// Access $state value directly
+	// access $state value directly
 	expect(component.count).toBe(0);
 
-	// Update state
 	component.increment();
 
-	// Force synchronous update
-	flushSync(() => {});
-
-	// Access $derived value directly
+	// access $derived value directly: it recomputes on read, no flushSync needed
 	expect(component.doubled).toBe(2);
 });
 
 test('form validation lifecycle', async () => {
 	const { component } = await render(FormComponent);
 
-	// Initially valid (no validation run yet)
+	// initially valid (no validation run yet)
 	expect(component.isFormValid()).toBe(true);
 
-	// Trigger validation
 	component.validateAllFields();
-
-	// Now invalid (empty required fields)
+	// now invalid (empty required fields)
 	expect(component.isFormValid()).toBe(false);
 
-	// Fix validation errors
 	component.email.value = 'test@example.com';
 	component.validateAllFields();
-
-	// Valid again
 	expect(component.isFormValid()).toBe(true);
 });
 ```
@@ -115,33 +118,33 @@ test('form validation lifecycle', async () => {
 Test with real FormData/Request objects:
 
 ```typescript
-// api/users/server.test.ts
+// src/routes/api/users/server.test.ts (`#lib/*` needs the `package.json` `imports` entry that `sv create` adds)
 import { test, expect, describe, vi } from 'vitest';
 import { POST } from './+server';
-import * as database from '$lib/server/database';
+import * as database from '#lib/server/database.js';
 
-vi.mock('$lib/server/database');
+vi.mock('#lib/server/database.js');
 
 describe('POST /api/users', () => {
 	test('creates user with valid data', async () => {
-		// Mock only external services
+		// mock only external services
 		vi.mocked(database.createUser).mockResolvedValue({
 			id: '123',
 			email: 'user@example.com',
 		});
 
-		// Use real FormData
+		// use real FormData
 		const formData = new FormData();
 		formData.append('email', 'user@example.com');
 		formData.append('password', 'securepass123');
 
-		// Use real Request object
+		// use real Request object
 		const request = new Request('http://localhost/api/users', {
 			method: 'POST',
 			body: formData,
 		});
 
-		const response = await POST({ request });
+		const response = await POST({ request } as Parameters<typeof POST>[0]);
 		const data = await response.json();
 
 		expect(response.status).toBe(201);
@@ -162,7 +165,7 @@ describe('POST /api/users', () => {
 			body: formData,
 		});
 
-		const response = await POST({ request });
+		const response = await POST({ request } as Parameters<typeof POST>[0]);
 		const data = await response.json();
 
 		expect(response.status).toBe(400);
@@ -173,14 +176,14 @@ describe('POST /api/users', () => {
 
 	test('handles missing required fields', async () => {
 		const formData = new FormData();
-		// Missing email and password
+		// missing email and password
 
 		const request = new Request('http://localhost/api/users', {
 			method: 'POST',
 			body: formData,
 		});
 
-		const response = await POST({ request });
+		const response = await POST({ request } as Parameters<typeof POST>[0]);
 		const data = await response.json();
 
 		expect(response.status).toBe(400);

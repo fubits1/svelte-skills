@@ -90,13 +90,13 @@ NOT run on the entire codebase at once.
 
 ### `$:` to `$derived` or `$effect`
 
-| Svelte 4                 | Svelte 5                                | Notes                                               |
+| Svelte 4 | Svelte 5 | Notes |
 | ------------------------ | --------------------------------------- | --------------------------------------------------- |
-| `$: foo = expr`          | `let foo = $derived(expr)`              | Pure derivation, no side effects                    |
-| `$: { sideEffect() }`    | `$effect(() => { sideEffect() })`       | Only for true side effects (DOM, fetch, logging)    |
-| `$: if (cond) { ... }`   | `$effect(() => { if (cond) { ... } })`  | Review carefully, race conditions, execution order |
-| `$: (dep, action())`     | `$effect(() => { void dep; action() })` | Explicit dependency tracking                        |
-| `$: ({ a, b } = $store)` | `let a = $derived($store.a)` per field  | Don't destructure Svelte 3/4 stores in effects      |
+| `$: foo = expr` | `let foo = $derived(expr)` | Pure derivation, no side effects |
+| `$: { sideEffect() }` | `$effect(() => { sideEffect() })` | Only for true side effects (DOM, fetch, logging) |
+| `$: if (cond) { ... }` | `$effect(() => { if (cond) { ... } })` | Review carefully, race conditions, execution order |
+| `$: (dep, action())` | `$effect(() => { void dep; action() })` | Explicit dependency tracking |
+| `$: ({ a, b } = $store)` | `let a = $derived($store.a)` per field | Don't destructure Svelte 3/4 stores in effects |
 
 **NEVER use `$effect` to set `$state`.** Use `$derived` instead.
 Test the runtime behavior, `$:` ran synchronously before
@@ -246,21 +246,25 @@ must run before DOM updates (replaces `beforeUpdate`).
 
 ## Phase 5: Interop rules
 
-| Parent   | Child    | Slots                      | Events                                       | Props           |
+| Parent | Child | Slots | Events | Props |
 | -------- | -------- | -------------------------- | -------------------------------------------- | --------------- |
-| Svelte 5 | Svelte 4 | `slot="name"`              | `on:event`                                   | `bind:` works   |
-| Svelte 4 | Svelte 5 | Keep `<slot>` in child     | Keep `createEventDispatcher` (legacy import) | `$props()` safe |
-| Svelte 5 | Svelte 5 | `{#snippet}` + `{@render}` | callback props                               | `$props()`      |
+| Svelte 5 | Svelte 4 | `slot="name"` | `on:event` | `bind:` works |
+| Svelte 4 | Svelte 5 | Keep `<slot>` in child | Keep `createEventDispatcher` (legacy import) | `$props()` safe |
+| Svelte 5 | Svelte 5 | `{#snippet}` + `{@render}` | callback props | `$props()` |
 
 ## Phase 6: Storybook stories (BEFORE running tests)
 
 Stories must exist and render correctly before any test can
 verify behavior:
 
-1. Use `asChild` pattern: NOT decorators for components that
-   depend on Svelte 3/4 `writable()` stores (from `svelte/store`)
-2. Create a wrapper component that calls `store.set()` with
-   mock data + `setContext()` for required Svelte contexts
+1. For components that depend on Svelte 3/4 `writable()` stores
+   (from `svelte/store`), create a wrapper component that calls
+   `store.set()` with mock data + `setContext()` for required
+   Svelte contexts
+2. Render the wrapper with `<Story asChild>`, or from a decorator
+   that returns `{ Component: Wrapper }`. A decorator that returns
+   the bare component (`() => Wrapper`) loses the wrapper in the
+   Vitest run (`svelte-5:storybook-vitest`)
 3. Use `fn()` from `storybook/test` as callback spy for critical
    callbacks, NOT `noop`. Pass the spy in the `asChild` markup
    AND assert it in the play function.
@@ -303,8 +307,11 @@ Each step gates the next:
 3. **Nested `Writable<Record<string, Writable<...>>>`**:
    conflicts with `svelte/require-store-reactive-access`. Use
    `in` operator for existence checks.
-4. **Storybook decorators lose complex args**: Svelte 3/4
-   `writable()` stores, objects with methods get serialized
-   away. Use `asChild` with wrapper components instead.
+4. **Bare-component Storybook decorators**: a decorator that
+   returns `() => Wrapper` works in the Storybook UI, but in the
+   Vitest run the wrapper's markup, `setContext` and `store.set`
+   are missing. Return `{ Component: Wrapper }`; args, including
+   `writable()` stores and objects with methods, reach the
+   component through it (`svelte-5:storybook-vitest`).
 5. **`noop` callbacks hide bugs**: `() => {}` silently swallows
    wrong data types. Use `fn()` spy and assert in play functions.

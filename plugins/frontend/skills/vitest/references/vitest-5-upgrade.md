@@ -1,6 +1,6 @@
 # Vitest 4 to 5 upgrade checklist
 
-Source: [Migrating to Vitest 5.0](https://vitest.dev/guide/migration) unless an item says otherwise. Items 0a-0f are the changes most likely to break a Svelte browser suite; details in [config-projects.md](config-projects.md) (0a, 0b), [browser-mode.md](browser-mode.md) (0c, 0f), [assertions.md](assertions.md) (0d), and [visual-regression.md](visual-regression.md) (0e).
+Source: [Migrating to Vitest 5.0](https://vitest.dev/guide/migration) unless an item says otherwise. Items 0a-0f are the changes most likely to break a Svelte browser suite; details in [config-projects.md](config-projects.md) (0a, 0b), [browser-mode.md](browser-mode.md) (0c), the `vitest-browser-svelte` bullet of the main SKILL.md (0f), [assertions.md](assertions.md) (0d), and [visual-regression.md](visual-regression.md) (0e).
 
 - 0a. Inline `test.projects` inherit the root config by default (`extends` defaults to `true`); `extends: false` opts out. Do not repeat root plugins in a project
 - 0b. `sharedViteServer` defaults to `true`: inline projects that don't change the Vite config share one server, and the root config's plugin `config` hooks run once
@@ -9,8 +9,8 @@ Source: [Migrating to Vitest 5.0](https://vitest.dev/guide/migration) unless an 
 - 0e. `toMatchScreenshot` references use `browser.expect.toMatchScreenshot.screenshotDirectory` (default `__screenshots__`); set it if you set `browser.screenshotDirectory`
 - 0f. `render` from `vitest-browser-svelte` (and `vitest-browser-vue`) returns a promise: `await render(...)`
 
-1. Runtime floor: Node `>=22.12` and Vite `>=6.4`. Check `pnpm view vitest engines peerDependencies` for the exact ranges of the version you install. `vite` is now a peer dependency; Yarn users must add it to `package.json` themselves
-2. Bump every `@vitest/*` package to the same version as `vitest`: `@vitest/browser-playwright` declares an exact-version peer on `vitest` (check with `pnpm view @vitest/browser-playwright peerDependencies`)
+1. Runtime floor: Node 22.12+, 24 or 26+ (not 23 or 25) and Vite `>=6.4`. Check `pnpm view vitest@<version> engines peerDependencies`, with the exact version you install, for its ranges. `vite` is now a peer dependency; Yarn users must add it to `package.json` themselves
+2. Bump every `@vitest/*` package to the same version as `vitest`: `@vitest/browser-playwright` declares an exact-version peer on `vitest` (check with `pnpm view @vitest/browser-playwright peerDependencies`). Bump `vitest-browser-svelte` to a release whose `vitest` peer includes 5 (`pnpm view "vitest-browser-svelte@>=2" version peerDependencies.vitest` lists each release's peer)
 3. `clearMocks` is `true` by default. Mock call history is cleared before every test. Calls recorded in a setup file, at module scope, or in `beforeAll` are gone when the test asserts on them. A `beforeEach(() => vi.clearAllMocks())` is now redundant unless the config sets `clearMocks: false`
 4. `vi.mock`, `vi.unmock`, `vi.hoisted` must be at the top level. Inside `describe`, `test`, a function, or a block they now throw (`was defined outside of the module's top level scope`). `vi.doMock` / `vi.doUnmock` are not hoisted and may stay anywhere
 5. Browser automocks return `undefined`. A `vi.mock(path)` with no factory in browser mode no longer calls the real implementation. Use `vi.mock(path, { spy: true })` to keep the real code while tracking calls

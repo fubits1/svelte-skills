@@ -113,6 +113,8 @@ Version 0.9.0 moved the `vitest` skill from `frontend` to `svelte-5`, so `/front
 
 Replace `frontend:vitest` with `svelte-5:vitest` in your own CLAUDE.md files, skills and prompts.
 
+`frontend:web-design-guidelines` no longer carries its own copy of Vercel's guidelines. It routes to maintained sources, and its Svelte rules moved to `svelte-5:code-style-svelte`, its markup and CSS rules to `frontend:code-style` and `frontend:code-style-css`.
+
 ## Migration from 0.3.x
 
 Version 0.4.0 moved the `agent` plugin to [fubits1/ronin-skills](https://github.com/fubits1/ronin-skills). The hooks from `bonus` now live in the optional `hooks` plugin there. If you installed `agent` or `bonus` from this marketplace, uninstall them and install `agent` from ronin-skills:

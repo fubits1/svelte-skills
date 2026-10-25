@@ -16,13 +16,7 @@
         "name": "fubits1"
       },
       "category": "workflow",
-      "keywords": [
-        "css",
-        "frontend",
-        "playwright",
-        "testing",
-        "validation"
-      ],
+      "keywords": ["css", "frontend", "playwright", "testing", "validation"],
       "license": "MIT"
     },
     {
@@ -55,11 +49,7 @@
         "name": "fubits1"
       },
       "category": "svelte",
-      "keywords": [
-        "svelte",
-        "svelte-5",
-        "svelte-migration"
-      ],
+      "keywords": ["svelte", "svelte-5", "svelte-migration"],
       "license": "MIT"
     }
   ],

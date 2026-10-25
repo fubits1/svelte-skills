@@ -56,7 +56,7 @@ To install from your shell instead, run `claude plugin install frontend --market
 | `js-config` | ESLint/Prettier/Stylelint/Svelte+Vite+Astro config decisions |
 | `validate` | Validation discipline (testing, baselines, browser checks) |
 | `playwright` | Playwright MCP usage (screenshots, measurements) |
-| `web-design-guidelines` | UI review for Web Interface Guidelines |
+| `web-design-guidelines` | Routes UI, a11y, performance and design work to maintained guideline sources; UI copy rules |
 | `migration` | Framework-agnostic migration phases and baseline capture |
 
 ## Template Scripts

@@ -22,7 +22,7 @@ The skill drives migration through seven phases:
 
 A dedicated section covers known traps: third-party component wrappers, snippets passed to unmigrated Svelte 4 children, nested store reactivity, and noop callback defaults.
 
-The skill calls 13 companion skills from the other plugins. The companion skills table in [`SKILL.md`](skills/migration-svelte-5/SKILL.md) lists when to invoke each one.
+The skill calls 14 companion skills from the other plugins. The companion skills table in [`SKILL.md`](skills/migration-svelte-5/SKILL.md) lists when to invoke each one.
 
 ## Dependencies
 

@@ -23,9 +23,11 @@ Three plugins, layered:
 frontend  <--  svelte-5  <--  svelte-5-migration
 ```
 
+For Svelte work, `frontend:code-style` also needs `svelte-5` (`svelte-5:code-style-svelte`).
+
 | Plugin | Skills/Hooks | What it does |
 | --- | --- | --- |
-| [frontend](plugins/frontend/) | 12 skills | Validation, pixel-perfect, editing, code style, testing, migration, JS/CSS config |
+| [frontend](plugins/frontend/) | 13 skills | Validation, pixel-perfect, editing, comments, code style, testing, migration, JS/CSS config |
 | [svelte-5](plugins/svelte-5/) | 8 skills | Svelte code style, component docs, composition patterns, Storybook, Vitest config, Svelte testing, `msw` API mocking |
 | [svelte-5-migration](plugins/svelte-5-migration/) | 1 skill | Svelte 3/4 to 5 migration workflow |
 
@@ -51,6 +53,12 @@ As of Claude Code v2.1.275, `/plugin install <name> --marketplace <source>` adds
 
 ```
 /plugin install svelte --marketplace sveltejs/ai-tools
+```
+
+**`deslop` skill from [stephenturner/skill-deslop](https://github.com/stephenturner/skill-deslop)** (required by `frontend:comments`). It is not a plugin; clone it into your skills directory:
+
+```bash
+git clone https://github.com/stephenturner/skill-deslop.git ~/.claude/skills/deslop
 ```
 
 **Playwright MCP** (required by `frontend`). It provides browser screenshots, navigation, and `browser_evaluate` for measurements. Add it from your shell:
@@ -103,17 +111,33 @@ Then run `/reload-plugins` in open sessions.
 
 Auto-update is off by default for third-party marketplaces. To turn it on, run `/plugin`, open the **Marketplaces** tab, select `svelte-skills`, and choose **Enable auto-update**.
 
+## Migration from 0.10.x
+
+Version 0.11.0 moved the comment rules from `frontend:editing` into the new `frontend:comments` skill. `frontend:editing` requires it, and `frontend:comments` requires the `deslop` skill. Install `deslop` (see [Installation](#installation)), then update all three plugins as described in [Updating](#updating), since `svelte-5` and `svelte-5-migration` now name `frontend:comments` too.
+
+Where your own CLAUDE.md files, skills and prompts name `frontend:editing` for comment rules, name `frontend:comments` instead. Links to `references/comments.md` no longer resolve.
+
+Behavior changes:
+
+- Only comments the agent adds default to DELETE; existing comments near an edit are no longer judged.
+- Unless you ask for a specific change, the agent may change an existing comment in four ways only: fix the part its change made false, append a fact the change requires, fix what the project's linter reports on it without losing information, or delete the comment together with the code it describes.
+- A comment that is a full sentence now starts with a capital letter and ends with a period; only fragments stay lowercase.
+- New rules from past corrections: a comment states only checked facts, carries no commit hashes, spec numbers or dates, reads clearly without the chat, exists in one place, and keeps the `/** */`, docstring or `<!-- -->` form it needs. Hedges such as "likely" are banned.
+- The agent reports one line per comment it added, changed or deleted.
+- `frontend:editing` now requires `frontend:code-style`, which requires `frontend:code-style-css` when CSS is involved and `svelte-5:code-style-svelte` when Svelte is. `svelte-5:code-style-svelte` requires `svelte-5:composition-svelte` for complex features. For a `.svelte` file over 300 lines, not counting its `<style>` block, or a component that should be split into several files, it has the agent ask whether to refactor with `svelte-5:composition-svelte`.
+- `frontend:editing` treats lint and TypeScript directives (`eslint-disable`, `oxlint-disable`, `svelte-ignore`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`) alike. A directive needs a reason and is allowed only when you ask for it, when a specific constraint keeps the code as written, or when a known defect can't be fixed in this change (with a FIXME or TODO).
+
+Version 0.10.1 changed `frontend:web-design-guidelines`: it no longer carries its own copy of Vercel's guidelines. It routes to maintained sources, and its Svelte rules moved to `svelte-5:code-style-svelte`, its markup and CSS rules to `frontend:code-style` and `frontend:code-style-css`.
+
 ## Migration from 0.8.x
 
-Version 0.9.0 moved the `vitest` skill from `frontend` to `svelte-5`, so `/frontend:vitest` is now `/svelte-5:vitest`. If you have `svelte-5`, update `frontend` and `svelte-5` as described in [Updating](#updating). Otherwise, install it after its prerequisites (see [Installation](#installation)):
+Version 0.10.0 moved the `vitest` skill from `frontend` to `svelte-5`, so `/frontend:vitest` is now `/svelte-5:vitest`. If you have `svelte-5`, update `frontend` and `svelte-5` as described in [Updating](#updating). Otherwise, install it after its prerequisites (see [Installation](#installation)):
 
 ```
 /plugin install svelte-5 --marketplace fubits1/svelte-skills
 ```
 
 Replace `frontend:vitest` with `svelte-5:vitest` in your own CLAUDE.md files, skills and prompts.
-
-`frontend:web-design-guidelines` no longer carries its own copy of Vercel's guidelines. It routes to maintained sources, and its Svelte rules moved to `svelte-5:code-style-svelte`, its markup and CSS rules to `frontend:code-style` and `frontend:code-style-css`.
 
 ## Migration from 0.3.x
 

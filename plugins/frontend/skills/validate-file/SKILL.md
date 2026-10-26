@@ -15,14 +15,15 @@ Before and during validation, apply the rules from these skills:
 
 - `frontend:code-style`: applies to ALL files (variable naming, braces, data attributes)
 - `svelte-5:code-style-svelte`: applies to `.svelte` and `.svelte.ts`/`.svelte.js` files
+- `frontend:comments`: applies to every comment you added, changed or deleted, and protects the existing comments in the files you edited
+- `frontend:editing`: applies to every edit (types, lint and TypeScript directives, refactors)
 
 ## Hard rules
 
 - **NEVER use `any`.** Type it properly. If the type doesn't
   exist, create a local type or import the right one
-- **NEVER add `eslint-disable` without a FIXME or TODO.** Every
-  disable must explain what needs to be fixed and why it can't
-  be fixed now. Bare disables are cheating
+- **NEVER use one of the directives `frontend:editing` lists outside its rule.**
+  Bare disables are cheating.
 - **Fix ALL lint errors in the file**: not just the ones you
   introduced. If you touch a file and lint reports errors, fix
   them. No "pre-existing" excuses

@@ -6,6 +6,11 @@ user-invocable: true
 
 # Code Style
 
+**REQUIRED SUB-SKILLS:**
+
+- When Svelte is involved (`.svelte`, `.svelte.ts`, `.svelte.js`), invoke `svelte-5:code-style-svelte`. If the `svelte-5` plugin isn't installed, stop and ask the user to install it.
+- When CSS is involved (CSS or SCSS files, `<style>` blocks, inline `style` attributes, `style:` directives), invoke `frontend:code-style-css`.
+
 ## Brace Style
 
 Single-line `if` without braces is OK only when the entire statement fits on one line:
@@ -17,7 +22,7 @@ if (x) doThing();
 //OK
 if (x) doThing();
 if (y) doThingY();
-if (z) do ThingZ();
+if (z) doThingZ();
 
 let x = 1
 
@@ -130,6 +135,7 @@ This applies to all CSS, component styles, global stylesheets, everywhere. For t
 
 ## Related Skills
 
-- `frontend:editing`: File editing discipline, comment preservation, refactoring safety.
+- `frontend:editing`: File editing discipline, refactoring safety.
+- `frontend:comments`: Which comments survive, comment format, protected comments.
 - `svelte-5:code-style-svelte`: Svelte-specific style rules (component docs, reactivity patterns).
 - `frontend:css-nesting`: Full CSS nesting workflow with specificity analysis and stylelint compliance.

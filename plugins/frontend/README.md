@@ -1,8 +1,8 @@
 # Frontend
 
-Frontend development discipline: validation, pixel-perfect measurement, editing, code style, testing, migration baselines.
+Frontend development discipline: validation, pixel-perfect measurement, editing, comments, code style, testing, migration baselines.
 
-Part of the [svelte-skills](https://github.com/fubits1/svelte-skills) plugin marketplace. It is framework-agnostic and sits between `agent@ronin-skills` and the framework-specific plugins, such as `svelte-5`.
+Part of the [svelte-skills](https://github.com/fubits1/svelte-skills) plugin marketplace. Its rules are framework-agnostic, and it sits between `agent@ronin-skills` and the framework-specific plugins, such as `svelte-5`. For Svelte work, `code-style` needs `svelte-5` installed too.
 
 ## Dependencies
 
@@ -26,6 +26,12 @@ Install these first. As of Claude Code v2.1.275, `/plugin install <name> --marke
   claude mcp add playwright -- npx @playwright/mcp@latest
   ```
 
+- **`deslop` skill from [stephenturner/skill-deslop](https://github.com/stephenturner/skill-deslop)**: `comments` requires it. It is not a plugin; clone it into your skills directory:
+
+  ```bash
+  git clone https://github.com/stephenturner/skill-deslop.git ~/.claude/skills/deslop
+  ```
+
 - **`svelte` plugin from sveltejs/ai-tools**: on `.svelte` files, skills in this plugin call its autofixer, the `svelte:svelte-code-writer` skill, and the `svelte:svelte-file-editor` subagent.
 
   ```
@@ -42,14 +48,17 @@ Then install this plugin:
 
 To install from your shell instead, run `claude plugin install frontend --marketplace fubits1/svelte-skills`. For the full setup, see the [root README](https://github.com/fubits1/svelte-skills#readme).
 
+For Svelte work, install the `svelte-5` plugin from this marketplace after this one: when Svelte is involved, `code-style` requires its `svelte-5:code-style-svelte` skill.
+
 ## Skills
 
 | Skill | Purpose |
 | --- | --- |
 | `validate-file` | Per-file validation loop (lint, test, autofixer) |
 | `pixel-perfect` | Mandatory measurement workflow for CSS/HTML changes |
-| `editing` | File editing discipline (comments, types, refactoring) |
-| `code-style` | Variable naming, brace style, HTML data attributes |
+| `editing` | File editing discipline (types, refactoring); requires `code-style` and `comments` |
+| `comments` | Which comments survive, comment format, protected comments; requires `deslop` |
+| `code-style` | Variable naming, brace style, HTML data attributes; requires `code-style-css` when CSS is involved and `svelte-5:code-style-svelte` when Svelte is |
 | `code-style-css` | CSS-specific style rules (layout vs decorative) |
 | `css-nesting` | CSS nesting with `&` and stylelint compliance |
 | `css-subgrid` | Subgrid pattern for card grids (icon/title/CTA alignment) |

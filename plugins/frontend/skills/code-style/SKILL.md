@@ -6,7 +6,10 @@ user-invocable: true
 
 # Code Style
 
-**REQUIRED SUB-SKILLS:** when Svelte is involved (`.svelte`, `.svelte.ts`, `.svelte.js`), invoke `svelte-5:code-style-svelte`; if the `svelte-5` plugin isn't installed, stop and ask the user to install it. When CSS is involved (CSS or SCSS files, `<style>` blocks, inline `style` attributes, `style:` directives), invoke `frontend:code-style-css`.
+**REQUIRED SUB-SKILLS:**
+
+- When Svelte is involved (`.svelte`, `.svelte.ts`, `.svelte.js`), invoke `svelte-5:code-style-svelte`. If the `svelte-5` plugin isn't installed, stop and ask the user to install it.
+- When CSS is involved (CSS or SCSS files, `<style>` blocks, inline `style` attributes, `style:` directives), invoke `frontend:code-style-css`.
 
 ## Brace Style
 

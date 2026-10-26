@@ -32,8 +32,6 @@ Install these first. As of Claude Code v2.1.275, `/plugin install <name> --marke
   git clone https://github.com/stephenturner/skill-deslop.git ~/.claude/skills/deslop
   ```
 
-- **`svelte-5` plugin from this marketplace**: when Svelte is involved, `code-style` requires its `svelte-5:code-style-svelte` skill. Install it after this plugin (see the [root README](https://github.com/fubits1/svelte-skills#readme)).
-
 - **`svelte` plugin from sveltejs/ai-tools**: on `.svelte` files, skills in this plugin call its autofixer, the `svelte:svelte-code-writer` skill, and the `svelte:svelte-file-editor` subagent.
 
   ```
@@ -49,6 +47,8 @@ Then install this plugin:
 ```
 
 To install from your shell instead, run `claude plugin install frontend --marketplace fubits1/svelte-skills`. For the full setup, see the [root README](https://github.com/fubits1/svelte-skills#readme).
+
+For Svelte work, install the `svelte-5` plugin from this marketplace after this one: when Svelte is involved, `code-style` requires its `svelte-5:code-style-svelte` skill.
 
 ## Skills
 

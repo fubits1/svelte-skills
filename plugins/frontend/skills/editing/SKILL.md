@@ -6,14 +6,23 @@ user-invocable: true
 
 # Editing Files
 
-**REQUIRED SUB-SKILLS:** invoke `frontend:code-style` and `frontend:comments` before you write or edit code or any comment; a rewrite with Write can drop existing comments too.
+**REQUIRED SUB-SKILLS:** invoke `frontend:code-style` and `frontend:comments` before you write or edit code or any comment, even when you add no comment: a rewrite with Write can drop existing comments.
 
-- In markdown and other prose: no trailing period on fragments (headers, bullets that aren't full sentences, single-noun phrases), `- open /maplibre?debug` not `- open /maplibre?debug.`; no space between number and unit, `30s` not `30 s`.
-- Never use `any`, `unknown`, or a lint or TypeScript directive (`eslint-disable`, `oxlint-disable`, `svelte-ignore`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`) to silence a real defect: fix the actual issue. If code is unused, delete it or wire it up. A directive is allowed only when the user asks for it, a specific constraint keeps the code as written (a `Map` that must not be reactive), or a known defect can't be fixed in this change. A directive covers the narrowest scope its tool offers and gives the reason: `// eslint-disable-next-line <rule> -- <reason>`, `<!-- svelte-ignore <code> (<reason>) -->`, `// @ts-expect-error <reason>`. For a known defect, the reason is a FIXME or TODO that says what needs fixing and why it can't be fixed now. "Reserved for future" or "API consistency" is not a reason.
+- In markdown and other prose:
+  - no trailing period on fragments (headers, bullets that aren't full sentences, single-noun phrases): `- open /maplibre?debug` not `- open /maplibre?debug.`
+  - A full-sentence bullet starts with a capital letter and ends with a period.
+  - no space between number and unit: `30s` not `30 s`
+- Never use `any` or `unknown`: fix the actual issue.
+- Never use a lint or TypeScript directive (`eslint-disable`, `oxlint-disable`, `svelte-ignore`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`) to silence a real defect, except as allowed below: fix the actual issue. If code is unused, delete it or wire it up. A directive is allowed only when:
+  - the user asks for it
+  - a specific constraint requires the code as written (a `Map` that must not be reactive)
+  - a known defect can't be fixed in this change; then the reason is a FIXME or TODO that says what needs fixing and why it can't be fixed now
+
+  A directive covers the narrowest scope its tool offers and gives the reason: `// eslint-disable-next-line <rule> -- <reason>`, `<!-- svelte-ignore <code> (<reason>) -->`, `// @ts-expect-error <reason>`. "Reserved for future" or "API consistency" is not a reason.
 - Refactors: grep entire codebase for ALL occurrences FIRST, then fix in one pass. Before removing any conditional logic, enumerate ALL callers and triggers (click, back/forward, programmatic navigation, keyboard, etc.). If ANY trigger still needs the old logic, keep it.
 - When adding state management, trace ALL code paths before declaring done.
 - Use Svelte components, not raw HTML strings. No `.setHTML()` or template literals.
-- **`.svelte` / `.svelte.ts` / `.svelte.js` files: prefer delegating creation, editing, and review to the `svelte:svelte-file-editor` subagent.** It runs in a separate context window, so its docs lookup and autofixer iteration don't spend the main agent's context. Name the subagent in your dispatch to delegate. When editing inline instead (small change, or subagent unavailable), follow the two rules below.
+- **`.svelte` / `.svelte.ts` / `.svelte.js` files: prefer delegating creation, editing, and review to the `svelte:svelte-file-editor` subagent.** It runs in a separate context window, so its docs lookup and autofixer iteration don't spend the main agent's context. Name the subagent in your dispatch to delegate, and tell it to invoke `frontend:editing`. When editing inline instead (small change, or subagent unavailable), follow the two rules below.
 - `.svelte` or `.svelte.ts/.svelte.js` files: ALWAYS invoke `svelte:svelte-code-writer` skill BEFORE writing or editing. No exceptions.
 - `.svelte`, `.svelte.ts`, `.svelte.js` files: ALWAYS run the Svelte autofixer (`mcp__plugin_svelte_svelte__svelte-autofixer`) after editing to validate Svelte 5 correctness.
 - When user says "test first" or "write failing test": write the test, run it, confirm it FAILS, only then implement the fix. Never apply both in the same pass.

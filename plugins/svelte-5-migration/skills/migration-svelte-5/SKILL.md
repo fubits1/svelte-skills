@@ -18,8 +18,8 @@ Invoke these at the indicated points. This skill says WHEN; they say HOW.
 | `svelte:svelte-core-bestpractices` | Before writing ANY Svelte 5 component logic | plugin: `svelte@svelte` |
 | `svelte-5:code-style-svelte` | Before and after every `.svelte` file edit | this marketplace |
 | `frontend:code-style` | Before and after every file edit | this marketplace |
-| `frontend:editing` | During every code edit | this marketplace |
-| `frontend:comments` | Before every code edit | this marketplace |
+| `frontend:editing` | Before and during every code edit | this marketplace |
+| `frontend:comments` | Before and after every code edit | this marketplace |
 | `svelte-5:doc-component` | After creating or migrating a `.svelte` component | this marketplace |
 | `svelte-5:storybook` | When creating/updating stories | this marketplace |
 | `svelte-5:storybook-vitest` | When writing play functions | this marketplace |
@@ -29,7 +29,7 @@ Invoke these at the indicated points. This skill says WHEN; they say HOW.
 | `frontend:validate-file` | After EVERY file edit | this marketplace |
 | `frontend:migration` | Framework-agnostic phases this skill builds on | this marketplace |
 
-Prefer delegating each `.svelte` create/edit/review to the `svelte:svelte-file-editor` subagent (plugin `svelte@svelte`). It runs in its own context window, so its docs lookup and autofixer iteration don't spend the main agent's context during a long migration. The companion skills above still say WHEN; the subagent is where the per-file edit happens.
+Prefer delegating each `.svelte` create/edit/review to the `svelte:svelte-file-editor` subagent (plugin `svelte@svelte`). It runs in its own context window, so its docs lookup and autofixer iteration don't spend the main agent's context during a long migration. The companion skills above still say WHEN; the subagent is where the per-file edit happens. Tell it to invoke `frontend:editing` and the sub-skills it requires.
 
 ## Phase 1: Capture baselines BEFORE any code changes
 
@@ -296,7 +296,7 @@ Each step gates the next:
    baselines from Phase 1. Use `frontend:pixel-perfect` diff tables.
 6. **Console error check**: after navigation AND after key
    interactions. Compare against baseline. New errors = regression.
-7. No lint or TypeScript directive outside `frontend:editing`'s rule
+7. Every directive `frontend:editing` lists follows its rule.
 
 ## Known traps
 

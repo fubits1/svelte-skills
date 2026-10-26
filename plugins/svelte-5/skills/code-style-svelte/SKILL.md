@@ -8,7 +8,10 @@ user-invocable: true
 
 **REQUIRED SUB-SKILL:** invoke `svelte-5:composition-svelte` before you build or restructure a complex feature (wrapper or provider components, snippet APIs, shared state, third-party DOM bridging).
 
-When a `.svelte` file is longer than 300 lines without its `<style>` block, or a component does enough that it should be split into several files, ask the user whether to invoke `svelte-5:composition-svelte` to refactor it.
+Ask the user whether to invoke `svelte-5:composition-svelte` to refactor a component when either holds:
+
+- its `.svelte` file is longer than 300 lines, not counting its `<style>` block
+- it is complex enough that it should be split into several files
 
 ## Optional snippet rendering
 
@@ -93,7 +96,7 @@ Verified 2026-04-09 with svelte ^5.55.2, svelte-check ^4.4.6.
 
 ## HTML comments in component markup
 
-Svelte supports standard HTML comments in component markup. `<!-- stylelint-disable -->`, `<!-- svelte-ignore ... -->`, and other tool-control comments work in `.svelte` files. When you may use `svelte-ignore` is `frontend:editing`'s rule.
+Svelte supports standard HTML comments in component markup. `<!-- stylelint-disable -->`, `<!-- svelte-ignore ... -->`, and other tool-control comments work in `.svelte` files. `frontend:editing` decides when `svelte-ignore` is allowed.
 
 ## Component Documentation (`@component`)
 

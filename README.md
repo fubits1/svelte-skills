@@ -120,9 +120,11 @@ Where your own CLAUDE.md files, skills and prompts name `frontend:editing` for c
 Behavior changes:
 
 - Only comments the agent adds default to DELETE; existing comments near an edit are no longer judged.
+- Unless you ask for a specific change, the agent may change an existing comment in four ways only: fix the part its change made false, append a fact the change requires, fix what the project's linter reports on it without losing information, or delete the comment together with the code it describes.
 - A comment that is a full sentence now starts with a capital letter and ends with a period; only fragments stay lowercase.
+- New rules from past corrections: a comment states only checked facts, carries no commit hashes, spec numbers or dates, reads clearly without the chat, exists in one place, and keeps the `/** */`, docstring or `<!-- -->` form it needs. Hedges such as "likely" are banned.
 - The agent reports one line per comment it added, changed or deleted.
-- `frontend:editing` now requires `frontend:code-style`, which requires `frontend:code-style-css` when CSS is involved and `svelte-5:code-style-svelte` when Svelte is. `svelte-5:code-style-svelte` requires `svelte-5:composition-svelte` for complex features. For a `.svelte` file over 300 lines without its `<style>` block, or a component that should be split into several files, it has the agent ask whether to refactor with `svelte-5:composition-svelte`.
+- `frontend:editing` now requires `frontend:code-style`, which requires `frontend:code-style-css` when CSS is involved and `svelte-5:code-style-svelte` when Svelte is. `svelte-5:code-style-svelte` requires `svelte-5:composition-svelte` for complex features. For a `.svelte` file over 300 lines, not counting its `<style>` block, or a component that should be split into several files, it has the agent ask whether to refactor with `svelte-5:composition-svelte`.
 - `frontend:editing` treats lint and TypeScript directives (`eslint-disable`, `oxlint-disable`, `svelte-ignore`, `@ts-ignore`, `@ts-expect-error`, `@ts-nocheck`) alike. A directive needs a reason and is allowed only when you ask for it, when a specific constraint keeps the code as written, or when a known defect can't be fixed in this change (with a FIXME or TODO).
 
 Version 0.10.1 changed `frontend:web-design-guidelines`: it no longer carries its own copy of Vercel's guidelines. It routes to maintained sources, and its Svelte rules moved to `svelte-5:code-style-svelte`, its markup and CSS rules to `frontend:code-style` and `frontend:code-style-css`.

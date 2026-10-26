@@ -11,7 +11,7 @@
       "name": "frontend",
       "source": "./plugins/frontend",
       "description": "Frontend development discipline — validation, pixel-perfect measurement, editing, comments, code style, testing, migration baselines.",
-      "version": "0.10.1",
+      "version": "0.11.0",
       "author": {
         "name": "fubits1"
       },
@@ -29,7 +29,7 @@
       "name": "svelte-5",
       "source": "./plugins/svelte-5",
       "description": "Svelte development workflows — component docs, code style, Storybook, Vitest config, testing with vitest-browser-svelte, MSW API mocking.",
-      "version": "0.10.1",
+      "version": "0.11.0",
       "author": {
         "name": "fubits1"
       },
@@ -50,7 +50,7 @@
       "name": "svelte-5-migration",
       "source": "./plugins/svelte-5-migration",
       "description": "Svelte 3/4 to 5 migration — phased workflow, pattern conversions, interop rules, known traps.",
-      "version": "0.10.1",
+      "version": "0.11.0",
       "author": {
         "name": "fubits1"
       },
@@ -63,5 +63,5 @@
       "license": "MIT"
     }
   ],
-  "version": "0.10.1"
+  "version": "0.11.0"
 }

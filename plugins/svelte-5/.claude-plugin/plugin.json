@@ -1,10 +1,12 @@
 {
   "name": "svelte-5",
   "description": "Svelte development workflows — component docs, code style, Storybook, Vitest config, testing with vitest-browser-svelte, MSW API mocking.",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "author": {
     "name": "fubits1"
   },
   "icon": "./.claude-plugin/icon.png",
-  "dependencies": ["frontend"]
+  "dependencies": [
+    "frontend"
+  ]
 }

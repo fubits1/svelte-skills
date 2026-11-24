@@ -3,7 +3,6 @@ name: msw
 # prettier-ignore
 description: "Mocks HTTP with msw 3 in Svelte, Storybook, Vitest and SvelteKit. Use when writing http.get handlers or parameters.msw, upgrading from msw 2, or debugging blank stories, handler order, query strings, onUnhandledFrame or mockServiceWorker.js."
 compatibility: "msw 3 on Node 22.12 or later (on SvelteKit 3: Node 22.17, and TypeScript 6 if you use TypeScript); Vitest 5; SvelteKit 3; msw-storybook-addon 3 with Storybook 9 or later (Storybook 10 on SvelteKit 3 and for the Vitest storybook project on Vitest 5)"
-user-invocable: true
 ---
 
 # MSW (Mock Service Worker)

@@ -5,5 +5,6 @@
   "author": {
     "name": "fubits1"
   },
-  "icon": "./.claude-plugin/icon.png"
+  "icon": "./.claude-plugin/icon.png",
+  "dependencies": ["frontend"]
 }

@@ -1,7 +1,6 @@
 ---
 name: storybook
 description: "Storybook authoring and browser checks for Svelte: MCP instructions, previews, Svelte 4 store wrappers, CSS imports in preview.ts. Use when writing or reviewing .stories.svelte files, moving a CSS import that stories need, or a story renders empty."
-user-invocable: true
 ---
 
 # Storybook

@@ -1,7 +1,6 @@
 ---
 name: validate
 description: Validation discipline for all code changes, testing, baselines, browser checks, CSS screenshots. Auto-invoke whenever making code changes, running tests, or declaring a task done.
-user-invocable: true
 ---
 
 # Validation

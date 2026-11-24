@@ -1,7 +1,6 @@
 ---
 name: pixel-perfect
 description: Pixel drift detection, mandatory measurement workflow for any CSS or HTML element change. Auto-invoke when editing CSS, changing HTML elements, or replacing DOM structures.
-user-invocable: true
 ---
 
 # Pixel-Perfect: Mandatory Measurement Workflow

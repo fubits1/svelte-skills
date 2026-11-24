@@ -2,7 +2,6 @@
 name: web-design-guidelines
 description: "Routes web UI work to maintained sources: Chrome modern-web-guidance for new HTML/CSS/JS, web-quality-skills for a11y, performance and SEO audits, and installed design skills. Adds UI copy rules and a file:line review format."
 argument-hint: <file-or-pattern>
-user-invocable: true
 ---
 
 # Web design guidelines

@@ -1,7 +1,6 @@
 ---
 name: composition-svelte
 description: "Use when composing a Svelte 5 feature from provider/wrapper components, content snippets, reactive state, or third-party DOM bridging (maplibre, leaflet, d3, tippy, popper). Covers overlay wrappers, snippet APIs, and state location."
-user-invocable: true
 ---
 
 # composition-svelte

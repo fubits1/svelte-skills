@@ -1,7 +1,6 @@
 ---
 name: doc-component
 description: "Document a Svelte component using @component JSDoc. Auto-invoke when asked to document a .svelte component. Reads the component, analyzes its interface, and writes a structured @component comment block."
-user-invocable: true
 ---
 
 # Document Svelte Component

@@ -1,7 +1,6 @@
 ---
 name: comments
 description: "Comment rules for every language: which comments survive, format, protected comments, placement, TODOs. Use when writing, editing, moving or deleting comments, docstrings or TODOs. Auto-invoke when editing code files."
-user-invocable: true
 ---
 
 # Comments

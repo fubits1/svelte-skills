@@ -2,7 +2,6 @@
 name: testing-svelte
 # prettier-ignore
 description: Fix or write Svelte 5 tests with vitest-browser-svelte and Playwright. Use when debugging broken or flaky tests, 'Cannot connect to the iframe', strict mode violations, or writing unit/SSR/e2e tests.
-user-invocable: true
 ---
 
 # Svelte Testing

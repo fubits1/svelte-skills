@@ -2,7 +2,6 @@
 name: vitest
 description: Vitest test.projects, browser mode with playwright(), optimizeDeps, separate vitest.config from vite.config. Use when editing vitest config, debugging flaky browser tests, upgrading @vitest/*, or splitting node vs browser projects.
 compatibility: Written for Vitest 5 (Node 22.12+, 24 or 26+; Vite >=6.4; factory browser provider, test.projects)
-user-invocable: true
 ---
 
 # Vitest

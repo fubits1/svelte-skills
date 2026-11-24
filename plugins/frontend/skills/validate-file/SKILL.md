@@ -2,7 +2,6 @@
 name: validate-file
 description: "Validate edited files, lint .svelte/.ts/.js, test stories, lint markdown. Auto-invoke after ANY file edit before declaring done. User-invocable as /frontend:validate-file [files]."
 argument-hint: "[files]"
-user-invocable: true
 ---
 
 # Validate File

@@ -1,7 +1,6 @@
 ---
 name: playwright
 description: Playwright MCP usage rules, screenshots, code sandbox, Chrome data. Auto-invoke when using Playwright MCP tools.
-user-invocable: true
 ---
 
 # Playwright MCP

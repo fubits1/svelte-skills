@@ -1,7 +1,6 @@
 ---
 name: js-config
 description: "Use when editing ESLint, Prettier, Stylelint, PostCSS, or Svelte config files. Use when adding or removing linting plugins, resolving formatter conflicts, auditing JS/TS toolchain configuration, or deciding whether a config package is needed."
-user-invocable: true
 ---
 
 # JS Config

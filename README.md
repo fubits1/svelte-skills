@@ -95,6 +95,17 @@ The MCP server runs at `/mcp` by default (addon option `endpoint`) on the runnin
 
 See [SETUP.md](SETUP.md) for copying template scripts, wiring `package.json` tasks, and installing dev dependencies.
 
+### Other agents (Codex, Cursor, and more)
+
+The skills are [Agent Skills](https://agentskills.io) (`SKILL.md` folders), so the [`skills`](https://github.com/vercel-labs/skills) CLI installs them into any supported agent. Install the ronin-skills `agent` skills too, since all three plugins require them:
+
+```sh
+npx skills add fubits1/ronin-skills
+npx skills add fubits1/svelte-skills
+```
+
+The skills refer to each other by their plugin names (`frontend:editing`, `svelte-5:vitest`), which other agents have to resolve to the bare skill names. The prerequisites above that are Claude Code plugins or MCP servers are not part of this install.
+
 ## Updating
 
 The whole marketplace ships as one version. After a new [release](https://github.com/fubits1/svelte-skills/releases), run `/plugin`, open the **Marketplaces** tab, select `svelte-skills`, and choose **Update marketplace**. Updating the marketplace also updates the plugins you installed from it.

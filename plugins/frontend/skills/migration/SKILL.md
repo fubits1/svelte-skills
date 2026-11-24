@@ -1,7 +1,6 @@
 ---
 name: migration
 description: Use when upgrading a framework version, migrating APIs, bumping major dependencies, or any task where "before" and "after" states must be compared. Auto-invoke when user mentions migration, upgrade, breaking changes, or version bumps.
-user-invocable: true
 ---
 
 # Migration

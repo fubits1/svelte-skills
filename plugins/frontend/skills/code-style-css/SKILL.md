@@ -1,7 +1,6 @@
 ---
 name: code-style-css
 description: Use when editing CSS, SCSS, or style blocks in .svelte files. Covers CSS-specific code style rules. Auto-invoke when writing or modifying styles.
-user-invocable: true
 ---
 
 # CSS Code Style

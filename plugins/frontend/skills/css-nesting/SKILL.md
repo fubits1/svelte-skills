@@ -1,7 +1,6 @@
 ---
 name: css-nesting
 description: Convert flat CSS to nested & syntax while satisfying stylelint's no-descending-specificity and no-duplicate-selectors rules. Use when nesting selectors, refactoring flat CSS to &, or fixing stylelint specificity/duplicate errors after nesting.
-user-invocable: true
 ---
 
 # CSS Nesting with Stylelint Compliance

@@ -1,7 +1,6 @@
 ---
 name: migration-svelte-5
 description: "Use when migrating .svelte files from Svelte 3/4 to Svelte 5 runes. Auto-invoke when converting $: reactive blocks, export let props, createEventDispatcher, or slot patterns. Covers interop with unmigrated Svelte 4 children/parents."
-user-invocable: true
 ---
 
 # Svelte 3/4 to 5 Migration

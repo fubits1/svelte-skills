@@ -1,7 +1,6 @@
 ---
 name: code-style-svelte
 description: "Svelte component code style rules. Auto-invoke when creating .svelte files, editing component structure, transitions or layout reads, or SvelteKit URL state and navigation guards. Covers component docs and Svelte style conventions."
-user-invocable: true
 ---
 
 # Svelte Code Style

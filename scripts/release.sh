@@ -58,9 +58,16 @@ for pj in plugins/*/.claude-plugin/plugin.json; do
 done
 
 echo "release.sh: validating marketplace + plugins"
-claude plugin validate . || die "validation failed for marketplace root"
+# the full report (Provides, Hosts, directory notes) is informational on a pass;
+# print it only on failure (--strict fails on warnings too)
+validate() {
+  local report
+  report="$(claude plugin validate --strict "$1" 2>&1)" || { printf '%s\n' "$report" >&2; die "validation failed for $1"; }
+  echo "release.sh: validated $1"
+}
+validate .
 for d in plugins/*/; do
-  claude plugin validate "$d" || die "validation failed for $d"
+  validate "$d"
 done
 
 if [[ "$DRY_RUN" == "1" ]]; then

@@ -1,7 +1,6 @@
 ---
 name: code-style
 description: "Code style rules for all languages: variable naming, brace style, HTML data attributes, markup, forms and locale formatting, CSS nesting. Auto-invoke when editing code files, writing new functions or markup, or naming variables."
-user-invocable: true
 ---
 
 # Code Style

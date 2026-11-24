@@ -1,7 +1,6 @@
 ---
 name: css-subgrid
 description: Use when building card grids, tile layouts, or repeated components where inner content (icons, titles, prices, buttons) must align across siblings. Also use when seeing misaligned card content at different text lengths.
-user-invocable: true
 ---
 
 # CSS Subgrid for Card Layouts

@@ -1,7 +1,6 @@
 ---
 name: editing
 description: "File editing discipline: correct types, safe refactors, Svelte file rules, config overrides, markdown lint, visual refactors. Requires frontend:code-style and frontend:comments. Auto-invoke when editing code files."
-user-invocable: true
 ---
 
 # Editing Files

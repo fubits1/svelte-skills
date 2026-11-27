@@ -33,7 +33,7 @@ msw is one dependency per project, so Storybook, Vitest browser tests and the de
 - [ ] optimizeDeps.include: list every msw entry point you import, or narrow frames with frame.protocol
 - [ ] Re-run pnpm exec msw init <dir> --save for every committed worker script: msw 3 has no postinstall that refreshes it
 - [ ] Tests that render same-origin iframes: add handlers for the framed URLs
-- [ ] Pages kept open longer than about five minutes (a dev session, a Vitest browser run that keeps one page): interception can stop in Chromium, on msw 3 also on a visible page (msw-3 reference, long-lived pages)
+- [ ] Install msw 3.0.4 or later and regenerate the worker script: in Chromium an older worker stops intercepting after about five minutes on a long-lived page, so mocked requests reach the real network ([msw#2801](https://github.com/mswjs/msw/issues/2801))
 - [ ] Storybook: msw-storybook-addon 3 with your own setup function in mswLoader (section below)
 - [ ] SvelteKit on the pre-msw/vite @msw/sveltekit scaffold: replace its wiring (section below)
 - [ ] Companion packages: @mswjs/data to @msw/data (a different API: rewrite the data layer); @msw/source and @msw/playwright need a release whose msw peer names msw 3; so does @mswjs/socket.io-binding, and without one, mock the Socket.IO client module instead (handlers reference)

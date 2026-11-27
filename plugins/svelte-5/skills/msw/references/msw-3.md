@@ -12,7 +12,6 @@ The [msw docs](https://mswjs.io/docs) and the [msw 3 release notes](https://gith
 - The worker script is not refreshed on install
 - Navigations and iframes reach the worker
 - Companion packages
-- Interception stops on long-lived pages
 
 ## Requirements
 
@@ -150,7 +149,3 @@ Check a package's msw range with `pnpm view <package> peerDependencies optionalD
 | `@msw/data` | the data library for msw 3; `@mswjs/data` declares an msw 2 range and reads `graphql` from the `msw` root, which msw 3 does not export. `@msw/data` has a different API and no msw dependency |
 | `@mswjs/socket.io-binding` | check `pnpm view @mswjs/socket.io-binding peerDependencies`; while its `msw` range names no msw 3, mock the Socket.IO client module instead (handlers reference) |
 | `msw-storybook-addon` 3 | runs on msw 3; its built-in default setup passes `onUnhandledRequest`, which msw 3 ignores, and starts a worker without handlers, so pass your own setup function (`mswLoader(setup)`, or `createPreviewAnnotations(setup)`) for `onUnhandledFrame` and the baseline (storybook reference) |
-
-## Interception stops on long-lived pages
-
-In Chromium the worker can stop intercepting after about five minutes on a page in the hidden state, such as a background tab or a minimised window ([msw#2635](https://github.com/mswjs/msw/issues/2635)), and also on a visible page ([msw#2801](https://github.com/mswjs/msw/issues/2801)). Requests that were mocked then reach the real network, or fail, without a warning. A Vitest browser run that keeps one page alive, a dev app mocked for a whole working session and a long Storybook session all keep one page open that long. Before relying on such a page, check both issues for a released fix.

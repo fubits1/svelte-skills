@@ -2,7 +2,7 @@
 
 Browser/`msw`/storybook suites are flaky on a single run. Before any "green" claim:
 
-1. `lsof -ti :<test-server-port>`: kill any holder
+1. `lsof -ti :<test-server-port>`: kill a holder left over from an earlier run of this suite, never another project's live run ([which port](#test-server-port))
 2. `rm -rf node_modules/.vite node_modules/.cache/storybook`
 3. Run the test ONCE: capture setup time + counts
 4. Run AGAIN: counts must match within ±0 tests, setup time within ±30%
@@ -11,6 +11,16 @@ Browser/`msw`/storybook suites are flaky on a single run. Before any "green" cla
 If any of (3)(4)(5) diverge: the suite is flaky. Investigate the flake itself (missing `optimizeDeps.entries`, race in async teardowns, `msw` handler order or a missing `worker.resetHandlers()` in `afterEach`: `svelte-5:msw`) BEFORE claiming any fix works.
 
 A single passing run on this kind of suite tells you nothing about whether your fix worked. It tells you only that ONE possible execution order happened to pass.
+
+## Partial reruns
+
+- Fix loop: `vitest run --last-failed` reruns the failures, `vitest run --since-last-run` (experimental) the tests whose files changed; both need `cache`, and neither run is one of the three ([docs](https://vitest.dev/guide/recipes/affected-tests))
+- `--since-last-run` never narrows a browser project and misses new `.env`/`__mocks__` files; `vitest --clearCache` resets both records
+
+## Test-server port
+
+- Ports come from the top-level `api` option, not `browser.api`: `23315` and up, no stable project-to-port mapping; a taken port shifts to the next, `api.strictPort` exits instead ([docs](https://vitest.dev/config/api))
+- `Failed to run the test <file path>.` means the file could not reach the server within 60 seconds
 
 ## Mid-run dependency optimization
 

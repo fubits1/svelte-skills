@@ -1,4 +1,4 @@
-# Vitest 4 to 5 upgrade checklist
+# Vitest 4 to 5 and 5.0 to 5.1 upgrade checklists
 
 Source: [Migrating to Vitest 5.0](https://vitest.dev/guide/migration) unless an item says otherwise. Items 0a-0f are the changes most likely to break a Svelte browser suite; details in [config-projects.md](config-projects.md) (0a, 0b), [browser-mode.md](browser-mode.md) (0c), the `vitest-browser-svelte` bullet of the main SKILL.md (0f), [assertions.md](assertions.md) (0d), and [visual-regression.md](visual-regression.md) (0e).
 
@@ -9,7 +9,7 @@ Source: [Migrating to Vitest 5.0](https://vitest.dev/guide/migration) unless an 
 - 0e. `toMatchScreenshot` references use `browser.expect.toMatchScreenshot.screenshotDirectory` (default `__screenshots__`); set it if you set `browser.screenshotDirectory`
 - 0f. `render` from `vitest-browser-svelte` (and `vitest-browser-vue`) returns a promise: `await render(...)`
 
-1. Runtime floor: Node 22.12+, 24 or 26+ (not 23 or 25) and Vite `>=6.4`. Check `pnpm view vitest@<version> engines peerDependencies`, with the exact version you install, for its ranges. `vite` is now a peer dependency; Yarn users must add it to `package.json` themselves
+1. Runtime floor: Node 22.12+, 24 or 26+ (not 23 or 25) and Vite `^6.4.0 || ^7.0.0 || ^8.0.0`. Check `pnpm view vitest@<version> engines peerDependencies`, with the exact version you install, for its ranges. `vite` is now a peer dependency; Yarn users must add it to `package.json` themselves
 2. Bump every `@vitest/*` package to the same version as `vitest`: `@vitest/browser-playwright` declares an exact-version peer on `vitest` (check with `pnpm view @vitest/browser-playwright peerDependencies`). Bump `vitest-browser-svelte` to a release whose `vitest` peer includes 5 (`pnpm view "vitest-browser-svelte@>=2" version peerDependencies.vitest` lists each release's peer)
 3. `clearMocks` is `true` by default. Mock call history is cleared before every test. Calls recorded in a setup file, at module scope, or in `beforeAll` are gone when the test asserts on them. A `beforeEach(() => vi.clearAllMocks())` is now redundant unless the config sets `clearMocks: false`
 4. `vi.mock`, `vi.unmock`, `vi.hoisted` must be at the top level. Inside `describe`, `test`, a function, or a block they now throw (`was defined outside of the module's top level scope`). `vi.doMock` / `vi.doUnmock` are not hoisted and may stay anywhere
@@ -47,3 +47,16 @@ Leftovers that still pass on Vitest 5 but are redundant or misleading:
 - Comments and workarounds that name a Vitest 4.x condition ("remove once we are off Vitest 4"): re-check each one, the condition may be met
 - An empty `.vitest-attachments/` directory (the migration guide spells the old default `.vitest-attachements/`; check for both) and its `.gitignore` entry: artifacts now go to `.vitest/`
 - Old failure screenshots inside `__screenshots__/`: Vitest 4 wrote them there, Vitest 5 writes them to `.vitest/attachments/failure-screenshots/` (migration guide), so anything left in `__screenshots__/` that is not a reference image is stale
+
+## 5.0 to 5.1
+
+Source: [Vitest 5.1 blog post](https://vitest.dev/blog/vitest-5-1) unless an item says otherwise. Bump `vitest` and every `@vitest/*` package to the same version (item 2 of the 4 to 5 checklist).
+
+1. The default browser port is `23315` instead of `63315`: update port mappings, firewall rules and scripts; port rules: [flake-hygiene.md](flake-hygiene.md#test-server-port)
+2. Trace View is stable and on by default in `'failure-only'` mode; replace the deprecated `browser.traceView.enabled` with `browser.traceView.mode`: [browser-mode.md](browser-mode.md#waiting)
+3. Import-map mocking (`browser.importMapMocks`): a module that a setup file imported, without mocking it, before the test file's `vi.mock` now raises `Cannot mock "${specifier}" with an import map` (5.0 silently used the original module). Fix, and why the opt-out is not one: [mocking.md](mocking.md#import-map-mocks)
+4. In browser mode, locator actions and `expect.element` now advance fake timers, as `expect.poll` and `vi.waitFor` already did: [mocking.md](mocking.md#fake-timers)
+5. New option `fakeTimers.fakeNodeBuiltins` (also fakes `node:timers` and `node:timers/promises`), planned as the default in the next major ([docs](https://vitest.dev/config/faketimers))
+6. New filters `--last-failed` and experimental `--since-last-run`; a run with either flag does not count toward the three runs before a green claim: [flake-hygiene.md](flake-hygiene.md#partial-reruns)
+7. A browser test file that cannot connect to the server now fails the run with `Failed to run the test <file path>.` instead of waiting forever: [flake-hygiene.md](flake-hygiene.md#test-server-port)
+8. `page.viewport()` no longer hangs in UI mode; remove workarounds for that hang ([PR #11738](https://github.com/vitest-dev/vitest/pull/11738))

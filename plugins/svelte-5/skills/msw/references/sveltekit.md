@@ -99,8 +99,6 @@ export const init: ServerInit = async () => {
 };
 ```
 
-The browser worker of a dev app tab left open for a long session can stop mocking after about five minutes in Chromium (msw-3 reference, long-lived pages).
-
 An app with its own `src/service-worker` shares the root scope with msw's worker: in a mocked dev session msw's worker stays active and keeps mocking, and the app's service worker waits without running. Test the app's service worker in a session without msw.
 
 ## Check that no msw code ships

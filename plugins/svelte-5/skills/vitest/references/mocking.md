@@ -42,6 +42,10 @@ test("dynamic import", () => {
 
 Use (b) when the factory needs several module-level fakes or stores; use (a) when the module must be a static import.
 
+## Import-map mocks
+
+Isolated browser tests default to [import-map mocks](https://vitest.dev/config/browser/importmapmocks) when supported. For `Cannot mock "${specifier}" with an import map because the browser kept its original URL.`, remove the setup-file import. Request interception (default with `isolate: false`) can silently reuse the real module.
+
 ## Svelte and SvelteKit seams
 
 - SvelteKit's client router does not start in a Vitest browser run (observed in a SvelteKit app; not part of the measured set), so components that call `$app/navigation` or read `$app/state` need those modules mocked. Capture callbacks through `vi.hoisted` to drive them by hand:
@@ -61,3 +65,7 @@ Use (b) when the factory needs several module-level fakes or stores; use (a) whe
 
 - Vitest 5 defaults to `clearMocks: true`: call history is cleared before every test. `beforeEach(() => vi.clearAllMocks())` is redundant unless the config sets `clearMocks: false`. Calls recorded in a setup file, at module scope, or in `beforeAll` are gone by the time a test asserts; read them at module scope or trigger them inside the test
 - `vi.restoreAllMocks()` restores `vi.spyOn` originals. It does not touch `vi.fn()` mocks created in `vi.mock` factories; their history is reset by `clearMocks` (or `vi.clearAllMocks()` when that default is off)
+
+## Fake timers
+
+Fake timers advance before each `vi.waitFor` check, on `expect.poll` and `expect.element` retries, and during locator actions. `userEvent.keyboard` and `userEvent.tab` leave time unchanged ([docs](https://vitest.dev/guide/mocking/timers#automatic-advancing)).

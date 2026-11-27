@@ -56,3 +56,4 @@ Wire it via `setupFiles` in the browser project config. Then `.css()` is properl
 
 - `await expect.element(locator)` retries a locator assertion; `expect.poll(() => value)` retries any expression (DOM reads, store values, request logs). `expect.poll` rejects at its own `timeout`
 - `vi.waitFor(() => expect(spy).toHaveBeenCalledWith(...))` works in browser mode (measured, DOM text and spy calls)
+- Trace View: `browser.traceView.mode` is `'failure-only'` (default), `'on'` or `'off'` ([docs](https://vitest.dev/config/browser/traceview))

@@ -44,7 +44,7 @@ Use (b) when the factory needs several module-level fakes or stores; use (a) whe
 
 ## Import-map mocks
 
-Browser projects mock through an import map where the browser supports it ([docs](https://vitest.dev/config/browser/importmapmocks)). A module a setup file already imported then fails with `Cannot mock "${specifier}" with an import map because the browser kept its original URL.`: remove that import from the setup file. `browser.importMapMocks: false` only hides the error; the test then gets the real module.
+Isolated browser tests default to [import-map mocks](https://vitest.dev/config/browser/importmapmocks) when supported. For `Cannot mock "${specifier}" with an import map because the browser kept its original URL.`, remove the setup-file import. Request interception (default with `isolate: false`) can silently reuse the real module.
 
 ## Svelte and SvelteKit seams
 
@@ -68,4 +68,4 @@ Browser projects mock through an import map where the browser supports it ([docs
 
 ## Fake timers
 
-`vi.waitFor`, `expect.poll`, `expect.element` and locator actions advance fake timers; `userEvent.keyboard` and `userEvent.tab` do not ([docs](https://vitest.dev/guide/mocking/timers#automatic-advancing)).
+Fake timers advance before each `vi.waitFor` check, on `expect.poll` and `expect.element` retries, and during locator actions. `userEvent.keyboard` and `userEvent.tab` leave time unchanged ([docs](https://vitest.dev/guide/mocking/timers#automatic-advancing)).

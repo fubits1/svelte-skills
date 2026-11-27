@@ -20,7 +20,7 @@ A single passing run on this kind of suite tells you nothing about whether your 
 ## Test-server port
 
 - Ports come from the top-level `api` option, not `browser.api`: `23315` and up, no stable project-to-port mapping; a taken port shifts to the next, `api.strictPort` exits instead ([docs](https://vitest.dev/config/api))
-- `Failed to run the test <file path>.` means the file could not reach the server within 60 seconds
+- For `Failed to run the test <file path>.`, inspect the error’s `cause`.
 
 ## Mid-run dependency optimization
 
